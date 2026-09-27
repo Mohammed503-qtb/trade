@@ -154,3 +154,21 @@ Stage Summary:
 - **اتفاقيات الحواف الموثقة:** high==low ⇒ body_fraction=0.0 وclose_location_value=0.5؛ أول شمعة ⇒ true_range=high-low وما بعدها max مع مسافتي إغلاق الأمس (الفجوات مقصودة — جوهر TR)؛ realized_volatility خام |ln(close/open)| والتطبيع مكانه features مرحلة 2؛ open سعر أول حدث وصل وclose آخر حدث وصل (ترتيب وصول لا طوابع)؛ session_id تاريخ UTC بصيغة ISO (A-03).
 - **قرارات معمارية:** (1) instrument_id = venue:symbol مشتق من الحدث (المفتاح الطبيعي المتسق مع فهرس 0.6 وfixtures schemas؛ الربط بUUID لاحقًا في التخزين). (2) timeframe من event.source_timeframe — خارج الأطر الستة يُرفع ValueError فوريًا بلا أثر جانبي. (3) close_current يستقبل (instrument_id, timeframe) صراحةً لانتفاء اللبس في بنّاء متعدد المجاري. (4) سلّل الجودة بترتيب المهمة 1.4 مع وسم «قابل للمراجعة عند دمج 1-a» وتوثيق خلافه عن ترتيب enums.py.
 - **تحذير للوكيل الموازي/اللاحقين:** البوابة الكاملة لن تخضر قبل أن يُصلح الوكيل الموازي (1-a) ملفاته الخمسة؛ ملفات هذه المهمة لا تحتاج أي تعديل عند دمج 1.5/1.6 — الواجهة: add_trade/close_current/الإحصاءات + bucket_floor + QUALITY_SEVERITY_LADDER.
+
+---
+Task ID: 1.5
+Agent: raw-store-builder (full-stack-developer) — أُتمم التسجيل بيد المنسق بعد انقطاع أمد الوكيل عند اكتمال العمل
+Task: المخزن الخام (Parquet/S3 + ميتاداتا PG) + هجرة جداول السلاسل الزمنية §31.2
+
+Work Log:
+- قراءة السياق الكامل (worklog + §31.2 + schemas + هجرة 0001 + binance.py) ثم بناء الهجرة 0002_timeseries_tables: market_events (فهرس فريد جزئي (symbol, sequence_id) + فهرس (symbol, event_time)) + candles (PK (instrument_id, timeframe, bar_time) — الشمعة المتطورة تُحدَّث لا تُستنسخ) + raw_batches (سجل دفعات الميتاداتا).
+- raw_store.py: RawStore بثلاث عمليات رئيسة (write_batch/read_batch/list_batches) + ensure_bucket idempotent — pyarrow zstd عبر asyncio.to_thread، minio-py كذلك، asyncpg مباشرة.
+- قرارات موثقة في رأس الملف: حتمية بايتية (مخطط أعمدة ثابت بترتيب تصريح TradeEvent، فرز مستقر بالمفتاح الزمني فقط، لا طوابع كتابة في الملف)، md5 بusedforsecurity=False لسلامة التنزيل، بنية مفتاح يومية، قيد الاتساق (رفع قبل إدراج — اليتيم يُرصد لا يُكتم).
+- تبعيات وقت تشغيل جديدة للحزمة: pyarrow>=17 + minio>=7.2 + asyncpg>=0.30 مع تحديث القفل.
+- اختبارات: unit (بنية المفتاح، حتمية البايتات مرتين، round-trقق Parquet محلي بلا شبكة) + integration حية (ensure_bucket، كتابة/قراءة/تعداد/تنظيف ضد SeaweedFS وPG الفعليين) + هجرة 0002 صعود/هبوط/أعمدة.
+
+Stage Summary:
+- **الخام خالد في الكائني والقاعدة تعرفه:** أي دفعة aggTrades تُكتب Parquet مضغوطاً في engine-raw وتُسجل في raw_batches — بوابة «الخام خالد» للمرحلة 1 محققة.
+- **الحتمية البايتية مثبتة اختبارياً** — نفس القائمة ⇒ نفس hash الملف (شرط بوابة الإعادة 1.6).
+- **البوابة عند الالتزام:** make gate أخضر (360 passed) + 11 integration خضراء (هجرتان + مخزن حي + Binance حي) + alembic current عند 0002_timeseries_tables.
+- **تركة للمرحلة 1.6:** كتابة candles/market_events عبر الجودة + توصيل worker الحي + make verify-phase1 (إعادة حتمية من الخام + مقارنة golden مع klines).
