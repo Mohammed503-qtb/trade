@@ -1,0 +1,13 @@
+[project]
+name = "engine-schemas"
+version = "0.1.0"
+description = "نماذج Pydantic v2 — مصدر الحقيقة الوحيد لكل الرسائل وحقول JSONB (§32)"
+requires-python = ">=3.12"
+dependencies = ["pydantic>=2.9"]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/schemas"]

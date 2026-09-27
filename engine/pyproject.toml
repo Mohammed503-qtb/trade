@@ -1,0 +1,236 @@
+[project]
+name = "engine-workspace"
+version = "0.1.0"
+description = "AI Market Reasoning Engine — uv workspace root (المصدر: docs/Master Plan.md §47)"
+requires-python = ">=3.12"
+dependencies = [
+    "engine-schemas",
+    "engine-common",
+    "engine-math",
+    "engine-features",
+    "engine-backtest",
+    "engine-ingestion",
+    "engine-market-state",
+    "engine-liquidity",
+    "engine-structure",
+    "engine-orderflow",
+    "engine-patterns",
+    "engine-fusion",
+    "engine-scenarios",
+    "engine-risk",
+    "engine-learning",
+    "engine-api",
+    "engine-worker",
+    "engine-replay",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=8.3",
+    "pytest-asyncio>=0.24",
+    "hypothesis>=6.115",
+    "ruff>=0.8",
+    "mypy>=1.14",
+    "import-linter>=2.1",
+    "pyyaml>=6.0.2",
+    "asyncpg>=0.30",
+    "alembic>=1.14",
+    "minio>=7.2",
+    "nats-py>=2.8",
+    "httpx>=0.28",
+]
+
+[tool.uv.workspace]
+members = ["apps/*", "services/*", "packages/*"]
+
+[tool.uv.sources]
+engine-schemas = { workspace = true }
+engine-common = { workspace = true }
+engine-math = { workspace = true }
+engine-features = { workspace = true }
+engine-backtest = { workspace = true }
+engine-ingestion = { workspace = true }
+engine-market-state = { workspace = true }
+engine-liquidity = { workspace = true }
+engine-structure = { workspace = true }
+engine-orderflow = { workspace = true }
+engine-patterns = { workspace = true }
+engine-fusion = { workspace = true }
+engine-scenarios = { workspace = true }
+engine-risk = { workspace = true }
+engine-learning = { workspace = true }
+engine-api = { workspace = true }
+engine-worker = { workspace = true }
+engine-replay = { workspace = true }
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["packages/schemas/src/schemas"]
+
+# ═════════════════════════ Ruff ═════════════════════════
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+extend-exclude = ["data", "infra/local/bin", "migrations/versions"]
+
+[tool.ruff.lint]
+select = [
+    "E",     # pycodestyle errors
+    "W",     # pycodestyle warnings
+    "F",     # pyflakes
+    "I",     # isort
+    "UP",    # pyupgrade
+    "B",     # bugbear
+    "C4",    # comprehensions
+    "SIM",   # simplify
+    "RUF",   # ruff-specific
+    "PTH",   # use pathlib
+    "ASYNC", # async correctness
+    "S",     # bandit-lite
+    "A",     # builtins shadowing
+]
+ignore = [
+    "S101",  # assert مسموح (ثقافة fixtures) — الفحوصات الأمنية الحقيقية لا تعتمد عليه
+    "S104",  # bindings على 127.0.0.1 مقصودة داخل sandbox
+    "A005",  # shadowing لأسماء stdlib في وحدات فرعية مضبوط لدينا بوعي
+    "RUF002",  # docstrings عربية عمدًا — كاشف الأحرف الملتبسة مضبوط لأبجدية لاتينية
+    "RUF003",  # تعليقات عربية عمدًا — نفس سبب RUF002
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**" = ["S105", "S106"]
+"migrations/**" = ["E501", "I001", "UP"]
+
+# ═════════════════════════ mypy (strict) ═════════════════════════
+[tool.mypy]
+python_version = "3.12"
+strict = true
+warn_unreachable = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+plugins = ["pydantic.mypy"]
+files = ["packages", "services", "apps", "tests"]
+exclude = ["data/", "infra/"]
+
+[[tool.mypy.overrides]]
+module = ["migrations.*"]
+ignore_errors = true
+
+# مكتبات بلا py.typed (asyncpg/nats-py/minio) — مقبولة كاستثناءات موثقة
+[[tool.mypy.overrides]]
+module = ["asyncpg", "asyncpg.*", "nats.*", "minio.*", "uvicorn.*"]
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = ["tests.*"]
+disallow_untyped_defs = false
+disallow_untyped_calls = false
+
+[tool.pydantic-mypy]
+init_forbid_extra = true
+init_typed = true
+warn_required_dynamic_aliases = true
+warn_untyped_fields = true
+
+# ═════════════════════════ import-linter — حدود الطبقات §47 ═════════════════════════
+[tool.importlinter]
+root_packages = [
+    "schemas",
+    "common",
+    "quantmath",
+    "features",
+    "backtest",
+    "ingestion",
+    "market_state",
+    "liquidity",
+    "structure",
+    "orderflow",
+    "patterns",
+    "fusion",
+    "scenarios",
+    "risk",
+    "learning",
+    "engine_api",
+    "engine_worker",
+    "engine_replay",
+]
+
+# العقد 1: الأساس نقي — لا حزمة أساس تستورد أي حزمة مشروع أخرى
+[[tool.importlinter.contracts]]
+name = "schemas is a pure leaf"
+type = "forbidden"
+source_modules = ["schemas"]
+forbidden_modules = [
+    "common", "quantmath", "features", "backtest",
+    "ingestion", "market_state", "liquidity", "structure", "orderflow",
+    "patterns", "fusion", "scenarios", "risk", "learning",
+    "engine_api", "engine_worker", "engine_replay",
+]
+
+[[tool.importlinter.contracts]]
+name = "common is a foundation"
+type = "forbidden"
+source_modules = ["common"]
+forbidden_modules = [
+    "quantmath", "features", "backtest",
+    "ingestion", "market_state", "liquidity", "structure", "orderflow",
+    "patterns", "fusion", "scenarios", "risk", "learning",
+    "engine_api", "engine_worker", "engine_replay",
+]
+
+[[tool.importlinter.contracts]]
+name = "quantmath is a foundation"
+type = "forbidden"
+source_modules = ["quantmath"]
+forbidden_modules = [
+    "schemas", "common", "features", "backtest",
+    "ingestion", "market_state", "liquidity", "structure", "orderflow",
+    "patterns", "fusion", "scenarios", "risk", "learning",
+    "engine_api", "engine_worker", "engine_replay",
+]
+
+# العقد 2: هرم الطبقات — الأعلى يستورد الأدنى فقط (§47 + build_plan A.1)
+[[tool.importlinter.contracts]]
+name = "Engine layer hierarchy (apps > decisions > fusion > detectors > context > backtest > features > foundations)"
+type = "layers"
+layers = [
+    "engine_api | engine_worker | engine_replay",
+    "scenarios | risk | learning",
+    "fusion",
+    "liquidity | structure | orderflow | patterns",
+    "market_state | ingestion",
+    "backtest",
+    "features",
+    "schemas | common | quantmath",
+]
+
+# العقد 3: كاشفات مستقلة — لا كاشف يستورد كاشفًا آخر (الدمج مسؤولية fusion وحدها)
+[[tool.importlinter.contracts]]
+name = "Detectors are independent of each other"
+type = "independence"
+modules = ["liquidity", "structure", "orderflow", "patterns"]
+
+# العقد 4: fusion لا يستورد طبقات القرار أبدًا
+[[tool.importlinter.contracts]]
+name = "Fusion never imports decision layers"
+type = "forbidden"
+source_modules = ["fusion"]
+forbidden_modules = [
+    "scenarios", "risk", "learning",
+    "engine_api", "engine_worker", "engine_replay",
+]
+
+# ═════════════════════════ pytest ═════════════════════════
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+asyncio_mode = "auto"
+addopts = "--strict-markers -q"
+markers = [
+    "integration: اختبارات تحتاج بنية تحتية حية (PG/NATS/MinIO)",
+    "replay: اختبارات إعادة/حتمية",
+    "property: اختبارات خصائص hypothesis",
+]
+norecursedirs = ["data", "infra", "*.egg-info", ".hypothesis", ".venv"]

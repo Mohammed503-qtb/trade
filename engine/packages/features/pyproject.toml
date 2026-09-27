@@ -1,0 +1,13 @@
+[project]
+name = "engine-features"
+version = "0.1.0"
+description = "السمات الحسابية — مسار واحد للحي والإعادة (A-02)"
+requires-python = ">=3.12"
+dependencies = ["engine-schemas", "engine-common", "engine-math"]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/features"]

@@ -52,3 +52,15 @@ prompt
 server.log
 # Skills directory
 /skills/
+# ═══ engine (Python monorepo) ═══
+engine/.venv/
+engine/data/
+engine/infra/local/bin/
+engine/.env
+engine/.pytest_cache/
+engine/.mypy_cache/
+engine/.ruff_cache/
+**/__pycache__/
+*.pyc
+# استثناء: مثال الإعدادات يُرفع رغم قاعدة .env*
+!engine/.env.example

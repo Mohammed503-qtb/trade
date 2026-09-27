@@ -1,0 +1,13 @@
+[project]
+name = "engine-replay"
+version = "0.1.0"
+description = "مشغل الإعادة/الاختبارات CLI (§26)"
+requires-python = ">=3.12"
+dependencies = ["typer>=0.12", "engine-schemas", "engine-common", "engine-backtest"]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/engine_replay"]
