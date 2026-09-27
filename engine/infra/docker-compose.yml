@@ -1,0 +1,316 @@
+# ═══════════════════════════════════════════════════════════════════════════════
+# AI Market Reasoning Engine — مواصفة النشر للخادم الهدف (قرار D-01)
+# ───────────────────────────────────────────────────────────────────────────────
+# ⚠️ هذا الملف مواصفة قانونية تُبنى فعليًا على الخادم الهدف لاحقًا:
+#    الـsandbox الحالي لا يملك Docker، لذا تُختبر المواصفة بنيويًا الآن عبر:
+#        cd engine && unset VIRTUAL_ENV && uv run --no-sync python scripts/validate-compose.py
+#    وعند النشر على الهدف يُبنى فعليًا (بناء الصورة يتطلب اكتمال المهمة 0.6 — alembic.ini).
+#
+# المراجع: docs/architecture/build_plan.md — A.1 (الطوبولوجيا) · A.3 (المنافذ)
+#          · A.4 (الأسرار) · C (الأدوات) | plan_review.md — D-01 · D-10 · G-01
+#
+# مبادئ حاكمة:
+#   1. لا شيء من البنية التحتية يُكشف خارجيًا (expose داخلي فقط). الاستثناء
+#      الوحيد: engine-api على 127.0.0.1:4001 (المبدأ الأمني A.3 — لوحة Next
+#      تستهلكه داخليًا، والعالم الخارجي لا يراه).
+#   2. لا أسرار في المواصفة: كل القيم عبر ${VAR:-default} أو env_file اختياري
+#      (../.env نسبةً لهذا الملف = engine/.env) — وغيابه لا يكسر شيئًا
+#      (required: false + القيم الافتراضية للتطوير فقط).
+#   3. المتغيرات الحرجة (ENGINE_DATABASE_URL / NATS_URL / S3_ENDPOINT) يُعاد
+#      تعيينها صراحةً بأسماء الخدمات (postgres / nats / minio) — قيم .env
+#      المحلية الشكل (127.0.0.1 لوضع supervisor في الـsandbox) لا تصل إلى
+#      الحاويات أبدًا. التعيين الصريح في environment يتقدم على env_file.
+#   4. أمر التشغيل القانوني (من جذر engine/ على الخادم الهدف):
+#        docker compose -f infra/docker-compose.yml --env-file .env up -d
+#      تتطلب صيغة env_file الموسعة (required: false): Docker Compose v2.24+.
+# ═══════════════════════════════════════════════════════════════════════════════
+
+name: engine
+
+# سجل دوّار موحّد لكل الخدمات — نظافة تشغيلية على الخادم الهدف (حد أقصى 30MB/خدمة)
+x-logging: &logging
+  driver: json-file
+  options:
+    max-size: "10m"
+    max-file: "3"
+
+services:
+  # ── postgres: قاعدة البيانات — سجل الحقيقة الوحيد (§31 · D-10) ──────────────
+  # المنفذ الداخلي 5543 غير القياسي (A.3) — expose فقط، لا ports: لا نشر خارجي.
+  # command يُصغي على 5543 (كي يتطابق شكل ENGINE_DATABASE_URL مع وضع الـsandbox)
+  # ويضبط إعدادات ذاكرة محافظة تناسب خادم الهدف المتقشف.
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    logging: *logging
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-engine}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-engine}
+      POSTGRES_DB: ${POSTGRES_DB:-engine}
+    command:
+      - postgres
+      - -p
+      - "5543"
+      - -c
+      - shared_buffers=128MB
+      - -c
+      - max_connections=25
+    expose:
+      - "5543"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      # $$ = تهريب لوقت التشغيل داخل الحاوية (المتغيرات محدودة في بيئتها)
+      test: ["CMD-SHELL", "pg_isready -p 5543 -U $${POSTGRES_USER:-engine} -d $${POSTGRES_DB:-engine}"]
+      interval: 5s
+      timeout: 3s
+      retries: 12
+      start_period: 5s
+    networks:
+      - engine-internal
+
+  # ── nats: ناقل الرسائل + JetStream (§32) ─────────────────────────────────────
+  # JetStream مفعّل (-js) بمخزن دائم على volume مسمى (-sd /data) — الرسائل
+  # لا تضيع بين الإقلاعات، ومراقبة على 8222 (-m) لفحص الصحة. المنفذان داخليان.
+  nats:
+    image: nats:2.10-alpine
+    restart: unless-stopped
+    logging: *logging
+    command: ["-js", "-sd", "/data", "-m", "8222"]
+    expose:
+      - "4222"
+      - "8222"
+    volumes:
+      - nats-data:/data
+    healthcheck:
+      # busybox wget متوفر في صورة alpine — /healthz نقطة الرصد الرسمية للمراقبة
+      test: ["CMD-SHELL", "wget -q -O- http://localhost:8222/healthz || exit 1"]
+      interval: 5s
+      timeout: 3s
+      retries: 12
+      start_period: 5s
+    networks:
+      - engine-internal
+
+  # ── minio: التخزين الكائني للخام Parquet (§7 · المرحلة 1) ────────────────────
+  # API على 9100 وconsole على 9101 (A.3) — كلاهما داخلي. بيانات الدخول من
+  # البيئة بنفس مفاتيح S3_* في .env.example — لا قيمة سرية مكتوبة هنا.
+  minio:
+    image: minio/minio:latest  # المرآة الرسمية البديلة: quay.io/minio/minio — ثبّت digest عند النشر
+    restart: unless-stopped
+    logging: *logging
+    command: ["server", "/data", "--address", ":9100", "--console-address", ":9101"]
+    environment:
+      MINIO_ROOT_USER: ${S3_ACCESS_KEY:-engine}
+      MINIO_ROOT_PASSWORD: ${S3_SECRET_KEY:-engine-secret-change-me}
+    expose:
+      - "9100"
+      - "9101"
+    volumes:
+      - minio-data:/data
+    healthcheck:
+      # النقطة الرسمية /minio/health/live — أداة الفحص داخل الصورة هي mc
+      # (صورة ubi-micro بلا curl/wget)؛ mc ready local يفحص جهوزية الخادم
+      # المحلي عبر نقاط الصحة نفسها، مع احتياط curl للصور التي تتضمنه.
+      test: ["CMD-SHELL", "mc ready local || curl -sf http://localhost:9100/minio/health/live || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 9
+      start_period: 10s
+    networks:
+      - engine-internal
+
+  # ── storage-init: تهيئة حزمة الخام engine-raw إن لم توجد (one-shot) ──────────
+  # يعمل مرة واحدة عند كل up (idempotent عبر --ignore-existing) ثم يخرج.
+  # إعادة التشغيل معطلة عمدًا: ليس خدمة دائمة بل خطوة تهيئة.
+  storage-init:
+    image: minio/mc:latest  # المرآة الرسمية البديلة: quay.io/minio/mc
+    restart: "no"
+    logging: *logging
+    depends_on:
+      minio:
+        condition: service_healthy
+    environment:
+      MINIO_ENDPOINT: http://minio:9100
+      S3_ACCESS_KEY: ${S3_ACCESS_KEY:-engine}
+      S3_SECRET_KEY: ${S3_SECRET_KEY:-engine-secret-change-me}
+      S3_BUCKET: ${S3_BUCKET:-engine-raw}
+    entrypoint: ["/bin/sh", "-c"]
+    # $$ = تهريب لوقت التشغيل: القيم تُقرأ من بيئة الحاوية لا من طبقة المواصفة
+    command: ["mc alias set engine \"$$MINIO_ENDPOINT\" \"$$S3_ACCESS_KEY\" \"$$S3_SECRET_KEY\" && mc mb --ignore-existing \"engine/$$S3_BUCKET\" && echo \"[storage-init] bucket ready\""]
+    networks:
+      - engine-internal
+
+  # ── migrate: هجرة Alembic (one-shot · المهمة 0.6 تُنشئ migrations/) ───────────
+  # يشغّل alembic upgrade head ثم يخرج. الخدمات العاملة تنتظر اكتماله بنجاح
+  # (service_completed_successfully) — لا يعمل المحرك على مخطط قديم أبدًا.
+  # alembic في مجموعة dev فقط — Dockerfile.engine يثبته بالإصدار المقفول.
+  migrate:
+    build:
+      context: ..
+      dockerfile: infra/dockerfiles/Dockerfile.engine
+      args:
+        SERVICE: migrate
+    restart: "no"
+    logging: *logging
+    env_file:
+      - path: ../.env
+        required: false
+    environment:
+      ENGINE_ENV: target
+      ENGINE_DATABASE_URL: postgresql://${POSTGRES_USER:-engine}:${POSTGRES_PASSWORD:-engine}@postgres:5543/${POSTGRES_DB:-engine}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - engine-internal
+
+  # ── engine-worker: خط الأنابيب الحي (ingestion→…→risk — build_plan A.1) ──────
+  # يعمل دائمًا (unless-stopped). يبدأ فقط بعد صحة كل البنية التحتية +
+  # اكتمال الهجرة وإنشاء حزمة الخام — إقلاع متدرج مطابق لوضع supervisor.
+  engine-worker:
+    build:
+      context: ..
+      dockerfile: infra/dockerfiles/Dockerfile.engine
+      args:
+        SERVICE: worker
+    restart: unless-stopped
+    logging: *logging
+    env_file:
+      - path: ../.env
+        required: false
+    environment:
+      ENGINE_ENV: target
+      ENGINE_DATABASE_URL: postgresql://${POSTGRES_USER:-engine}:${POSTGRES_PASSWORD:-engine}@postgres:5543/${POSTGRES_DB:-engine}
+      NATS_URL: nats://nats:4222
+      S3_ENDPOINT: minio:9100
+      S3_ACCESS_KEY: ${S3_ACCESS_KEY:-engine}
+      S3_SECRET_KEY: ${S3_SECRET_KEY:-engine-secret-change-me}
+      S3_BUCKET: ${S3_BUCKET:-engine-raw}
+      S3_SECURE: ${S3_SECURE:-false}
+      BINANCE_API_BASE: ${BINANCE_API_BASE:-https://fapi.binance.com}
+      BINANCE_VISION_BASE: ${BINANCE_VISION_BASE:-https://data.binance.vision}
+      ENGINE_SYMBOL: ${ENGINE_SYMBOL:-BTCUSDT}
+      ENGINE_TIMEFRAME_HTF: ${ENGINE_TIMEFRAME_HTF:-1h}
+      ENGINE_TIMEFRAME_MTF: ${ENGINE_TIMEFRAME_MTF:-15m}
+      ENGINE_TIMEFRAME_LTF: ${ENGINE_TIMEFRAME_LTF:-1m}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      nats:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+      storage-init:
+        condition: service_completed_successfully
+    networks:
+      - engine-internal
+
+  # ── engine-api: واجهة FastAPI (webhook + حالة + قراءة §5.5) ──────────────────
+  # النشر الخارجي الوحيد في المنظومة: 127.0.0.1:4001 فقط (loopback — لا شيء
+  # آخر يُكشف خارج docker). داخل الحاوية يستمع على 0.0.0.0 كي يصله النشر،
+  # والحماية من العالم الخارجي مسؤولية الناشر (127.0.0.1) لا المستمع.
+  # المنفذ 4001 ثابت بموجب A.3 — لو غُيّر فعدّل ports وENGINE_API_PORT معًا.
+  engine-api:
+    build:
+      context: ..
+      dockerfile: infra/dockerfiles/Dockerfile.engine
+      args:
+        SERVICE: api
+    restart: unless-stopped
+    logging: *logging
+    env_file:
+      - path: ../.env
+        required: false
+    environment:
+      ENGINE_ENV: target
+      ENGINE_DATABASE_URL: postgresql://${POSTGRES_USER:-engine}:${POSTGRES_PASSWORD:-engine}@postgres:5543/${POSTGRES_DB:-engine}
+      NATS_URL: nats://nats:4222
+      S3_ENDPOINT: minio:9100
+      S3_ACCESS_KEY: ${S3_ACCESS_KEY:-engine}
+      S3_SECRET_KEY: ${S3_SECRET_KEY:-engine-secret-change-me}
+      S3_BUCKET: ${S3_BUCKET:-engine-raw}
+      S3_SECURE: ${S3_SECURE:-false}
+      ENGINE_API_HOST: 0.0.0.0
+      ENGINE_API_PORT: "4001"
+      TV_WEBHOOK_SECRET: ${TV_WEBHOOK_SECRET:-}
+      ENGINE_SYMBOL: ${ENGINE_SYMBOL:-BTCUSDT}
+    ports:
+      - "127.0.0.1:4001:4001"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      nats:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+      storage-init:
+        condition: service_completed_successfully
+    healthcheck:
+      # healthcheck.py منسوخ داخل الصورة — stdlib فقط (صورة slim بلا curl/wget)
+      test: ["CMD", "python", "/usr/local/bin/healthcheck.py"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    networks:
+      - engine-internal
+
+  # ── engine-replay: مشغّل الإعادة/الاختبارات (CLI §26) ────────────────────────
+  # نفس صورة engine بـprofile مستقل — لا يقلع مع up الافتراضي إطلاقًا؛ يُطلق
+  # عند الحاجة: docker compose --profile replay run --rm engine-replay [args…]
+  engine-replay:
+    build:
+      context: ..
+      dockerfile: infra/dockerfiles/Dockerfile.engine
+      args:
+        SERVICE: replay
+    profiles:
+      - replay
+    restart: "no"
+    logging: *logging
+    env_file:
+      - path: ../.env
+        required: false
+    environment:
+      ENGINE_ENV: target
+      ENGINE_DATABASE_URL: postgresql://${POSTGRES_USER:-engine}:${POSTGRES_PASSWORD:-engine}@postgres:5543/${POSTGRES_DB:-engine}
+      NATS_URL: nats://nats:4222
+      S3_ENDPOINT: minio:9100
+      S3_ACCESS_KEY: ${S3_ACCESS_KEY:-engine}
+      S3_SECRET_KEY: ${S3_SECRET_KEY:-engine-secret-change-me}
+      S3_BUCKET: ${S3_BUCKET:-engine-raw}
+      S3_SECURE: ${S3_SECURE:-false}
+      ENGINE_SYMBOL: ${ENGINE_SYMBOL:-BTCUSDT}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      nats:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+      storage-init:
+        condition: service_completed_successfully
+    networks:
+      - engine-internal
+
+# ── الشبكة: bridge مسمى — عزل كامل عن باقي compose projects على الخادم الهدف ──
+networks:
+  engine-internal:
+    name: engine-internal
+    driver: bridge
+
+# ── Volumes مسماة: بيانات دائمة باسم صريح قابل للنسخ والفحص (لا مجهولة) ───────
+volumes:
+  postgres-data:
+    name: engine-postgres-data
+  nats-data:
+    name: engine-nats-data
+  minio-data:
+    name: engine-minio-data

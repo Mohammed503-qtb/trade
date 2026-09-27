@@ -1,0 +1,21 @@
+{
+  "additionalProperties": false,
+  "description": "هدف مرتبط بمنطقة سيولة (§10.5): مستوى سعر + مرجع المنطقة.",
+  "properties": {
+    "price_level": {
+      "exclusiveMinimum": 0.0,
+      "title": "Price Level",
+      "type": "number"
+    },
+    "zone_id": {
+      "title": "Zone Id",
+      "type": "string"
+    }
+  },
+  "required": [
+    "price_level",
+    "zone_id"
+  ],
+  "title": "TargetZone",
+  "type": "object"
+}

@@ -1,0 +1,21 @@
+{
+  "additionalProperties": false,
+  "description": "مشغل قابل للرصد — وصف هيكلي (condition_type + params) يفحصه المحرك.\n\nمثال: condition_type=\"ZONE_RECLAIM\"، params={\"zone_id\": ..., \"timeframe\": \"1m\"}.\nالسيناريو لا يصبح TRIGGERED إلا برصد هذا المشغل فعليًا (§18.4).",
+  "properties": {
+    "condition_type": {
+      "title": "Condition Type",
+      "type": "string"
+    },
+    "params": {
+      "additionalProperties": true,
+      "title": "Params",
+      "type": "object"
+    }
+  },
+  "required": [
+    "condition_type",
+    "params"
+  ],
+  "title": "TriggerDefinition",
+  "type": "object"
+}

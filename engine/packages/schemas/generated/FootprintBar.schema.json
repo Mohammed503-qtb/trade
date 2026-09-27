@@ -1,0 +1,162 @@
+{
+  "$defs": {
+    "DataQuality": {
+      "description": "حالات جودة البيانات التسع لكل شريحة أداة/زمن (§7.4).\n\nفقط HEALTHY وDELAYED (بموافقة صريحة) يصلان معالجة القرار العادية.",
+      "enum": [
+        "HEALTHY",
+        "DELAYED",
+        "PARTIAL",
+        "DUPLICATED",
+        "OUT_OF_ORDER",
+        "STALE",
+        "GAP_DETECTED",
+        "UNAVAILABLE",
+        "QUARANTINED"
+      ],
+      "title": "DataQuality",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "description": "شريط الفوتبرنت (§8.2 حرفيًا) + وسم المصدر والمنهجية (§12.7).\n\nbuy/sell هنا تصنيف مبني على علم buyer-is-maker لمصدر بيانات محدد —\nليس «كل مشتريي السوق مقابل كل بائعيه»؛ لذلك source_feed وmethodology\nإلزاميان في كل سجل (§12.7).",
+  "properties": {
+    "bar_time": {
+      "format": "date-time",
+      "title": "Bar Time",
+      "type": "string"
+    },
+    "buy_imbalance_count": {
+      "minimum": 0,
+      "title": "Buy Imbalance Count",
+      "type": "integer"
+    },
+    "buy_share": {
+      "maximum": 1.0,
+      "minimum": 0.0,
+      "title": "Buy Share",
+      "type": "number"
+    },
+    "buy_volume": {
+      "minimum": 0.0,
+      "title": "Buy Volume",
+      "type": "number"
+    },
+    "delta": {
+      "title": "Delta",
+      "type": "number"
+    },
+    "instrument_id": {
+      "title": "Instrument Id",
+      "type": "string"
+    },
+    "is_closed": {
+      "title": "Is Closed",
+      "type": "boolean"
+    },
+    "max_negative_delta_row": {
+      "anyOf": [
+        {
+          "exclusiveMinimum": 0.0,
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Max Negative Delta Row"
+    },
+    "max_positive_delta_row": {
+      "anyOf": [
+        {
+          "exclusiveMinimum": 0.0,
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Max Positive Delta Row"
+    },
+    "methodology": {
+      "title": "Methodology",
+      "type": "string"
+    },
+    "poc": {
+      "exclusiveMinimum": 0.0,
+      "title": "Poc",
+      "type": "number"
+    },
+    "quality": {
+      "$ref": "#/$defs/DataQuality"
+    },
+    "row_count": {
+      "minimum": 0,
+      "title": "Row Count",
+      "type": "integer"
+    },
+    "sell_imbalance_count": {
+      "minimum": 0,
+      "title": "Sell Imbalance Count",
+      "type": "integer"
+    },
+    "sell_share": {
+      "maximum": 1.0,
+      "minimum": 0.0,
+      "title": "Sell Share",
+      "type": "number"
+    },
+    "sell_volume": {
+      "minimum": 0.0,
+      "title": "Sell Volume",
+      "type": "number"
+    },
+    "source_feed": {
+      "title": "Source Feed",
+      "type": "string"
+    },
+    "timeframe": {
+      "title": "Timeframe",
+      "type": "string"
+    },
+    "total_volume": {
+      "minimum": 0.0,
+      "title": "Total Volume",
+      "type": "number"
+    },
+    "vah": {
+      "exclusiveMinimum": 0.0,
+      "title": "Vah",
+      "type": "number"
+    },
+    "val": {
+      "exclusiveMinimum": 0.0,
+      "title": "Val",
+      "type": "number"
+    }
+  },
+  "required": [
+    "instrument_id",
+    "timeframe",
+    "bar_time",
+    "quality",
+    "is_closed",
+    "source_feed",
+    "methodology",
+    "buy_volume",
+    "sell_volume",
+    "total_volume",
+    "delta",
+    "buy_share",
+    "sell_share",
+    "poc",
+    "vah",
+    "val",
+    "row_count",
+    "buy_imbalance_count",
+    "sell_imbalance_count"
+  ],
+  "title": "FootprintBar",
+  "type": "object"
+}

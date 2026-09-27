@@ -1,0 +1,44 @@
+{
+  "additionalProperties": false,
+  "description": "سجل الانزلاق (§24.4) — الفعلي يخزن منفصلًا عن النموذجي.\n\nentry_slippage = actual_average_entry - modeled_entry (سالب = ملائم).",
+  "properties": {
+    "actual_average_entry": {
+      "exclusiveMinimum": 0.0,
+      "title": "Actual Average Entry",
+      "type": "number"
+    },
+    "actual_average_exit": {
+      "exclusiveMinimum": 0.0,
+      "title": "Actual Average Exit",
+      "type": "number"
+    },
+    "entry_slippage": {
+      "title": "Entry Slippage",
+      "type": "number"
+    },
+    "exit_slippage": {
+      "title": "Exit Slippage",
+      "type": "number"
+    },
+    "modeled_entry": {
+      "exclusiveMinimum": 0.0,
+      "title": "Modeled Entry",
+      "type": "number"
+    },
+    "modeled_exit": {
+      "exclusiveMinimum": 0.0,
+      "title": "Modeled Exit",
+      "type": "number"
+    }
+  },
+  "required": [
+    "modeled_entry",
+    "actual_average_entry",
+    "modeled_exit",
+    "actual_average_exit",
+    "entry_slippage",
+    "exit_slippage"
+  ],
+  "title": "SlippageRecord",
+  "type": "object"
+}

@@ -1,0 +1,138 @@
+{
+  "$defs": {
+    "DataQuality": {
+      "description": "حالات جودة البيانات التسع لكل شريحة أداة/زمن (§7.4).\n\nفقط HEALTHY وDELAYED (بموافقة صريحة) يصلان معالجة القرار العادية.",
+      "enum": [
+        "HEALTHY",
+        "DELAYED",
+        "PARTIAL",
+        "DUPLICATED",
+        "OUT_OF_ORDER",
+        "STALE",
+        "GAP_DETECTED",
+        "UNAVAILABLE",
+        "QUARANTINED"
+      ],
+      "title": "DataQuality",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "description": "الشمعة القانونية (§8.1 حرفيًا) + مفاتيح جدول candles (§31.2).\n\nis_closed يفصل المتطور عن المؤكد (§27): الشمعة غير المغلقة قد تتغير\nولا تفوّض قرارًا حيًا. القيم المشتقة (range/body/wicks/…) يحسبها\nمنشئ الشموع ويوثقها هنا كحقول مخزنة لا تُعاد اشتقاقها عرضًا.",
+  "properties": {
+    "bar_time": {
+      "format": "date-time",
+      "title": "Bar Time",
+      "type": "string"
+    },
+    "body_fraction": {
+      "maximum": 1.0,
+      "minimum": 0.0,
+      "title": "Body Fraction",
+      "type": "number"
+    },
+    "body_size": {
+      "minimum": 0.0,
+      "title": "Body Size",
+      "type": "number"
+    },
+    "close": {
+      "exclusiveMinimum": 0.0,
+      "title": "Close",
+      "type": "number"
+    },
+    "close_location_value": {
+      "maximum": 1.0,
+      "minimum": 0.0,
+      "title": "Close Location Value",
+      "type": "number"
+    },
+    "high": {
+      "exclusiveMinimum": 0.0,
+      "title": "High",
+      "type": "number"
+    },
+    "instrument_id": {
+      "title": "Instrument Id",
+      "type": "string"
+    },
+    "is_closed": {
+      "title": "Is Closed",
+      "type": "boolean"
+    },
+    "low": {
+      "exclusiveMinimum": 0.0,
+      "title": "Low",
+      "type": "number"
+    },
+    "lower_wick": {
+      "minimum": 0.0,
+      "title": "Lower Wick",
+      "type": "number"
+    },
+    "open": {
+      "exclusiveMinimum": 0.0,
+      "title": "Open",
+      "type": "number"
+    },
+    "quality": {
+      "$ref": "#/$defs/DataQuality"
+    },
+    "range": {
+      "minimum": 0.0,
+      "title": "Range",
+      "type": "number"
+    },
+    "realized_volatility": {
+      "minimum": 0.0,
+      "title": "Realized Volatility",
+      "type": "number"
+    },
+    "session_id": {
+      "title": "Session Id",
+      "type": "string"
+    },
+    "timeframe": {
+      "title": "Timeframe",
+      "type": "string"
+    },
+    "true_range": {
+      "minimum": 0.0,
+      "title": "True Range",
+      "type": "number"
+    },
+    "upper_wick": {
+      "minimum": 0.0,
+      "title": "Upper Wick",
+      "type": "number"
+    },
+    "volume": {
+      "minimum": 0.0,
+      "title": "Volume",
+      "type": "number"
+    }
+  },
+  "required": [
+    "instrument_id",
+    "timeframe",
+    "bar_time",
+    "session_id",
+    "quality",
+    "is_closed",
+    "open",
+    "high",
+    "low",
+    "close",
+    "volume",
+    "range",
+    "body_size",
+    "upper_wick",
+    "lower_wick",
+    "body_fraction",
+    "close_location_value",
+    "true_range",
+    "realized_volatility"
+  ],
+  "title": "Candle",
+  "type": "object"
+}

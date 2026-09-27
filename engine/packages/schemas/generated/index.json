@@ -1,0 +1,62 @@
+{
+  "Candle": {
+    "file": "Candle.schema.json",
+    "schema_version": "1.0.0"
+  },
+  "EventEnvelope": {
+    "file": "EventEnvelope.schema.json",
+    "schema_version": "1.0.0"
+  },
+  "EvidenceRecord": {
+    "file": "EvidenceRecord.schema.json",
+    "schema_version": "1.0.0"
+  },
+  "ExperienceRecord": {
+    "file": "ExperienceRecord.schema.json",
+    "schema_version": "1.0.0"
+  },
+  "FootprintBar": {
+    "file": "FootprintBar.schema.json",
+    "schema_version": "1.0.0"
+  },
+  "InvalidationRule": {
+    "file": "InvalidationRule.schema.json",
+    "schema_version": "1.0.0"
+  },
+  "LatencyRecord": {
+    "file": "LatencyRecord.schema.json",
+    "schema_version": "1.0.0"
+  },
+  "MarketStateSnapshot": {
+    "file": "MarketStateSnapshot.schema.json",
+    "schema_version": "1.0.0"
+  },
+  "OrderIntent": {
+    "file": "OrderIntent.schema.json",
+    "schema_version": "1.0.0"
+  },
+  "PriceZone": {
+    "file": "PriceZone.schema.json",
+    "schema_version": "1.0.0"
+  },
+  "Scenario": {
+    "file": "Scenario.schema.json",
+    "schema_version": "1.0.0"
+  },
+  "SlippageRecord": {
+    "file": "SlippageRecord.schema.json",
+    "schema_version": "1.0.0"
+  },
+  "TargetZone": {
+    "file": "TargetZone.schema.json",
+    "schema_version": "1.0.0"
+  },
+  "TradeEvent": {
+    "file": "TradeEvent.schema.json",
+    "schema_version": "1.0.0"
+  },
+  "TriggerDefinition": {
+    "file": "TriggerDefinition.schema.json",
+    "schema_version": "1.0.0"
+  }
+}

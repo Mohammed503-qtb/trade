@@ -1,0 +1,22 @@
+{
+  "additionalProperties": false,
+  "description": "نطاق سعري [price_low, price_high] — تمثيل مناطق الدخول.",
+  "properties": {
+    "price_high": {
+      "exclusiveMinimum": 0.0,
+      "title": "Price High",
+      "type": "number"
+    },
+    "price_low": {
+      "exclusiveMinimum": 0.0,
+      "title": "Price Low",
+      "type": "number"
+    }
+  },
+  "required": [
+    "price_low",
+    "price_high"
+  ],
+  "title": "PriceZone",
+  "type": "object"
+}

@@ -1,0 +1,27 @@
+{
+  "additionalProperties": false,
+  "description": "قاعدة الإبطال (§18.5 و§23.4): مستوى بنية + عازلة تقلب + شرط القبول.\n\naccept_through=True يعني أن الإبطال يتطلب قبولًا عبر المستوى (إغلاقًا)\nلا مجرد اختراق بفتيل؛ العازلة من بنية التقلب لا من رقم نقاط كوني (§23.4).",
+  "properties": {
+    "accept_through": {
+      "title": "Accept Through",
+      "type": "boolean"
+    },
+    "structural_level": {
+      "exclusiveMinimum": 0.0,
+      "title": "Structural Level",
+      "type": "number"
+    },
+    "volatility_buffer": {
+      "minimum": 0.0,
+      "title": "Volatility Buffer",
+      "type": "number"
+    }
+  },
+  "required": [
+    "structural_level",
+    "volatility_buffer",
+    "accept_through"
+  ],
+  "title": "InvalidationRule",
+  "type": "object"
+}

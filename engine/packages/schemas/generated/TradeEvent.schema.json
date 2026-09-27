@@ -1,0 +1,91 @@
+{
+  "additionalProperties": false,
+  "description": "حدث خام مطبَّع (صفقة مفردة من aggTrades أو ما يعادلها) بعقد §7.1.\n\nbuyer_is_maker علم تصنيف العدوانية الحقيقي من Binance aggTrades (D-02):\nTrue ⇒ البائع هو المعتدي، False ⇒ المشتري هو المعتدي، None لمصادر بلا علم.",
+  "properties": {
+    "buyer_is_maker": {
+      "anyOf": [
+        {
+          "type": "boolean"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Buyer Is Maker"
+    },
+    "event_time_utc": {
+      "format": "date-time",
+      "title": "Event Time Utc",
+      "type": "string"
+    },
+    "feed_id": {
+      "title": "Feed Id",
+      "type": "string"
+    },
+    "price": {
+      "exclusiveMinimum": 0.0,
+      "title": "Price",
+      "type": "number"
+    },
+    "quantity": {
+      "minimum": 0.0,
+      "title": "Quantity",
+      "type": "number"
+    },
+    "receive_time_utc": {
+      "format": "date-time",
+      "title": "Receive Time Utc",
+      "type": "string"
+    },
+    "sequence_id": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Sequence Id"
+    },
+    "source_latency_ms": {
+      "anyOf": [
+        {
+          "minimum": 0.0,
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Source Latency Ms"
+    },
+    "source_timeframe": {
+      "title": "Source Timeframe",
+      "type": "string"
+    },
+    "symbol": {
+      "title": "Symbol",
+      "type": "string"
+    },
+    "venue": {
+      "title": "Venue",
+      "type": "string"
+    }
+  },
+  "required": [
+    "event_time_utc",
+    "receive_time_utc",
+    "source_timeframe",
+    "venue",
+    "symbol",
+    "feed_id",
+    "price",
+    "quantity"
+  ],
+  "title": "TradeEvent",
+  "type": "object"
+}

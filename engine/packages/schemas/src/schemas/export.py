@@ -1,0 +1,198 @@
+"""مُصدّر JSON Schema — واجهة CLI: ``python -m schemas.export write|check``.
+
+حرس «لا رسالة بلا مخطط مُصدَّر» (build_plan §A.5 و§32): كل نموذج جذري
+يُصدَّر حتميًا 100% إلى ``generated/``، وأي انحراف بايت-بايت بين النماذج
+وما على القرص يُفشل البوابة (exit code 1).
+"""
+
+from __future__ import annotations
+
+import argparse
+import json
+import sys
+from pathlib import Path
+
+from pydantic import BaseModel
+
+from . import SCHEMA_VERSION
+from .envelope import EventEnvelope
+from .evidence import EvidenceRecord
+from .execution import LatencyRecord, OrderIntent, SlippageRecord
+from .learning import ExperienceRecord
+from .market import Candle, FootprintBar, MarketStateSnapshot, TradeEvent
+from .scenario import (
+    InvalidationRule,
+    PriceZone,
+    Scenario,
+    TargetZone,
+    TriggerDefinition,
+)
+
+# كل النماذج الجذرية — مرتبة بالطبقة (مغلف ← سوق ← دليل ← سيناريو ← تنفيذ ← تعلم).
+ALL_MODELS: dict[str, type[BaseModel]] = {
+    # مغلف الرسائل (§32)
+    "EventEnvelope": EventEnvelope,
+    # كائنات السوق (§7.1/§8.1/§8.2/§32)
+    "TradeEvent": TradeEvent,
+    "Candle": Candle,
+    "FootprintBar": FootprintBar,
+    "MarketStateSnapshot": MarketStateSnapshot,
+    # الدليل (§19.1)
+    "EvidenceRecord": EvidenceRecord,
+    # السيناريو ومكوناته (§18/§10.5)
+    "PriceZone": PriceZone,
+    "TriggerDefinition": TriggerDefinition,
+    "InvalidationRule": InvalidationRule,
+    "TargetZone": TargetZone,
+    "Scenario": Scenario,
+    # التنفيذ (§24)
+    "OrderIntent": OrderIntent,
+    "SlippageRecord": SlippageRecord,
+    "LatencyRecord": LatencyRecord,
+    # التعلم (§29.1)
+    "ExperienceRecord": ExperienceRecord,
+}
+
+# مرجع فقرة الخطة لكل نموذج — يظهر في جدول التوثيق المولّد.
+MODEL_PLAN_REFS: dict[str, str] = {
+    "EventEnvelope": "§32",
+    "TradeEvent": "§7.1",
+    "Candle": "§8.1",
+    "FootprintBar": "§8.2 + §12.7",
+    "MarketStateSnapshot": "§32 (المثال)",
+    "EvidenceRecord": "§19.1",
+    "PriceZone": "§18.1 (entry_zone)",
+    "TriggerDefinition": "§18.1 + §18.4",
+    "InvalidationRule": "§18.5 + §23.4",
+    "TargetZone": "§10.5",
+    "Scenario": "§18.1",
+    "OrderIntent": "§24.1",
+    "SlippageRecord": "§24.4",
+    "LatencyRecord": "§24.5",
+    "ExperienceRecord": "§29.1",
+}
+
+# مجلد التصدير: packages/schemas/generated — مشتق من موقع هذه الوحدة لا من cwd.
+GENERATED_DIR = Path(__file__).resolve().parents[2] / "generated"
+
+
+def _file_name(model_name: str) -> str:
+    return f"{model_name}.schema.json"
+
+
+def _schema_text(model: type[BaseModel]) -> str:
+    """نص مخطط واحد — حتمي: indent=2 + sort_keys + سطر نهائي."""
+    schema = model.model_json_schema()
+    return json.dumps(schema, indent=2, sort_keys=True, ensure_ascii=False) + "\n"
+
+
+def _index_text() -> str:
+    """فهرس generated/index.json — {model: file, schema_version} حرفيًا."""
+    index = {
+        name: {"file": _file_name(name), "schema_version": SCHEMA_VERSION} for name in ALL_MODELS
+    }
+    return json.dumps(index, indent=2, sort_keys=True, ensure_ascii=False) + "\n"
+
+
+def _readme_text() -> str:
+    """جدول توثيق عربي مولّد آليًا لكل النماذج المُصدَّرة."""
+    lines = [
+        "# المخططات المُصدَّرة — حزمة schemas",
+        "",
+        "> هذا الملف مولّد آليًا بواسطة `python -m schemas.export write` — **لا تحرّره يدويًا أبدًا**.",
+        "> حرس الجودة: `python -m schemas.export check` يجب أن يبقى أخضر في كل بوابة"
+        " (لا رسالة بلا مخطط مُصدَّر).",
+        "",
+        f"- إصدار المخططات: `{SCHEMA_VERSION}`",
+        f"- عدد النماذج الجذرية: {len(ALL_MODELS)}",
+        "",
+        "| النموذج | الملف | الوحدة | فقرة الخطة |",
+        "|---|---|---|---|",
+    ]
+    for name, model in ALL_MODELS.items():
+        lines.append(
+            f"| `{name}` | `{_file_name(name)}` | `{model.__module__}` | {MODEL_PLAN_REFS[name]} |"
+        )
+    lines.append("")
+    return "\n".join(lines)
+
+
+def _expected_contents(base: Path) -> dict[Path, str]:
+    """كل الملفات المتوقعة بمحتواها الحتمي — تُبنى في الذاكرة للمقارنة."""
+    contents: dict[Path, str] = {
+        base / _file_name(name): _schema_text(model) for name, model in ALL_MODELS.items()
+    }
+    contents[base / "index.json"] = _index_text()
+    contents[base / "README.md"] = _readme_text()
+    return contents
+
+
+def write(target_dir: Path | None = None) -> int:
+    """توليد كل ملفات generated/ — عملية حتمية قابلة للتكرار."""
+    base = GENERATED_DIR if target_dir is None else target_dir
+    base.mkdir(parents=True, exist_ok=True)
+    for path, text in _expected_contents(base).items():
+        path.write_text(text, encoding="utf-8")
+    print(f"schemas: كُتبت {len(ALL_MODELS)} مخططًا + index.json + README.md في {base}")
+    return 0
+
+
+def check(target_dir: Path | None = None) -> int:
+    """إعادة التوليد في الذاكرة والمقارنة بايت-بايت بما على القرص.
+
+    أي فرق (ملف مفقود/منحرف/زائد) أو مجلد فارغ = رسالة واضحة + exit code 1.
+    """
+    base = GENERATED_DIR if target_dir is None else target_dir
+    if not base.is_dir() or not any(base.iterdir()):
+        print(
+            f"FAIL [{base}]: مجلد generated مفقود أو فارغ — "
+            "شغّل `python -m schemas.export write` أولًا",
+            file=sys.stderr,
+        )
+        return 1
+
+    problems: list[str] = []
+    expected = _expected_contents(base)
+    for path in sorted(expected):
+        if not path.is_file():
+            problems.append(f"ملف مفقود: {path.name}")
+            continue
+        if path.read_bytes() != expected[path].encode("utf-8"):
+            problems.append(f"ملف منحرف: {path.name} يختلف بايت-بايت عن المولّد")
+    expected_names = {path.name for path in expected}
+    for path in sorted(base.glob("*.schema.json")):
+        if path.name not in expected_names:
+            problems.append(f"ملف زائد على القرص: {path.name} لا يقابله أي نموذج")
+
+    if problems:
+        for problem in problems:
+            print(f"FAIL [{base}]: {problem}", file=sys.stderr)
+        print(
+            "فشل التحقق: المخططات المُصدَّرة ليست متطابقة مع النماذج — "
+            "شغّل `python -m schemas.export write` ثم راجع الفرق",
+            file=sys.stderr,
+        )
+        return 1
+    print(f"schemas: check OK — {len(ALL_MODELS)} مخططًا متطابقة بايت-بايت في {base}")
+    return 0
+
+
+def main(argv: list[str] | None = None) -> int:
+    parser = argparse.ArgumentParser(
+        prog="python -m schemas.export",
+        description="تصدير JSON Schema من نماذج Pydantic والتحقق من انضباطها (§32)",
+    )
+    parser.add_argument(
+        "command",
+        choices=("write", "check"),
+        help="write: توليد الملفات الحتمية | check: تحقق بايت-بايت (exit 1 عند أي فرق)",
+    )
+    args = parser.parse_args(argv)
+    command: str = args.command
+    if command == "write":
+        return write()
+    return check()
+
+
+if __name__ == "__main__":
+    sys.exit(main())

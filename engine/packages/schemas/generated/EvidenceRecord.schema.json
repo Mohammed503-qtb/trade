@@ -1,0 +1,157 @@
+{
+  "$defs": {
+    "EventType": {
+      "description": "قاموس الأحداث الإنتاجي الأولي (§20 حرفيًا — 45 نوعًا).\n\nلا يُختلق نوع حدث خارج هذا القاموس؛ الأوزان الافتراضية المرافقة في\nDEFAULT_EVENT_WEIGHTS أدناه منقولة من عمود Weight في §20.\nالأنواع الأربعة الأخيرة (None) ليست دليلًا اتجاهيًا بل حجبًا صلبًا (§22).",
+      "enum": [
+        "HTF_BULLISH",
+        "HTF_BEARISH",
+        "INTERNAL_BOS",
+        "EXTERNAL_BOS",
+        "CHOCH",
+        "DISPLACEMENT_UP",
+        "DISPLACEMENT_DOWN",
+        "LIQUIDITY_SWEEP_HIGH",
+        "LIQUIDITY_SWEEP_LOW",
+        "BREAK_AND_ACCEPT_HIGH",
+        "BREAK_AND_ACCEPT_LOW",
+        "ABSORPTION_BUY",
+        "ABSORPTION_SELL",
+        "FLOW_CONTINUATION_UP",
+        "FLOW_CONTINUATION_DOWN",
+        "EXHAUSTION_UP",
+        "EXHAUSTION_DOWN",
+        "FVG_BULLISH",
+        "FVG_BEARISH",
+        "ORDER_BLOCK_BULLISH",
+        "ORDER_BLOCK_BEARISH",
+        "PREMIUM_LOCATION",
+        "DISCOUNT_LOCATION",
+        "POC_ACCEPTANCE",
+        "POC_REJECTION",
+        "VAH_REJECTION",
+        "VAL_REJECTION",
+        "BUY_IMBALANCE_CLUSTER",
+        "SELL_IMBALANCE_CLUSTER",
+        "BULLISH_ENGULFING",
+        "BEARISH_ENGULFING",
+        "REJECTION_CANDLE",
+        "INSIDE_BAR_BREAK",
+        "CLASSICAL_BREAKOUT",
+        "CLASSICAL_FAILED_BREAKOUT",
+        "HARMONIC_COMPLETION",
+        "RANGE_COMPRESSION",
+        "RANGE_EXPANSION",
+        "SESSION_OPENING_DRIVE",
+        "SESSION_REVERSAL",
+        "MACRO_HIGH_IMPACT_NEAR",
+        "DATA_STALE",
+        "SPREAD_EXTREME",
+        "LATENCY_EXTREME",
+        "RISK_LIMIT_REACHED"
+      ],
+      "title": "EventType",
+      "type": "string"
+    },
+    "EvidenceGroup": {
+      "description": "مجموعات الدليل الست (§19.3) — تجميع لتجنب العد المزدوج (§2.3).",
+      "enum": [
+        "STRUCTURE",
+        "LIQUIDITY_LOCATION",
+        "ORDER_FLOW",
+        "PRICE_ACTION",
+        "VOLATILITY_SESSION",
+        "MACRO"
+      ],
+      "title": "EvidenceGroup",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "description": "سجل دليل واحد — مجمّد ويمنع الحقول الغريبة (عقد §19.1).",
+  "properties": {
+    "context_modifier": {
+      "title": "Context Modifier",
+      "type": "number"
+    },
+    "correlation_group_id": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Correlation Group Id"
+    },
+    "direction_score": {
+      "maximum": 1.0,
+      "minimum": -1.0,
+      "title": "Direction Score",
+      "type": "number"
+    },
+    "event_type": {
+      "$ref": "#/$defs/EventType"
+    },
+    "evidence_id": {
+      "title": "Evidence Id",
+      "type": "string"
+    },
+    "freshness": {
+      "maximum": 1.0,
+      "minimum": 0.0,
+      "title": "Freshness",
+      "type": "number"
+    },
+    "group": {
+      "$ref": "#/$defs/EvidenceGroup"
+    },
+    "independence_discount": {
+      "maximum": 1.0,
+      "minimum": 0.0,
+      "title": "Independence Discount",
+      "type": "number"
+    },
+    "opposition": {
+      "title": "Opposition",
+      "type": "boolean"
+    },
+    "prior_weight": {
+      "title": "Prior Weight",
+      "type": "number"
+    },
+    "quality": {
+      "maximum": 1.0,
+      "minimum": 0.0,
+      "title": "Quality",
+      "type": "number"
+    },
+    "raw_strength": {
+      "maximum": 1.0,
+      "minimum": 0.0,
+      "title": "Raw Strength",
+      "type": "number"
+    },
+    "source": {
+      "title": "Source",
+      "type": "string"
+    }
+  },
+  "required": [
+    "evidence_id",
+    "group",
+    "event_type",
+    "direction_score",
+    "raw_strength",
+    "quality",
+    "freshness",
+    "independence_discount",
+    "prior_weight",
+    "context_modifier",
+    "opposition",
+    "source"
+  ],
+  "title": "EvidenceRecord",
+  "type": "object"
+}

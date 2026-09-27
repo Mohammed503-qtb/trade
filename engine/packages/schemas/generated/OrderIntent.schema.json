@@ -1,0 +1,147 @@
+{
+  "$defs": {
+    "Direction": {
+      "description": "الاتجاه الاتجاهي المثالث — LONG/SHORT وFLAT للحياد الصريح.",
+      "enum": [
+        "LONG",
+        "SHORT",
+        "FLAT"
+      ],
+      "title": "Direction",
+      "type": "string"
+    },
+    "OrderPolicy": {
+      "description": "سياسات التنفيذ الخمس (§24.2).\n\nالاستراتيجية تحدد السياسة المسموحة؛ محرك التنفيذ يختار أأمن تنفيذ\nصالح داخل تلك القيود.",
+      "enum": [
+        "MARKET_WITH_SLIPPAGE_GUARD",
+        "LIMIT_AT_ZONE",
+        "STAGED_LIMIT_MARKET",
+        "REDUCE_ONLY_EXIT",
+        "EMERGENCY_FLATTEN"
+      ],
+      "title": "OrderPolicy",
+      "type": "string"
+    },
+    "PriceZone": {
+      "additionalProperties": false,
+      "description": "نطاق سعري [price_low, price_high] — تمثيل مناطق الدخول.",
+      "properties": {
+        "price_high": {
+          "exclusiveMinimum": 0.0,
+          "title": "Price High",
+          "type": "number"
+        },
+        "price_low": {
+          "exclusiveMinimum": 0.0,
+          "title": "Price Low",
+          "type": "number"
+        }
+      },
+      "required": [
+        "price_low",
+        "price_high"
+      ],
+      "title": "PriceZone",
+      "type": "object"
+    },
+    "TargetZone": {
+      "additionalProperties": false,
+      "description": "هدف مرتبط بمنطقة سيولة (§10.5): مستوى سعر + مرجع المنطقة.",
+      "properties": {
+        "price_level": {
+          "exclusiveMinimum": 0.0,
+          "title": "Price Level",
+          "type": "number"
+        },
+        "zone_id": {
+          "title": "Zone Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "price_level",
+        "zone_id"
+      ],
+      "title": "TargetZone",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "description": "نية أمر (§24.1 حرفيًا) — مواصفة تنفيذ معتمدة لا تحليلًا فنيًا.\n\nmax_slippage بوحدات السعر، max_latency بالمللي ثانية، risk_budget\nهو المخاطرة النقدية المسموحة للنية (أساس §23.2).",
+  "properties": {
+    "client_order_id": {
+      "title": "Client Order Id",
+      "type": "string"
+    },
+    "entry_policy": {
+      "$ref": "#/$defs/OrderPolicy"
+    },
+    "entry_zone": {
+      "$ref": "#/$defs/PriceZone"
+    },
+    "expiry": {
+      "format": "date-time",
+      "title": "Expiry",
+      "type": "string"
+    },
+    "max_latency": {
+      "minimum": 0.0,
+      "title": "Max Latency",
+      "type": "number"
+    },
+    "max_slippage": {
+      "minimum": 0.0,
+      "title": "Max Slippage",
+      "type": "number"
+    },
+    "risk_budget": {
+      "exclusiveMinimum": 0.0,
+      "title": "Risk Budget",
+      "type": "number"
+    },
+    "scenario_id": {
+      "title": "Scenario Id",
+      "type": "string"
+    },
+    "side": {
+      "$ref": "#/$defs/Direction"
+    },
+    "stop": {
+      "exclusiveMinimum": 0.0,
+      "title": "Stop",
+      "type": "number"
+    },
+    "symbol": {
+      "title": "Symbol",
+      "type": "string"
+    },
+    "targets": {
+      "items": {
+        "$ref": "#/$defs/TargetZone"
+      },
+      "title": "Targets",
+      "type": "array"
+    },
+    "trade_intent_id": {
+      "title": "Trade Intent Id",
+      "type": "string"
+    }
+  },
+  "required": [
+    "trade_intent_id",
+    "scenario_id",
+    "symbol",
+    "side",
+    "entry_policy",
+    "entry_zone",
+    "stop",
+    "targets",
+    "max_slippage",
+    "max_latency",
+    "expiry",
+    "risk_budget",
+    "client_order_id"
+  ],
+  "title": "OrderIntent",
+  "type": "object"
+}

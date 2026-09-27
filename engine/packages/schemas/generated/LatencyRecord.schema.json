@@ -1,0 +1,46 @@
+{
+  "additionalProperties": false,
+  "description": "سجل الكمون (§24.5) — الطوابع الست من الإشارة حتى التنفيذ.\n\nيتيح لمحرك التعلم قياس الفرق بين الأفضلية التحليلية والقابلة للتنفيذ.",
+  "properties": {
+    "broker_send_time": {
+      "format": "date-time",
+      "title": "Broker Send Time",
+      "type": "string"
+    },
+    "engine_decision_time": {
+      "format": "date-time",
+      "title": "Engine Decision Time",
+      "type": "string"
+    },
+    "exchange_ack_time": {
+      "format": "date-time",
+      "title": "Exchange Ack Time",
+      "type": "string"
+    },
+    "fill_time": {
+      "format": "date-time",
+      "title": "Fill Time",
+      "type": "string"
+    },
+    "signal_time": {
+      "format": "date-time",
+      "title": "Signal Time",
+      "type": "string"
+    },
+    "webhook_receive_time": {
+      "format": "date-time",
+      "title": "Webhook Receive Time",
+      "type": "string"
+    }
+  },
+  "required": [
+    "signal_time",
+    "webhook_receive_time",
+    "engine_decision_time",
+    "broker_send_time",
+    "exchange_ack_time",
+    "fill_time"
+  ],
+  "title": "LatencyRecord",
+  "type": "object"
+}

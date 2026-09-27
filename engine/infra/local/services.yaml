@@ -1,0 +1,108 @@
+# ═══════════════════════════════════════════════════════════════════
+# services.yaml — تعريف خدمات supervisor المحلي (build_plan A.2)
+#
+# الإقلاع متدرج بالأولوية (الأصغر أولًا):
+#   postgres(10) → nats(20) → seaweedfs(30) → migrate(40, oneshot) → worker(50)
+#
+# العناصر المتاحة في الاستبدال:
+#   {engine} جذر المحرك | {bin} مجلد الثنائيات | {data} مجلد البيانات
+#   {run} مجلد pidfiles/سوكت | {logs} مجلد السجلات | {python} مفسر البيئة الحالية
+#   {env.NAME} قيمة متغير بيئة من .env أو البيئة العامة
+# ═══════════════════════════════════════════════════════════════════
+
+services:
+  postgres:
+    kind: process
+    priority: 10
+    critical: true
+    first_run: postgres_initdb
+    post_healthy: postgres_ensure_db
+    cmd:
+      - "{bin}/pg/bin/postgres"
+      - "-D"
+      - "{data}/pg"
+      - "-p"
+      - "{env[POSTGRES_PORT]}"
+      - "-k"
+      - "{run}"
+      - "-h"
+      - "127.0.0.1"
+      - "-c"
+      - "shared_buffers=128MB"
+      - "-c"
+      - "max_connections=25"
+      - "-c"
+      - "work_mem=8MB"
+      - "-c"
+      - "effective_cache_size=512MB"
+    env:
+      LC_ALL: C
+      PGDATA: "{data}/pg"
+    health:
+      type: pg_sql
+      database: "{env[POSTGRES_DB]}"
+
+  nats:
+    kind: process
+    priority: 20
+    critical: true
+    cmd:
+      - "{bin}/nats-server"
+      - "-p"
+      - "4222"
+      - "-m"
+      - "8222"
+      - "-js"
+      - "-sd"
+      - "{data}/nats"
+    health:
+      type: http
+      url: "http://127.0.0.1:8222/healthz"
+      expect: 200
+
+  seaweedfs:
+    kind: process
+    priority: 30
+    critical: true
+    first_run: seaweedfs_s3config
+    cmd:
+      - "{bin}/seaweedfs"
+      - "mini"
+      - "-dir={data}/seaweed"
+      - "-ip=127.0.0.1"
+      - "-ip.bind=127.0.0.1"
+      - "-s3.port=9100"
+      - "-s3.port.lance=0"
+      - "-admin.port=23646"
+      - "-s3.config={data}/seaweed/s3-config.json"
+      - "-bucket={env[S3_BUCKET]}"
+    health:
+      type: http
+      url: "http://127.0.0.1:23646/"
+      expect: 200
+
+  migrate:
+    kind: oneshot
+    priority: 40
+    skip_if_missing: alembic.ini
+    cmd:
+      - "{python}"
+      - "-m"
+      - "alembic"
+      - "upgrade"
+      - "head"
+    cwd: "{engine}"
+    health:
+      type: exit_zero
+
+  worker:
+    kind: process
+    priority: 50
+    depends: [postgres, nats, seaweedfs, migrate]
+    cmd:
+      - "{python}"
+      - "-m"
+      - "engine_worker"
+    cwd: "{engine}"
+    health:
+      type: process

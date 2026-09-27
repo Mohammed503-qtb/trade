@@ -1,0 +1,601 @@
+{
+  "$defs": {
+    "DataQuality": {
+      "description": "حالات جودة البيانات التسع لكل شريحة أداة/زمن (§7.4).\n\nفقط HEALTHY وDELAYED (بموافقة صريحة) يصلان معالجة القرار العادية.",
+      "enum": [
+        "HEALTHY",
+        "DELAYED",
+        "PARTIAL",
+        "DUPLICATED",
+        "OUT_OF_ORDER",
+        "STALE",
+        "GAP_DETECTED",
+        "UNAVAILABLE",
+        "QUARANTINED"
+      ],
+      "title": "DataQuality",
+      "type": "string"
+    },
+    "Direction": {
+      "description": "الاتجاه الاتجاهي المثالث — LONG/SHORT وFLAT للحياد الصريح.",
+      "enum": [
+        "LONG",
+        "SHORT",
+        "FLAT"
+      ],
+      "title": "Direction",
+      "type": "string"
+    },
+    "EventType": {
+      "description": "قاموس الأحداث الإنتاجي الأولي (§20 حرفيًا — 45 نوعًا).\n\nلا يُختلق نوع حدث خارج هذا القاموس؛ الأوزان الافتراضية المرافقة في\nDEFAULT_EVENT_WEIGHTS أدناه منقولة من عمود Weight في §20.\nالأنواع الأربعة الأخيرة (None) ليست دليلًا اتجاهيًا بل حجبًا صلبًا (§22).",
+      "enum": [
+        "HTF_BULLISH",
+        "HTF_BEARISH",
+        "INTERNAL_BOS",
+        "EXTERNAL_BOS",
+        "CHOCH",
+        "DISPLACEMENT_UP",
+        "DISPLACEMENT_DOWN",
+        "LIQUIDITY_SWEEP_HIGH",
+        "LIQUIDITY_SWEEP_LOW",
+        "BREAK_AND_ACCEPT_HIGH",
+        "BREAK_AND_ACCEPT_LOW",
+        "ABSORPTION_BUY",
+        "ABSORPTION_SELL",
+        "FLOW_CONTINUATION_UP",
+        "FLOW_CONTINUATION_DOWN",
+        "EXHAUSTION_UP",
+        "EXHAUSTION_DOWN",
+        "FVG_BULLISH",
+        "FVG_BEARISH",
+        "ORDER_BLOCK_BULLISH",
+        "ORDER_BLOCK_BEARISH",
+        "PREMIUM_LOCATION",
+        "DISCOUNT_LOCATION",
+        "POC_ACCEPTANCE",
+        "POC_REJECTION",
+        "VAH_REJECTION",
+        "VAL_REJECTION",
+        "BUY_IMBALANCE_CLUSTER",
+        "SELL_IMBALANCE_CLUSTER",
+        "BULLISH_ENGULFING",
+        "BEARISH_ENGULFING",
+        "REJECTION_CANDLE",
+        "INSIDE_BAR_BREAK",
+        "CLASSICAL_BREAKOUT",
+        "CLASSICAL_FAILED_BREAKOUT",
+        "HARMONIC_COMPLETION",
+        "RANGE_COMPRESSION",
+        "RANGE_EXPANSION",
+        "SESSION_OPENING_DRIVE",
+        "SESSION_REVERSAL",
+        "MACRO_HIGH_IMPACT_NEAR",
+        "DATA_STALE",
+        "SPREAD_EXTREME",
+        "LATENCY_EXTREME",
+        "RISK_LIMIT_REACHED"
+      ],
+      "title": "EventType",
+      "type": "string"
+    },
+    "EvidenceGroup": {
+      "description": "مجموعات الدليل الست (§19.3) — تجميع لتجنب العد المزدوج (§2.3).",
+      "enum": [
+        "STRUCTURE",
+        "LIQUIDITY_LOCATION",
+        "ORDER_FLOW",
+        "PRICE_ACTION",
+        "VOLATILITY_SESSION",
+        "MACRO"
+      ],
+      "title": "EvidenceGroup",
+      "type": "string"
+    },
+    "EvidenceRecord": {
+      "additionalProperties": false,
+      "description": "سجل دليل واحد — مجمّد ويمنع الحقول الغريبة (عقد §19.1).",
+      "properties": {
+        "context_modifier": {
+          "title": "Context Modifier",
+          "type": "number"
+        },
+        "correlation_group_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Correlation Group Id"
+        },
+        "direction_score": {
+          "maximum": 1.0,
+          "minimum": -1.0,
+          "title": "Direction Score",
+          "type": "number"
+        },
+        "event_type": {
+          "$ref": "#/$defs/EventType"
+        },
+        "evidence_id": {
+          "title": "Evidence Id",
+          "type": "string"
+        },
+        "freshness": {
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "Freshness",
+          "type": "number"
+        },
+        "group": {
+          "$ref": "#/$defs/EvidenceGroup"
+        },
+        "independence_discount": {
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "Independence Discount",
+          "type": "number"
+        },
+        "opposition": {
+          "title": "Opposition",
+          "type": "boolean"
+        },
+        "prior_weight": {
+          "title": "Prior Weight",
+          "type": "number"
+        },
+        "quality": {
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "Quality",
+          "type": "number"
+        },
+        "raw_strength": {
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "Raw Strength",
+          "type": "number"
+        },
+        "source": {
+          "title": "Source",
+          "type": "string"
+        }
+      },
+      "required": [
+        "evidence_id",
+        "group",
+        "event_type",
+        "direction_score",
+        "raw_strength",
+        "quality",
+        "freshness",
+        "independence_discount",
+        "prior_weight",
+        "context_modifier",
+        "opposition",
+        "source"
+      ],
+      "title": "EvidenceRecord",
+      "type": "object"
+    },
+    "HTFBias": {
+      "description": "انحياز الإطار الأعلى كحالة موضعية (§9.2) — دليل سياقي لا مشغّل تداول.",
+      "enum": [
+        "BULLISH",
+        "BEARISH",
+        "NEUTRAL",
+        "TRANSITION",
+        "UNKNOWN"
+      ],
+      "title": "HTFBias",
+      "type": "string"
+    },
+    "InvalidationRule": {
+      "additionalProperties": false,
+      "description": "قاعدة الإبطال (§18.5 و§23.4): مستوى بنية + عازلة تقلب + شرط القبول.\n\naccept_through=True يعني أن الإبطال يتطلب قبولًا عبر المستوى (إغلاقًا)\nلا مجرد اختراق بفتيل؛ العازلة من بنية التقلب لا من رقم نقاط كوني (§23.4).",
+      "properties": {
+        "accept_through": {
+          "title": "Accept Through",
+          "type": "boolean"
+        },
+        "structural_level": {
+          "exclusiveMinimum": 0.0,
+          "title": "Structural Level",
+          "type": "number"
+        },
+        "volatility_buffer": {
+          "minimum": 0.0,
+          "title": "Volatility Buffer",
+          "type": "number"
+        }
+      },
+      "required": [
+        "structural_level",
+        "volatility_buffer",
+        "accept_through"
+      ],
+      "title": "InvalidationRule",
+      "type": "object"
+    },
+    "MarketRegime": {
+      "description": "تصنيف نظام السوق (§9.3) — القيم الثماني حرفيًا.",
+      "enum": [
+        "TREND_EXPANSION",
+        "TREND_PULLBACK",
+        "RANGE_BALANCE",
+        "RANGE_EXPANSION",
+        "COMPRESSION",
+        "VOLATILITY_SHOCK",
+        "TRANSITION",
+        "UNKNOWN"
+      ],
+      "title": "MarketRegime",
+      "type": "string"
+    },
+    "MarketStateSnapshot": {
+      "additionalProperties": false,
+      "description": "لقطة حالة السوق المبثوثة (مثال §32 حرفيًا).\n\nسياق للقرار لا إشارة بذاتها: النظام والانحياز والتقلب والجودة عند لحظة.",
+      "properties": {
+        "data_quality": {
+          "$ref": "#/$defs/DataQuality"
+        },
+        "event_time": {
+          "format": "date-time",
+          "title": "Event Time",
+          "type": "string"
+        },
+        "htf_bias": {
+          "$ref": "#/$defs/HTFBias"
+        },
+        "instrument": {
+          "title": "Instrument",
+          "type": "string"
+        },
+        "regime": {
+          "$ref": "#/$defs/MarketRegime"
+        },
+        "timeframe": {
+          "title": "Timeframe",
+          "type": "string"
+        },
+        "volatility_percentile": {
+          "maximum": 100.0,
+          "minimum": 0.0,
+          "title": "Volatility Percentile",
+          "type": "number"
+        }
+      },
+      "required": [
+        "instrument",
+        "timeframe",
+        "event_time",
+        "regime",
+        "htf_bias",
+        "volatility_percentile",
+        "data_quality"
+      ],
+      "title": "MarketStateSnapshot",
+      "type": "object"
+    },
+    "PriceZone": {
+      "additionalProperties": false,
+      "description": "نطاق سعري [price_low, price_high] — تمثيل مناطق الدخول.",
+      "properties": {
+        "price_high": {
+          "exclusiveMinimum": 0.0,
+          "title": "Price High",
+          "type": "number"
+        },
+        "price_low": {
+          "exclusiveMinimum": 0.0,
+          "title": "Price Low",
+          "type": "number"
+        }
+      },
+      "required": [
+        "price_low",
+        "price_high"
+      ],
+      "title": "PriceZone",
+      "type": "object"
+    },
+    "Scenario": {
+      "additionalProperties": false,
+      "description": "السيناريو (§18.1 حرفيًا) — تفسير منافس لحالة السوق لا اتجاهًا مفروضًا.\n\nscenario_score درجة دليل خام بنطاق [0, 1] وليست احتمالًا (§2.6)؛\ncalibrated_probability لا تظهر إلا بعد معاير صريح على بيانات خارج\nالعينة (§19.6) وتتبَّع بالنظام.",
+      "properties": {
+        "calibrated_probability": {
+          "anyOf": [
+            {
+              "maximum": 1.0,
+              "minimum": 0.0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Calibrated Probability"
+        },
+        "context_snapshot": {
+          "$ref": "#/$defs/MarketStateSnapshot"
+        },
+        "direction": {
+          "$ref": "#/$defs/Direction"
+        },
+        "entry_zone": {
+          "$ref": "#/$defs/PriceZone"
+        },
+        "expiry_time": {
+          "format": "date-time",
+          "title": "Expiry Time",
+          "type": "string"
+        },
+        "invalidation": {
+          "$ref": "#/$defs/InvalidationRule"
+        },
+        "location_snapshot": {
+          "additionalProperties": true,
+          "title": "Location Snapshot",
+          "type": "object"
+        },
+        "opposing_evidence": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Opposing Evidence",
+          "type": "array"
+        },
+        "primary_targets": {
+          "items": {
+            "$ref": "#/$defs/TargetZone"
+          },
+          "title": "Primary Targets",
+          "type": "array"
+        },
+        "regime": {
+          "$ref": "#/$defs/MarketRegime"
+        },
+        "scenario_id": {
+          "title": "Scenario Id",
+          "type": "string"
+        },
+        "scenario_score": {
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "Scenario Score",
+          "type": "number"
+        },
+        "secondary_targets": {
+          "items": {
+            "$ref": "#/$defs/TargetZone"
+          },
+          "title": "Secondary Targets",
+          "type": "array"
+        },
+        "state": {
+          "$ref": "#/$defs/ScenarioState"
+        },
+        "supporting_evidence": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Supporting Evidence",
+          "type": "array"
+        },
+        "symbol": {
+          "title": "Symbol",
+          "type": "string"
+        },
+        "thesis": {
+          "title": "Thesis",
+          "type": "string"
+        },
+        "trigger_definition": {
+          "$ref": "#/$defs/TriggerDefinition"
+        }
+      },
+      "required": [
+        "scenario_id",
+        "symbol",
+        "direction",
+        "regime",
+        "context_snapshot",
+        "location_snapshot",
+        "thesis",
+        "supporting_evidence",
+        "opposing_evidence",
+        "trigger_definition",
+        "entry_zone",
+        "invalidation",
+        "primary_targets",
+        "secondary_targets",
+        "expiry_time",
+        "state",
+        "scenario_score"
+      ],
+      "title": "Scenario",
+      "type": "object"
+    },
+    "ScenarioState": {
+      "description": "دورة حياة السيناريو (§18.2) — السبعة الأساسية + النهايات الخمس البديلة.\n\nالدرب الأساسي: DRAFT → ACTIVE → TRIGGERED → AUTHORIZED → EXECUTING →\nIN_TRADE → COMPLETED. النهايات البديلة: INVALIDATED/EXPIRED/SUPPRESSED/\nREJECTED_BY_RISK/CANCELLED_BY_DATA_QUALITY (12 حالة إجمالًا).",
+      "enum": [
+        "DRAFT",
+        "ACTIVE",
+        "TRIGGERED",
+        "AUTHORIZED",
+        "EXECUTING",
+        "IN_TRADE",
+        "COMPLETED",
+        "INVALIDATED",
+        "EXPIRED",
+        "SUPPRESSED",
+        "REJECTED_BY_RISK",
+        "CANCELLED_BY_DATA_QUALITY"
+      ],
+      "title": "ScenarioState",
+      "type": "string"
+    },
+    "SessionType": {
+      "description": "أنواع الجلسات (§9.4 + قرار A-03 في plan_review).\n\n§9.4 لا يعطي قيمًا حرفية؛ A-03 يحسم: الجلسة = حدود يوم UTC (UTC_DAY)\n+ ساعات سياق سلوكي اختيارية (آسيا/أوروبا/أمريكا) + نوافذ صيانة المنصة.\nالجلسة بيانات سياقية لا إشارة اتجاه بذاتها.",
+      "enum": [
+        "UTC_DAY",
+        "ASIA",
+        "EUROPE",
+        "AMERICA",
+        "MAINTENANCE"
+      ],
+      "title": "SessionType",
+      "type": "string"
+    },
+    "TargetZone": {
+      "additionalProperties": false,
+      "description": "هدف مرتبط بمنطقة سيولة (§10.5): مستوى سعر + مرجع المنطقة.",
+      "properties": {
+        "price_level": {
+          "exclusiveMinimum": 0.0,
+          "title": "Price Level",
+          "type": "number"
+        },
+        "zone_id": {
+          "title": "Zone Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "price_level",
+        "zone_id"
+      ],
+      "title": "TargetZone",
+      "type": "object"
+    },
+    "TriggerDefinition": {
+      "additionalProperties": false,
+      "description": "مشغل قابل للرصد — وصف هيكلي (condition_type + params) يفحصه المحرك.\n\nمثال: condition_type=\"ZONE_RECLAIM\"، params={\"zone_id\": ..., \"timeframe\": \"1m\"}.\nالسيناريو لا يصبح TRIGGERED إلا برصد هذا المشغل فعليًا (§18.4).",
+      "properties": {
+        "condition_type": {
+          "title": "Condition Type",
+          "type": "string"
+        },
+        "params": {
+          "additionalProperties": true,
+          "title": "Params",
+          "type": "object"
+        }
+      },
+      "required": [
+        "condition_type",
+        "params"
+      ],
+      "title": "TriggerDefinition",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "description": "سجل تجربة واحدة بعد إغلاق الصفقة (§29.1 حرفيًا — 17 حقلًا).\n\nاللقطات الأربع الأولى تلتقط الحالة وقت القرار: حالة السوق والسيناريو\nوالدليل مكتوبة النموذج؛ أما risk_snapshot وexecution_snapshot و\nfill_sequence وposition_path فحقول JSONB تُشدَّد نماذجها في مرحلتي\nالمخاطرة والتنفيذ (§23/§24) — عمدًا لا فجوة.\nmfe/mae بمضاعفات R من مسار الدخول الفعلي (§23.1، §29.2).\nholding_time بالثواني.",
+  "properties": {
+    "costs": {
+      "minimum": 0.0,
+      "title": "Costs",
+      "type": "number"
+    },
+    "evidence_snapshot": {
+      "items": {
+        "$ref": "#/$defs/EvidenceRecord"
+      },
+      "title": "Evidence Snapshot",
+      "type": "array"
+    },
+    "execution_snapshot": {
+      "additionalProperties": true,
+      "title": "Execution Snapshot",
+      "type": "object"
+    },
+    "exit_reason": {
+      "title": "Exit Reason",
+      "type": "string"
+    },
+    "fill_sequence": {
+      "items": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "title": "Fill Sequence",
+      "type": "array"
+    },
+    "gross_pnl": {
+      "title": "Gross Pnl",
+      "type": "number"
+    },
+    "holding_time": {
+      "minimum": 0.0,
+      "title": "Holding Time",
+      "type": "number"
+    },
+    "mae": {
+      "title": "Mae",
+      "type": "number"
+    },
+    "market_state_snapshot": {
+      "$ref": "#/$defs/MarketStateSnapshot"
+    },
+    "mfe": {
+      "title": "Mfe",
+      "type": "number"
+    },
+    "net_pnl": {
+      "title": "Net Pnl",
+      "type": "number"
+    },
+    "net_r": {
+      "title": "Net R",
+      "type": "number"
+    },
+    "position_path": {
+      "items": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "title": "Position Path",
+      "type": "array"
+    },
+    "regime": {
+      "$ref": "#/$defs/MarketRegime"
+    },
+    "risk_snapshot": {
+      "additionalProperties": true,
+      "title": "Risk Snapshot",
+      "type": "object"
+    },
+    "scenario_snapshot": {
+      "$ref": "#/$defs/Scenario"
+    },
+    "session": {
+      "$ref": "#/$defs/SessionType"
+    }
+  },
+  "required": [
+    "market_state_snapshot",
+    "scenario_snapshot",
+    "evidence_snapshot",
+    "risk_snapshot",
+    "execution_snapshot",
+    "fill_sequence",
+    "position_path",
+    "mfe",
+    "mae",
+    "holding_time",
+    "exit_reason",
+    "gross_pnl",
+    "costs",
+    "net_pnl",
+    "net_r",
+    "regime",
+    "session"
+  ],
+  "title": "ExperienceRecord",
+  "type": "object"
+}

@@ -1,0 +1,90 @@
+{
+  "$defs": {
+    "DataQuality": {
+      "description": "حالات جودة البيانات التسع لكل شريحة أداة/زمن (§7.4).\n\nفقط HEALTHY وDELAYED (بموافقة صريحة) يصلان معالجة القرار العادية.",
+      "enum": [
+        "HEALTHY",
+        "DELAYED",
+        "PARTIAL",
+        "DUPLICATED",
+        "OUT_OF_ORDER",
+        "STALE",
+        "GAP_DETECTED",
+        "UNAVAILABLE",
+        "QUARANTINED"
+      ],
+      "title": "DataQuality",
+      "type": "string"
+    },
+    "HTFBias": {
+      "description": "انحياز الإطار الأعلى كحالة موضعية (§9.2) — دليل سياقي لا مشغّل تداول.",
+      "enum": [
+        "BULLISH",
+        "BEARISH",
+        "NEUTRAL",
+        "TRANSITION",
+        "UNKNOWN"
+      ],
+      "title": "HTFBias",
+      "type": "string"
+    },
+    "MarketRegime": {
+      "description": "تصنيف نظام السوق (§9.3) — القيم الثماني حرفيًا.",
+      "enum": [
+        "TREND_EXPANSION",
+        "TREND_PULLBACK",
+        "RANGE_BALANCE",
+        "RANGE_EXPANSION",
+        "COMPRESSION",
+        "VOLATILITY_SHOCK",
+        "TRANSITION",
+        "UNKNOWN"
+      ],
+      "title": "MarketRegime",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "description": "لقطة حالة السوق المبثوثة (مثال §32 حرفيًا).\n\nسياق للقرار لا إشارة بذاتها: النظام والانحياز والتقلب والجودة عند لحظة.",
+  "properties": {
+    "data_quality": {
+      "$ref": "#/$defs/DataQuality"
+    },
+    "event_time": {
+      "format": "date-time",
+      "title": "Event Time",
+      "type": "string"
+    },
+    "htf_bias": {
+      "$ref": "#/$defs/HTFBias"
+    },
+    "instrument": {
+      "title": "Instrument",
+      "type": "string"
+    },
+    "regime": {
+      "$ref": "#/$defs/MarketRegime"
+    },
+    "timeframe": {
+      "title": "Timeframe",
+      "type": "string"
+    },
+    "volatility_percentile": {
+      "maximum": 100.0,
+      "minimum": 0.0,
+      "title": "Volatility Percentile",
+      "type": "number"
+    }
+  },
+  "required": [
+    "instrument",
+    "timeframe",
+    "event_time",
+    "regime",
+    "htf_bias",
+    "volatility_percentile",
+    "data_quality"
+  ],
+  "title": "MarketStateSnapshot",
+  "type": "object"
+}

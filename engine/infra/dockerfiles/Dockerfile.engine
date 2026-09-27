@@ -1,0 +1,101 @@
+# ═══════════════════════════════════════════════════════════════════════════════
+# Dockerfile.engine — صورة موحّدة لكل خدمات المحرك (قرار D-01)
+# ───────────────────────────────────────────────────────────────────────────────
+# مواصفة قانونية للخادم الهدف: الـsandbox لا يملك Docker — تُبنى فعليًا عند
+# النشر. صورة واحدة بمدخل مرن: ARG SERVICE ∈ {api, worker, replay, migrate}
+# يحدده build-args في infra/docker-compose.yml لكل خدمة (entrypoint.sh يحوّله).
+#
+# قاعدة §37.1 (لا أسرار في الشيفرة ولا في الطبقات): ملف .env غير منسوخ إلى
+# الصورة إطلاقًا (لا سطر COPY يمسّه)، وكل الإعدادات تُقرأ من بيئة التشغيل
+# وقت الشروع. حرس آلي أسفل الملف يُفشل البناء إذا وُجد /app/.env.
+#
+# بناء موضعي للتجربة على الخادم الهدف (من جذر engine/):
+#   docker build -f infra/dockerfiles/Dockerfile.engine --build-arg SERVICE=worker .
+# ملاحظة: يُستحسن إنشاء engine/.dockerignore (استبعاد .venv/ data/ .env
+# مخلفات الأدوات) لضم سياق البناء — خارج نطاق هذه المهمة (قيود المسارات).
+# ═══════════════════════════════════════════════════════════════════════════════
+
+# ── المرحلة 1 (deps): التبعيات الخارجية فقط — طبقة قابلة للتخزين المؤقت ──────
+# تُبطل هذه الطبقة فقط عند تغيّر pyproject/uv.lock، لا عند تغيّر الشيفرة.
+#
+# ملاحظة مثبتة تجريبيًا (uv 0.12): التركيبات القابلة للتحرير (workspace)
+# تكتب مسارات المصدر داخل ملفات .pth وقت التركيب — لذلك نركّب هنا التبعيات
+# الخارجية وحدها (--no-install-workspace) ونركّب حزم الـworkspace في المرحلة
+# النهائية بعد نسخ الشيفرة؛ تركيبها بلا مصدر "ينجح" صامتًا بلا مسارات
+# استيراد — فشل خفيّ كان سيُكتشف عند التشغيل فقط.
+FROM ghcr.io/astral-sh/uv:python3.12-bookworm-slim AS deps
+ENV UV_LINK_MODE=copy
+WORKDIR /app
+
+# ملفات التعريف + القفل فقط — طبقة الاعتمادات لا تعرف شيئًا عن الشيفرة.
+# عند إضافة حزمة workspace جديدة: أضف سطر COPY لها هنا (المسار نفسه).
+COPY pyproject.toml uv.lock ./
+COPY apps/api/pyproject.toml           apps/api/pyproject.toml
+COPY apps/worker/pyproject.toml        apps/worker/pyproject.toml
+COPY apps/replay/pyproject.toml        apps/replay/pyproject.toml
+COPY packages/schemas/pyproject.toml   packages/schemas/pyproject.toml
+COPY packages/common/pyproject.toml    packages/common/pyproject.toml
+COPY packages/math/pyproject.toml      packages/math/pyproject.toml
+COPY packages/features/pyproject.toml  packages/features/pyproject.toml
+COPY packages/backtest/pyproject.toml  packages/backtest/pyproject.toml
+COPY services/ingestion/pyproject.toml    services/ingestion/pyproject.toml
+COPY services/market_state/pyproject.toml services/market_state/pyproject.toml
+COPY services/liquidity/pyproject.toml    services/liquidity/pyproject.toml
+COPY services/structure/pyproject.toml    services/structure/pyproject.toml
+COPY services/orderflow/pyproject.toml    services/orderflow/pyproject.toml
+COPY services/patterns/pyproject.toml     services/patterns/pyproject.toml
+COPY services/fusion/pyproject.toml       services/fusion/pyproject.toml
+COPY services/scenarios/pyproject.toml    services/scenarios/pyproject.toml
+COPY services/risk/pyproject.toml         services/risk/pyproject.toml
+COPY services/learning/pyproject.toml     services/learning/pyproject.toml
+
+# التبعيات الخارجية كاملة (الطبقة الغالية: polars/scipy/… مستقبلًا) — بلا حزم محلية
+RUN uv sync --frozen --all-packages --no-dev --no-install-workspace
+
+# ── المرحلة 2 (runtime): الشيفرة + venv الجاهز + مستخدم غير جذري ──────────────
+FROM ghcr.io/astral-sh/uv:python3.12-bookworm-slim
+
+# مستخدم غير جذري (مبدأ أمني): لا عملية محرك تعمل بامتيازات root داخل الشبكة
+RUN groupadd --system engine \
+    && useradd --system --gid engine --home-dir /home/engine --create-home engine
+
+ENV UV_LINK_MODE=copy \
+    PYTHONUNBUFFERED=1 \
+    PYTHONDONTWRITEBYTECODE=1 \
+    PATH="/app/.venv/bin:$PATH"
+
+WORKDIR /app
+
+# venv المرحلة الأولى (الاعتمادات جاهزة)
+COPY --from=deps /app/.venv /app/.venv
+
+# الشجرة كاملة: الشيفرة الحقيقية تُنسخ فوق مسارات التركيب القابل للتحرير.
+# alembic.ini يصل مع المهمة 0.6 على جذر engine/ — البناء قبله يفشل بوضوح
+# (fail-fast مقصود: خدمة migrate بلا هجرة = فشل صامت لاحقًا).
+COPY pyproject.toml uv.lock alembic.ini ./
+COPY apps ./apps
+COPY packages ./packages
+COPY services ./services
+COPY migrations ./migrations
+
+# مداخل التشغيل وأداة فحص الصحة (داخل infra/ — جزء من المواصفة)
+COPY infra/dockerfiles/entrypoint.sh /usr/local/bin/entrypoint.sh
+COPY infra/dockerfiles/healthcheck.py /usr/local/bin/healthcheck.py
+
+# تركيب حزم workspace القابل للتحرير فوق الاعتمادات الجاهزة — سريع: لا يعيد
+# تنزيل شيئًا ويكتب مسارات .pth الصحيحة فقط (القفل نفسه — --frozen).
+# ثم alembic بالإصدار المقفول (موجود في uv.lock ضمن مجموعة dev فقط، وخدمة
+# migrate one-shot تحتاجه داخل الصورة — لهذا يُثبَّت بعد sync كي لا يقصّه).
+# متى نُقل alembic إلى تبعيات تشغيل صريحة تُحذف سطور تثبيته هنا.
+RUN uv sync --frozen --all-packages --no-dev \
+    && uv pip install --python /app/.venv/bin/python "alembic==1.20.0" \
+    && chmod 0755 /usr/local/bin/entrypoint.sh /usr/local/bin/healthcheck.py
+
+# حرس الأسرار (§37.1): يثبت آليًا أن .env لم يدخل نظام ملفات الصورة
+RUN test ! -e /app/.env
+
+# مدخل مرن: SERVICE يحدد العملية (من build-arg هنا أو environment وقت التشغيل)
+ARG SERVICE=worker
+ENV SERVICE=${SERVICE}
+USER engine
+ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
