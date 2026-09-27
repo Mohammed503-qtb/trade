@@ -1,0 +1,802 @@
+     1→# AI Market Reasoning Engine — Master Plan
+     2→
+     3→**Document status:** Authoritative architecture and build specification  
+     4→**Version:** 1.0  
+     5→**Date:** 2026-09-27  
+     6→**Owner:** System Architecture / Research / Execution  
+     7→**Primary objective:** Build a market-reasoning system that converts raw market information into auditable market state, evidence, scenarios, risk decisions, execution instructions, and post-trade learning without relying on brittle indicator stacking.
+     8→
+     9→---
+    10→
+    11→## 1. Project Definition
+    12→
+    13→AI Market Reasoning Engine is an adaptive, data-driven market analysis and decision system for short-horizon trading. It is designed to read price structure, liquidity, volume/footprint and order-flow proxies, session context, classical price action, harmonic structures, market-phase behavior, volatility, and macroeconomic context; fuse these observations into explicit competing scenarios; reject low-quality situations; convert only validated scenarios into risk-bounded trade intents; execute through a broker/exchange adapter only when execution constraints are acceptable; and record the complete causal chain so every decision can later be evaluated and learned from.
+    14→
+    15→It is **not** a collection of indicators, a black-box LLM that predicts the next candle, a proof that “smart money” can be seen directly from public chart data, a guarantee of profitability, or a system that treats the appearance of one named pattern as a trade signal. Terms such as Order Block, institutional zone, accumulation, manipulation, and distribution are treated as measurable **market-behavior hypotheses**, not as unverifiable claims about the identity or intention of market participants. The initial system is for research, analysis, paper trading, and tightly controlled live execution; any live use is gated by empirical validation after realistic costs.
+    16→
+    17→---
+    18→
+    19→## 2. Core Design Principles
+    20→
+    21→### 2.1 Causal chain
+    22→
+    23→Every production decision must be traceable through:
+    24→
+    25→`Raw Data → Data Quality → Market State → Context → Events → Evidence → Scenario → Risk Decision → Execution Intent → Fill/Outcome → Attribution → Learning`
+    26→
+    27→No module is allowed to create an isolated score that is not consumed by a downstream decision or stored for later evaluation.
+    28→
+    29→### 2.2 Evidence is contextual, not absolute
+    30→
+    31→A signal is never interpreted without location, regime, timing, volatility, and data quality. A bullish footprint inside a major bearish expansion can mean continuation, absorption, or trapped buyers depending on the surrounding auction.
+    32→
+    33→### 2.3 Independent evidence beats repeated evidence
+    34→
+    35→Five observations derived from the same price move do not equal five independent confirmations. Evidence Fusion therefore groups correlated observations and caps their combined contribution.
+    36→
+    37→### 2.4 Hard constraints before soft scores
+    38→
+    39→A hard risk or data-quality failure blocks a trade regardless of how attractive the analytical score is. Examples: stale feed, invalid instrument state, missing execution price, extreme spread, unavailable stop placement, or market halt.
+    40→
+    41→### 2.5 Scenario-first reasoning
+    42→
+    43→The engine generates competing explanations of the current market state rather than searching for a single predetermined direction.
+    44→
+    45→### 2.6 No magical confidence
+    46→
+    47→Before calibration, the engine uses evidence scores and grades, not pseudo-probabilities. A probability is exposed only after an explicit calibration procedure on out-of-sample data and is tracked by regime.
+    48→
+    49→### 2.7 Learning is controlled, not self-corrupting
+    50→
+    51→The live production policy never rewrites itself because of one trade or a short run of trades. Learning occurs through an immutable experience ledger, cohort statistics, offline re-estimation, walk-forward evaluation, promotion gates, and versioned deployment.
+    52→
+    53→### 2.8 Human-readable causality
+    54→
+    55→Every trade intent must have an explanation object containing: market context, liquidity map, structural state, supporting evidence, opposing evidence, trigger, invalidation, expected path, cost estimate, and reason for rejection when no trade is taken.
+    56→
+    57→---
+    58→
+    59→## 3. System Boundary and Responsibilities
+    60→
+    61→The platform is divided into six responsibility domains:
+    62→
+    63→1. **Understanding:** transform data into market facts and state.
+    64→2. **Decision:** compare scenarios and select whether a trade intent is justified.
+    65→3. **Risk:** determine whether the intent is allowed and size/shape it.
+    66→4. **Execution:** translate the approved intent into orders and verify actual fills.
+    67→5. **Learning:** measure what worked, what failed, why, and under which regime.
+    68→6. **Presentation:** render the state and reasoning to TradingView and the web dashboard.
+    69→
+    70→The boundaries are strict. The Understanding layer never submits orders. The Learning layer never directly mutates live trading parameters. Execution never invents market analysis to justify an order.
+    71→
+    72→---
+    73→
+    74→# 4. Reference Architecture
+    75→
+    76→```text
+    77→                           ┌──────────────────────────┐
+    78→                           │ External Market Feeds    │
+    79→                           │ Trades / Quotes / Bars   │
+    80→                           │ Economic / Calendar      │
+    81→                           └────────────┬─────────────┘
+    82→                                        │
+    83→                                        ▼
+    84→                           ┌──────────────────────────┐
+    85→                           │ Data Ingestion & QA       │
+    86→                           │ Normalize / Deduplicate   │
+    87→                           │ Timestamp / Health        │
+    88→                           └────────────┬─────────────┘
+    89→                                        │
+    90→                                        ▼
+    91→                           ┌──────────────────────────┐
+    92→                           │ Canonical Market Store    │
+    93→                           │ PostgreSQL + TimescaleDB  │
+    94→                           │ Raw Objects → Object Store│
+    95→                           └────────────┬─────────────┘
+    96→                                        │
+    97→                    ┌───────────────────┼──────────────────┐
+    98→                    │                   │                  │
+    99→                    ▼                   ▼                  ▼
+   100→             Context Engine      Liquidity Engine    Flow/Footprint
+   101→                    │                   │                  │
+   102→                    └───────────────────┼──────────────────┘
+   103→                                        ▼
+   104→                              ┌─────────────────────┐
+   105→                              │ Structure / SMC     │
+   106→                              │ Pattern / Macro     │
+   107→                              │ Volatility / Session│
+   108→                              └──────────┬──────────┘
+   109→                                         ▼
+   110→                              ┌─────────────────────┐
+   111→                              │ Evidence Fusion     │
+   112→                              │ Contradiction Model │
+   113→                              └──────────┬──────────┘
+   114→                                         ▼
+   115→                              ┌─────────────────────┐
+   116→                              │ Scenario Engine     │
+   117→                              │ Candidate / Active  │
+   118→                              │ Trigger / Invalidate│
+   119→                              └──────────┬──────────┘
+   120→                                         ▼
+   121→                              ┌─────────────────────┐
+   122→                              │ No-Trade + Risk     │
+   123→                              │ Gate + Position Size│
+   124→                              └──────────┬──────────┘
+   125→                                         ▼
+   126→                              ┌─────────────────────┐
+   127→                              │ Execution Engine     │
+   128→                              │ Orders / Fills / Time│
+   129→                              └──────────┬──────────┘
+   130→                                         ▼
+   131→                              ┌─────────────────────┐
+   132→                              │ Position Monitor     │
+   133→                              │ Exit / Management    │
+   134→                              └──────────┬──────────┘
+   135→                                         ▼
+   136→                              ┌─────────────────────┐
+   137→                              │ Post-Trade Ledger    │
+   138→                              │ Attribution / Labels  │
+   139→                              └──────────┬──────────┘
+   140→                                         ▼
+   141→                              ┌─────────────────────┐
+   142→                              │ Learning Laboratory   │
+   143→                              │ WFO / Calibration     │
+   144→                              │ Drift / Versioning    │
+   145→                              └──────────┬──────────┘
+   146→                                         │ approved model
+   147→                                         └──────────────► Production
+   148→
+   149→TradingView Pine v6 runs in parallel as a constrained visualization,
+   150→independent signal mirror, alert source, and operator interface. It is
+   151→not the authoritative store, learner, or sole live-data source.
+   152→```
+   153→
+   154→---
+   155→
+   156→# 5. Technology Decisions
+   157→
+   158→## 5.1 Canonical language
+   159→
+   160→**Python 3.12+** is the canonical language for the external engine.
+   161→
+   162→Reasons:
+   163→
+   164→- Strong market-data and quantitative ecosystem.
+   165→- Efficient numerical work with NumPy/Polars.
+   166→- Mature APIs, async networking, testing, and ML tooling.
+   167→- Fast iteration for research while keeping production services in one language.
+   168→
+   169→**Pine Script v6** is used only for the TradingView component. It is not used as the central learning or execution platform.
+   170→
+   171→## 5.2 Storage
+   172→
+   173→**PostgreSQL + TimescaleDB** is the canonical relational/time-series store.
+   174→
+   175→Use it for:
+   176→
+   177→- normalized candles and market features;
+   178→- events, zones, scenarios, decisions;
+   179→- orders, fills, positions, and outcomes;
+   180→- model versions and parameters;
+   181→- calibration and drift statistics;
+   182→- audit logs.
+   183→
+   184→**S3-compatible object storage (MinIO in the first self-hosted deployment)** stores large immutable datasets:
+   185→
+   186→- raw trades;
+   187→- raw quote snapshots;
+   188→- compressed historical datasets;
+   189→- backtest exports;
+   190→- model artifacts;
+   191→- replay fixtures.
+   192→
+   193→Do not store every raw tick inside ordinary relational rows unless required by the data source; keep large raw streams in partitioned columnar files such as Parquet and store their metadata in PostgreSQL.
+   194→
+   195→## 5.3 Messaging
+   196→
+   197→**NATS JetStream** is the event bus.
+   198→
+   199→Reasons:
+   200→
+   201→- Low operational overhead compared with a full Kafka deployment.
+   202→- Durable streams and consumer groups are sufficient for the first production scale.
+   203→- Clear separation between ingestion, feature calculation, scenario decisions, execution, and learning.
+   204→
+   205→## 5.4 Hot state
+   206→
+   207→**Redis** is used for:
+   208→
+   209→- latest instrument state;
+   210→- short-lived locks;
+   211→- webhook idempotency keys;
+   212→- execution guards;
+   213→- rate limiting;
+   214→- cached session and macro state.
+   215→
+   216→Redis is not the system of record.
+   217→
+   218→## 5.5 API layer
+   219→
+   220→**FastAPI** exposes:
+   221→
+   222→- TradingView webhook endpoint;
+   223→- market-state API;
+   224→- scenario and decision API;
+   225→- operator dashboard API;
+   226→- execution status;
+   227→- research/replay controls.
+   228→
+   229→## 5.6 Research stack
+   230→
+   231→- Polars for high-performance tabular processing.
+   232→- NumPy for numerical arrays.
+   233→- SciPy for statistical procedures.
+   234→- scikit-learn for baseline models, calibration, metrics, and preprocessing.
+   235→- LightGBM for the first production-grade nonlinear ranking/classification learner after a deterministic baseline proves the feature set useful.
+   236→- PyTorch is deferred until a concrete problem is shown to benefit from sequence/deep models. It is not a default dependency.
+   237→
+   238→## 5.7 Frontend
+   239→
+   240→**React + TypeScript** web dashboard.
+   241→
+   242→The dashboard is an investigation and monitoring surface, not the source of truth.
+   243→
+   244→## 5.8 Deployment
+   245→
+   246→First production architecture uses Docker Compose on a persistent server with managed or separately backed-up PostgreSQL when available. Kubernetes is explicitly deferred until deployment scale or availability requirements prove it necessary.
+   247→
+   248→---
+   249→
+   250→# 6. TradingView Architecture
+   251→
+   252→## 6.1 Role of Pine v6
+   253→
+   254→The TradingView component has four responsibilities:
+   255→
+   256→1. Render canonical market concepts on the chart.
+   257→2. Run a lightweight, deterministic mirror of the most important event logic.
+   258→3. Create auditable alerts when configured conditions occur.
+   259→4. Act as a human-facing diagnostic surface.
+   260→
+   261→Pine is not responsible for:
+   262→
+   263→- long-term storage;
+   264→- model training;
+   265→- large-scale walk-forward jobs;
+   266→- portfolio-wide correlation analysis;
+   267→- broker reconciliation;
+   268→- live parameter mutation;
+   269→- large raw tick retention.
+   270→
+   271→## 6.2 Current relevant Pine constraints
+   272→
+   273→As of 2026-09-27, TradingView documents the following constraints relevant to this project:
+   274→
+   275→- Pine Script v6 is the current language.
+   276→- General `request.*()` calls are limited to 40 unique calls, or 64 on Ultimate plans; `request.footprint()` has its own one-unique-call restriction and requires Premium or Ultimate access.
+   277→- Script execution and loop execution are bounded; the documented total script execution limit is 20 seconds for basic accounts and 40 seconds for other accounts, with a 500 ms per-loop-per-bar limit.
+   278→- Compiled Pine code is limited to 100,256 compiled tokens; the compilation request has a 5 MB limit.
+   279→- Collections are limited to 100,000 elements.
+   280→- Lower-timeframe requests are capped by plan; current documentation lists up to 100K intrabars on non-professional plans, 125K on Expert, and 200K on Ultimate.
+   281→
+   282→These limits are reasons for keeping the external engine authoritative rather than trying to build the full reasoning and learning system in Pine.
+   283→
+   284→Official references:
+   285→
+   286→- https://www.tradingview.com/pine-script-docs/writing/limitations/
+   287→- https://www.tradingview.com/pine-script-docs/release-notes/
+   288→- https://www.tradingview.com/pine-script-docs/concepts/other-timeframes-and-data/
+   289→
+   290→## 6.3 Footprint capability
+   291→
+   292→TradingView now exposes footprint data to Pine through `request.footprint()`. The available data includes total buy volume, sell volume, delta, POC, VAH, VAL, and row-level imbalances. The project must use this capability where the instrument/feed supports it rather than reconstructing the same information from crude lower-timeframe guesses.
+   293→
+   294→A footprint request is a **bar-level observation**. It does not prove global market-wide order-book intent.
+   295→
+   296→Official reference:
+   297→
+   298→- https://www.tradingview.com/pine-script-docs/release-notes/
+   299→- https://www.tradingview.com/pine-script-docs/language/type-system/
+   300→
+   301→## 6.4 Webhook boundary
+   302→
+   303→TradingView alerts send HTTP POST requests to an external endpoint. JSON alert bodies are supported. Current TradingView documentation states webhook delivery uses ports 80/443, requests taking more than three seconds are cancelled, IPv6 is not currently supported for webhooks, and webhook delivery can occasionally fail; therefore the endpoint must respond quickly, persist the event, and process asynchronously.
+   304→
+   305→Webhook requirements:
+   306→
+   307→- HTTPS only.
+   308→- Authenticated endpoint.
+   309→- Replay/idempotency key.
+   310→- Schema version.
+   311→- Timestamp and alert event UUID.
+   312→- No secrets or credentials in the alert body.
+   313→- Fast acknowledgement; heavy work occurs asynchronously.
+   314→
+   315→Official reference:
+   316→
+   317→- https://www.tradingview.com/support/solutions/43000529348-how-to-configure-webhook-alerts/
+   318→
+   319→---
+   320→
+   321→# 7. Data Model and Market Data Contract
+   322→
+   323→The entire engine depends on a canonical event-time model.
+   324→
+   325→## 7.1 Time contract
+   326→
+   327→Every market record must contain:
+   328→
+   329→- `event_time_utc`: actual event timestamp when available.
+   330→- `receive_time_utc`: system arrival time.
+   331→- `source_timeframe`.
+   332→- `venue`.
+   333→- `symbol`.
+   334→- `feed_id`.
+   335→- `sequence_id` when supplied by source.
+   336→- `source_latency_ms` where measurable.
+   337→
+   338→Never use local wall-clock time as market event time.
+   339→
+   340→## 7.2 Data hierarchy
+   341→
+   342→```text
+   343→Raw Tick / Trade / Quote
+   344→        ↓
+   345→Normalized Event
+   346→        ↓
+   347→Time-bucketed Bars
+   348→        ↓
+   349→Intrabar / Footprint Aggregates
+   350→        ↓
+   351→Features
+   352→        ↓
+   353→Events
+   354→        ↓
+   355→Market State
+   356→```
+   357→
+   358→## 7.3 Source hierarchy
+   359→
+   360→The engine distinguishes:
+   361→
+   362→1. Exchange/broker-native trade and quote data.
+   363→2. Specialized order-flow/market-depth data where licensed.
+   364→3. TradingView chart/footprint observations.
+   365→4. Economic releases from authoritative providers.
+   366→5. Derived features from the above.
+   367→
+   368→A derived value is never treated as a primary fact.
+   369→
+   370→## 7.4 Data-quality states
+   371→
+   372→Each instrument/time slice is classified as:
+   373→
+   374→- `HEALTHY`
+   375→- `DELAYED`
+   376→- `PARTIAL`
+   377→- `DUPLICATED`
+   378→- `OUT_OF_ORDER`
+   379→- `STALE`
+   380→- `GAP_DETECTED`
+   381→- `UNAVAILABLE`
+   382→- `QUARANTINED`
+   383→
+   384→Only `HEALTHY` and explicitly approved `DELAYED` states can reach normal decision processing. Any data-quality degradation is attached to downstream evidence quality.
+   385→
+   386→---
+   387→
+   388→# 8. Candle and Footprint Canonical Objects
+   389→
+   390→## 8.1 Candle object
+   391→
+   392→Each canonical candle contains:
+   393→
+   394→```text
+   395→open
+   396→high
+   397→low
+   398→close
+   399→volume
+   400→range
+   401→body_size
+   402→upper_wick
+   403→lower_wick
+   404→body_fraction
+   405→close_location_value
+   406→true_range
+   407→realized_volatility
+   408→session_id
+   409→bar_time
+   410→```
+   411→
+   412→Derived features are normalized by recent regime statistics rather than hard-coded absolute values wherever possible.
+   413→
+   414→## 8.2 Footprint object
+   415→
+   416→Where available:
+   417→
+   418→```text
+   419→buy_volume
+   420→sell_volume
+   421→total_volume
+   422→delta
+   423→buy_share
+   424→sell_share
+   425→poc
+   426→vah
+   427→val
+   428→row_count
+   429→buy_imbalance_count
+   430→sell_imbalance_count
+   431→max_positive_delta_row
+   432→max_negative_delta_row
+   433→```
+   434→
+   435→Row-level information is retained for the current bar and for selected historical rows that materially affect a detected event. The system does not create unbounded row storage merely for visualization.
+   436→
+   437→---
+   438→
+   439→# 9. Context Engine
+   440→
+   441→The Context Engine answers: **What kind of market are we in?**
+   442→
+   443→It produces a structured state, not a trade direction.
+   444→
+   445→## 9.1 Timeframe hierarchy
+   446→
+   447→The engine uses three functional levels:
+   448→
+   449→- **Higher timeframe:** defines broad context and external structure.
+   450→- **Middle timeframe:** defines the setup and location.
+   451→- **Execution timeframe:** defines the trigger.
+   452→
+   453→Example reference stack:
+   454→
+   455→```text
+   456→HTF: 1H / 4H
+   457→MTF: 5m / 15m
+   458→LTF: 1m
+   459→```
+   460→
+   461→The exact selected periods are configuration values, but the role separation is invariant.
+   462→
+   463→## 9.2 HTF Bias
+   464→
+   465→HTF bias is a structured state determined from:
+   466→
+   467→- confirmed swing sequence;
+   468→- external structure direction;
+   469→- current dealing range;
+   470→- relationship to major liquidity;
+   471→- expansion/contraction state;
+   472→- higher-timeframe displacement;
+   473→- volatility regime.
+   474→
+   475→It is represented as:
+   476→
+   477→```text
+   478→BULLISH
+   479→BEARISH
+   480→NEUTRAL
+   481→TRANSITION
+   482→UNKNOWN
+   483→```
+   484→
+   485→HTF bias is contextual evidence. It does not trigger a trade.
+   486→
+   487→## 9.3 Market regime
+   488→
+   489→The engine classifies:
+   490→
+   491→- `TREND_EXPANSION`
+   492→- `TREND_PULLBACK`
+   493→- `RANGE_BALANCE`
+   494→- `RANGE_EXPANSION`
+   495→- `COMPRESSION`
+   496→- `VOLATILITY_SHOCK`
+   497→- `TRANSITION`
+   498→- `UNKNOWN`
+   499→
+   500→Regime features include normalized range, directional efficiency, volatility percentile, swing persistence, volume concentration, and displacement frequency.
+   501→
+   502→## 9.4 Session context
+   503→
+   504→Sessions are explicit objects with:
+   505→
+   506→- open time;
+   507→- close time;
+   508→- opening range;
+   509→- initial balance where meaningful;
+   510→- prior session high/low;
+   511→- current session high/low;
+   512→- session volume profile where available;
+   513→- overlap flags;
+   514→- session transition risk.
+   515→
+   516→Session is contextual metadata. It is not a direction signal by itself.
+   517→
+   518→## 9.5 Opening structure
+   519→
+   520→The system tracks:
+   521→
+   522→- gap relative to prior session where meaningful;
+   523→- opening range;
+   524→- opening drive;
+   525→- opening reversal;
+   526→- early liquidity formation;
+   527→- opening imbalance;
+   528→- prior close relationship.
+   529→
+   530→No fixed assumption is made that a gap must fill or that an opening drive must continue.
+   531→
+   532→---
+   533→
+   534→# 10. Liquidity Map Engine
+   535→
+   536→The Liquidity Map represents **where price has structural reasons to encounter opposing interest or stop-driven activity**.
+   537→
+   538→It is an inferred map, not direct knowledge of every participant's orders.
+   539→
+   540→## 10.1 Liquidity sources
+   541→
+   542→### Sell-side candidates
+   543→
+   544→- prior swing lows;
+   545→- equal lows;
+   546→- session lows;
+   547→- previous day/week lows;
+   548→- range boundaries;
+   549→- obvious repeated lows;
+   550→- untested external liquidity.
+   551→
+   552→### Buy-side candidates
+   553→
+   554→- prior swing highs;
+   555→- equal highs;
+   556→- session highs;
+   557→- previous day/week highs;
+   558→- range boundaries;
+   559→- obvious repeated highs;
+   560→- untested external liquidity.
+   561→
+   562→## 10.2 Liquidity zone object
+   563→
+   564→```text
+   565→zone_id
+   566→side
+   567→price_low
+   568→price_high
+   569→origin_time
+   570→age
+   571→source_type
+   572→test_count
+   573→last_test_time
+   574→sweep_status
+   575→reaction_score
+   576→unmitigated_score
+   577→importance_score
+   578→```
+   579→
+   580→## 10.3 Zone strength
+   581→
+   582→Zone strength is calculated from:
+   583→
+   584→- structural importance;
+   585→- number and spacing of equal/repeated levels;
+   586→- freshness;
+   587→- timeframe significance;
+   588→- distance to current price;
+   589→- previous reaction quality;
+   590→- whether the zone has already been consumed.
+   591→
+   592→The score is not treated as probability.
+   593→
+   594→## 10.4 Sweep detection
+   595→
+   596→A sweep is a sequence, not a single wick.
+   597→
+   598→Minimum structure:
+   599→
+   600→1. A previously identified liquidity zone exists.
+   601→2. Price trades through the zone by a regime-normalized excursion.
+   602→3. The excursion reaches a threshold relative to local volatility and zone width.
+   603→4. Price either reclaims the zone or shows a continuation response that distinguishes a sweep from a genuine break.
+   604→5. The event is timestamped and linked to the consumed liquidity zone.
+   605→
+   606→A sweep may be classified:
+   607→
+   608→- `FAILED_SWEEP`
+   609→- `PARTIAL_SWEEP`
+   610→- `CONFIRMED_SWEEP`
+   611→- `BREAK_AND_ACCEPT`
+   612→- `UNKNOWN`
+   613→
+   614→## 10.5 Target mapping
+   615→
+   616→After an active setup is created, the engine computes the next relevant liquidity targets on both sides. Scenario generation uses these targets to estimate the plausible path and invalidation distance.
+   617→
+   618→---
+   619→
+   620→# 11. Structure and SMC Engine
+   621→
+   622→SMC concepts are implemented only when they become measurable state transitions.
+   623→
+   624→## 11.1 Swing detection
+   625→
+   626→A swing is confirmed only after a defined structural lookback/confirmation rule is satisfied. The rule must not rely on future bars in live mode beyond the required confirmation delay.
+   627→
+   628→Each swing contains:
+   629→
+   630→```text
+   631→swing_id
+   632→price
+   633→timeframe
+   634→direction
+   635→strength
+   636→confirmation_time
+   637→external_or_internal
+   638→```
+   639→
+   640→## 11.2 BOS
+   641→
+   642→**Break of Structure (BOS)** is a confirmed breach of a structurally relevant prior swing in the current directional framework.
+   643→
+   644→Programmable condition:
+   645→
+   646→- identify a confirmed swing;
+   647→- require a close or accepted trade beyond the swing by a configurable minimum displacement threshold;
+   648→- verify the break is not merely an isolated wick unless a strategy explicitly treats wick breaks as valid;
+   649→- classify as internal or external.
+   650→
+   651→Measure:
+   652→
+   653→- breach distance normalized by ATR/local range;
+   654→- closing acceptance;
+   655→- volume/flow support;
+   656→- follow-through.
+   657→
+   658→## 11.3 CHoCH
+   659→
+   660→**Change of Character (CHoCH)** is a structure transition in which the current swing sequence first violates the prior directional continuation pattern.
+   661→
+   662→It is weaker than a confirmed regime reversal and should not be treated as one automatically.
+   663→
+   664→## 11.4 Displacement
+   665→
+   666→Displacement measures unusually directional price travel relative to recent volatility.
+   667→
+   668→Core features:
+   669→
+   670→```text
+   671→range_zscore
+   672→body_fraction
+   673→close_location
+   674→ATR_multiple
+   675→velocity
+   676→follow_through
+   677→```
+   678→
+   679→A displacement event requires a directional range/impulse above a rolling percentile and meaningful closing efficiency.
+   680→
+   681→## 11.5 Fair Value Gap (FVG)
+   682→
+   683→For a three-bar sequence:
+   684→
+   685→- bullish FVG candidate: current low > high of bar two-bars-back;
+   686→- bearish FVG candidate: current high < low of bar two-bars-back.
+   687→
+   688→The gap is stored as a price interval with:
+   689→
+   690→- origin time;
+   691→- direction;
+   692→- size normalized by local ATR;
+   693→- fill percentage;
+   694→- first mitigation time;
+   695→- invalidation/consumption state.
+   696→
+   697→The engine does not assume every FVG must fill.
+   698→
+   699→## 11.6 Order Block
+   700→
+   701→An Order Block is defined operationally as a bounded pre-displacement consolidation/candle region that precedes a structurally meaningful displacement and remains relevant after the move.
+   702→
+   703→The detection pipeline is:
+   704→
+   705→1. Identify a confirmed displacement.
+   706→2. Trace backward to the final opposing candle or compact opposing cluster before the impulse.
+   707→3. Verify the impulse generated meaningful structure change or liquidity interaction.
+   708→4. Define the source zone.
+   709→5. Track retests and reactions.
+   710→
+   711→Quality depends on:
+   712→
+   713→- displacement magnitude;
+   714→- structural consequence;
+   715→- freshness;
+   716→- retest response;
+   717→- volume/flow behavior.
+   718→
+   719→An “Order Block” is not interpreted as proof of institutional order placement.
+   720→
+   721→## 11.7 Premium / Discount
+   722→
+   723→For a defined dealing range:
+   724→
+   725→```text
+   726→equilibrium = (range_high + range_low) / 2
+   727→premium = price > equilibrium
+   728→discount = price < equilibrium
+   729→```
+   730→
+   731→The dealing range must be explicitly named. The engine refuses ambiguous “premium/discount” calculations that change range definition silently.
+   732→
+   733→## 11.8 Inducement
+   734→
+   735→Inducement is not implemented as a mystical label. It is represented as a **candidate liquidity-building pattern** where price creates a local obvious level before a larger structural event. It only contributes evidence when the subsequent liquidity interaction validates the hypothesis.
+   736→
+   737→---
+   738→
+   739→# 12. Order Flow and Footprint Engine
+   740→
+   741→Order Flow answers: **What did trading activity look like at price, and did price respond accordingly?**
+   742→
+   743→## 12.1 Core metrics
+   744→
+   745→- total volume;
+   746→- buy volume;
+   747→- sell volume;
+   748→- delta;
+   749→- buy/sell share;
+   750→- POC;
+   751→- VAH/VAL;
+   752→- row-level delta;
+   753→- buy imbalance;
+   754→- sell imbalance;
+   755→- volume concentration;
+   756→- delta trend.
+   757→
+   758→## 12.2 Delta
+   759→
+   760→```text
+   761→delta = buy_volume - sell_volume
+   762→```
+   763→
+   764→The important observation is not the sign alone. The engine compares delta to price result.
+   765→
+   766→### Effort vs Result
+   767→
+   768→Examples:
+   769→
+   770→- large positive delta + strong price rise → aggressive buying accepted;
+   771→- large positive delta + weak price response → possible absorption/trapped buying;
+   772→- large negative delta + weak price decline → possible sell absorption;
+   773→- large volume + narrow range → possible two-sided auction or absorption.
+   774→
+   775→These are hypotheses that must be confirmed by subsequent response.
+   776→
+   777→## 12.3 Absorption
+   778→
+   779→Absorption is detected as a mismatch between aggressive traded volume and realized price movement at a meaningful location.
+   780→
+   781→A candidate requires:
+   782→
+   783→1. elevated directional delta or volume at a zone;
+   784→2. limited price extension relative to the aggression;
+   785→3. repeated response or failure to continue;
+   786→4. optional subsequent displacement in the opposite direction.
+   787→
+   788→Absorption quality increases when the event occurs at mapped liquidity or structural boundaries.
+   789→
+   790→## 12.4 Exhaustion
+   791→
+   792→Exhaustion is a decline in directional effectiveness:
+   793→
+   794→- declining extension per unit of directional volume;
+   795→- reducing follow-through;
+   796→- repeated failed highs/lows;
+   797→- deteriorating delta efficiency.
+   798→
+   799→Exhaustion alone is not a reversal signal.
+   800→
+
+[showing lines 1-800 of 3271; use offset=801 with limit to continue reading]
