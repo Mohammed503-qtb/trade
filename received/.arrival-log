@@ -3,3 +3,7 @@
 [2026-09-27 03:30:45] SNAPSHOT: '/home/z/my-project/upload/Master Plan.md' (81 bytes) -> '/home/z/my-project/received/Master Plan.md'
 [2026-09-27 03:37:34.594] [node-watcher] started (pid 1868)
 [2026-09-27 03:38:02.637] [node-watcher pid 1868] SNAPSHOT: '/home/z/my-project/upload/Gateway Drop Test.md' (121 bytes) -> '/home/z/my-project/received/Gateway Drop Test.md'
+[2026-09-27 03:49:56.766] [node-watcher] started (pid 2338) watching: upload, inbox
+[2026-09-27 03:49:58.775] [node-watcher pid 2338] SNAPSHOT: '/home/z/my-project/inbox/.sync-test' (18 bytes) -> '/home/z/my-project/received/.sync-test'
+[2026-09-27 03:49:58.776] [node-watcher pid 2338] SNAPSHOT: '/home/z/my-project/inbox/README.md' (705 bytes) -> '/home/z/my-project/received/README.md'
+[2026-09-27 03:50:24.802] [node-watcher pid 2338] SNAPSHOT: '/home/z/my-project/inbox/Master Plan test.md' (34 bytes) -> '/home/z/my-project/received/Master Plan test.md'

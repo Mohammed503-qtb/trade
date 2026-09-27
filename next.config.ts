@@ -1,6 +1,7 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  // watcher v2: تغطية inbox إضافة إلى upload
   output: "standalone",
   typescript: {
     ignoreBuildErrors: true,

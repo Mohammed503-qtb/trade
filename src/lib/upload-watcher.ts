@@ -46,7 +46,11 @@ export async function startUploadWatcher(): Promise<void> {
 
   try {
     const projectRoot = process.cwd();
-    const uploadDir = path.join(projectRoot, "upload");
+    // مصادر المراقبة: upload (تثبيت سحابي للبوابة) + inbox (صندوق المستخدم المرئي)
+    const sourceDirs = [
+      path.join(projectRoot, "upload"),
+      path.join(projectRoot, "inbox"),
+    ];
     const receivedDir = path.join(projectRoot, "received");
     const logFile = path.join(receivedDir, ".arrival-log");
     const stateFile = path.join(receivedDir, ".watcher-state");
@@ -55,12 +59,22 @@ export async function startUploadWatcher(): Promise<void> {
     await fsp.mkdir(receivedDir, { recursive: true });
     await fsp.chmod(receivedDir, 0o777).catch(() => {});
 
-    // في بيئة النشر بلا مجلد رفع → خامد بأمان. في التطوير ننشئه إن غاب.
-    if (!fsSync.existsSync(uploadDir)) {
-      if (process.env.NODE_ENV !== "development") return;
-      await fsp.mkdir(uploadDir, { recursive: true });
-      await fsp.chmod(uploadDir, 0o777).catch(() => {});
+    // تحديد المصادر الفعلية: inbox ننشئه دائمًا (ملكنا)، وupload ننشئه في التطوير
+    // فقط؛ في بيئة النشر بلا مصادر → خامد بأمان.
+    const wanted: string[] = [];
+    for (const dir of sourceDirs) {
+      if (fsSync.existsSync(dir)) {
+        wanted.push(dir);
+        continue;
+      }
+      const isInbox = dir.endsWith(`${path.sep}inbox`);
+      if (isInbox || process.env.NODE_ENV === "development") {
+        await fsp.mkdir(dir, { recursive: true });
+        await fsp.chmod(dir, 0o777).catch(() => {});
+        wanted.push(dir);
+      }
     }
+    if (wanted.length === 0) return;
 
     // ── حارس الحالة-الواحدة بين العمليات (pidfile) ──
     try {
@@ -95,7 +109,12 @@ export async function startUploadWatcher(): Promise<void> {
     process.on("SIGINT", cleanup);
 
     g.__uploadWatcherActive = true;
-    await appendLog(logFile, `[node-watcher] started (pid ${process.pid})`);
+    await appendLog(
+      logFile,
+      `[node-watcher] started (pid ${process.pid}) watching: ${wanted
+        .map((d) => path.basename(d))
+        .join(", ")}`,
+    );
 
     // ── استرجاع حالة مسبقة (متوافقة مع نسخة bash الاحتياطية) ──
     const copiedAtSize = new Map<string, number>();
@@ -125,7 +144,9 @@ export async function startUploadWatcher(): Promise<void> {
     const tick = async () => {
       try {
         const files: string[] = [];
-        await walk(uploadDir, 1, files);
+        for (const dir of wanted) {
+          await walk(dir, 1, files);
+        }
 
         // تقليم حالات الملفات التي اختفت (تسريب ذاكرة = لا)
         const seen = new Set(files);
