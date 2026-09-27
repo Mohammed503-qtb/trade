@@ -34,7 +34,8 @@ async def test_live_klines_fetch_and_convert() -> None:
         except (httpx.TransportError, OSError, httpx.HTTPStatusError) as exc:
             _skip_on_network_failure(exc)
             raise AssertionError("غير قابل للوصول") from exc
-    assert len(bars) == 10
+    # الحد أقصى لا ضمان عددي — البيانات الحية قد تعيد أقل عند حدود الدقيقة
+    assert 1 <= len(bars) <= 10, f"عدد غير معقول من الشموع الحية: {len(bars)}"
     for previous, current in itertools.pairwise(bars):
         assert current.open_time_ms > previous.open_time_ms  # تراتب زمني
     for bar in bars:

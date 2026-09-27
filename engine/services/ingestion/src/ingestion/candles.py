@@ -178,9 +178,21 @@ class CandleBuilder:
     الإحصاءات (``n_closed``/``n_evolved_updates``/``late_events``/
     ``first_bar_time``/``last_bar_time``) عبر كل مجاري البنّاء كافة. البنّاء
     غير محصّن ضد التزامن — يُستهلك من مهمة واحدة ضامنة الحتمية.
+
+    ``timeframe`` الصريح (اختياري): إطار إخراج موحد لكل المجاري — يُستخدم
+    عند بناء شموع زمنية من أحداث أدق (صفقات tick "1t" → شموع "1m"):
+    الدلو يُحسب بزمن الحدث على الإطار الصريح لا على إطار المصدر،
+    و``event.source_timeframe`` يبقى محفوظاً في الحدث ذاته (عقد §7.1 لا
+    يُمس). None (الافتراضي) = الاشتقاق من ``event.source_timeframe`` كما هو.
     """
 
-    def __init__(self) -> None:
+    def __init__(self, *, timeframe: str | None = None) -> None:
+        if timeframe is not None and timeframe not in SUPPORTED_TIMEFRAMES:
+            raise ValueError(
+                f"إطار الإخراج الصريح غير مدعوم: {timeframe!r} — "
+                f"المدعوم: {sorted(SUPPORTED_TIMEFRAMES)}"
+            )
+        self._explicit_timeframe = timeframe
         self._streams: dict[tuple[str, str], _StreamState] = {}
         self._n_closed = 0
         self._n_evolved_updates = 0
@@ -201,10 +213,11 @@ class CandleBuilder:
         الأحداث اللاحقة أصحاء.
 
         Raises:
-            ValueError: ``event.source_timeframe`` خارج الأطر المدعومة أو زمن
-                الحدث ساذج — يُرفع فورًا قبل أي أثر جانبي.
+            ValueError: إطار التجميع (الصريح أو ``event.source_timeframe``)
+                خارج الأطر المدعومة أو زمن الحدث ساذج — يُرفع فورًا قبل أي
+                أثر جانبي.
         """
-        timeframe = event.source_timeframe
+        timeframe = self._explicit_timeframe or event.source_timeframe
         bar_time = bucket_floor(event.event_time_utc, timeframe)
         key = (f"{event.venue}:{event.symbol}", timeframe)
         state = self._streams.setdefault(key, _StreamState())

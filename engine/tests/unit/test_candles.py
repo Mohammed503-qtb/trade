@@ -749,3 +749,49 @@ class TestSingleBucketProperty:
         rolled = continued.add_trade(future_event)
         assert rolled is not None
         assert _dump(rolled) == _dump(stopped_closed)
+
+
+class TestExplicitTimeframe:
+    """الإطار الصريح (إضافة 1.6): شموع 1m من أحداث tick \"1t\".
+
+    الفجوة التي يسدها: أحداث aggTrades مصدرها \"1t\" — لا يمكن بناء شموع
+    زمنية منها بالاشتقاق (bucket_floor يرفض \"1t\")؛ الإطار الصريح يوجّه
+    التجميع بزمن الحدث على الإطار المطلوب دون مس عقد الحدث ذاته.
+    """
+
+    def test_tick_events_aggregate_to_explicit_1m(self) -> None:
+        """أحداث 1t عبر دقيقتين ⇒ شمعة 1m مقفلة عند عبور الحد ثم ثانية."""
+        builder = CandleBuilder(timeframe="1m")
+        first = builder.add_trade(_trade(T_02_00, 100.0, 1.0, timeframe="1t"))
+        assert first is None  # بداية المجرى
+        mid = builder.add_trade(_trade(T_02_00 + timedelta(seconds=30), 105.0, 2.0, timeframe="1t"))
+        assert mid is not None and not mid.is_closed
+        assert mid.timeframe == "1m"  # إطار الإخراج لا إطار المصدر
+        assert mid.instrument_id == "BINANCE_USDM:BTCUSDT"
+        crossing = builder.add_trade(
+            _trade(T_02_00 + timedelta(minutes=1), 110.0, 3.0, timeframe="1t")
+        )
+        assert crossing is not None and crossing.is_closed  # الأولى قُفلت
+        assert crossing.bar_time == T_02_00
+        assert crossing.close == 105.0  # آخر صفقة في الدلو الأول
+        assert crossing.volume == 3.0
+        final = builder.close_current("BINANCE_USDM:BTCUSDT", "1m")
+        assert final is not None and final.is_closed
+        assert final.bar_time == T_02_00 + timedelta(minutes=1)
+        assert final.open == 110.0 and final.volume == 3.0
+
+    def test_explicit_invalid_timeframe_rejected(self) -> None:
+        """إطار صريح غير مدعوم ⇒ ValueError فورية بلا أثر جانبي."""
+        with pytest.raises(ValueError, match="غير مدعوم"):
+            CandleBuilder(timeframe="1t")
+
+    def test_default_derivation_unchanged(self) -> None:
+        """بلا إطار صريح: الاشتقاق من source_timeframe كما كان (سلوك 1.4)."""
+        builder = CandleBuilder()
+        out = builder.add_trade(_trade(T_02_00, 100.0, 1.0, timeframe="5m"))
+        assert out is None
+        evolved = builder.add_trade(
+            _trade(T_02_00 + timedelta(minutes=3), 101.0, 1.0, timeframe="5m")
+        )
+        assert evolved is not None and evolved.timeframe == "5m"
+        assert not evolved.is_closed  # ما زلنا داخل دلو الـ5 دقائق

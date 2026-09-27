@@ -1,0 +1,13 @@
+{
+  "symbol": "BTCUSDT",
+  "venue": "binance-usdm-futures",
+  "feed_id": "binance-usdm-aggtrades",
+  "minutes": 10,
+  "event_count": 3999,
+  "first_event_time": "2026-09-25T19:38:00.304000+00:00",
+  "last_event_time": "2026-09-25T19:47:59.749000+00:00",
+  "kline_count": 10,
+  "trades_parquet_sha256": "e900ca0a8936d1b30d084e1d846e07a2a830a9f4cbbb43d7aae993b9b601ce30",
+  "trades_parquet_bytes": 73739,
+  "fetched_at": "2026-09-27T07:38:41Z"
+}
