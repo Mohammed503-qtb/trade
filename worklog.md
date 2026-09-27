@@ -251,3 +251,24 @@ Stage Summary:
 - **البوابات (تحقق المنسق بعد الالتزام):** pytest test_sessions.py = 75 passed · ruff format/check نظيفان · mypy Success 65 ملفًا · lint-imports 6 عقود محفوظة · المجموع الكلي 522 passed + 13 deselected.
 - **الالتزام de2b875**: sessions.py + test_sessions.py فقط (1804 إدراجًا).
 - **جاهز لـ2-c**: طبقة features ستستهلك الجلسات لاحتياج لقطة الحالة إليها.
+
+---
+Task ID: 2-c
+Agent: features-builder (full-stack-developer) — أُتمم التسليم والتوثيق بيد المنسق بعد انقطاع أمد الوكيل عند اكتمال العمل
+Task: المهمة 2.2 — حزمة السمات features (المسار الوحيد A-02) + محرك التقلب الموضعي لكل (أداة، إطار) (§16)
+
+Work Log:
+- (من المنسق) الوكيل أنجز كامل الشيفرة لكن انقطع قبل الالتزام — أنهيتُ التدقيق والإصلاحات الثلاثة والالتزام بنفسي.
+- features/windows.py: استخراج المصفوفات من list[Candle] بتحقق صارم (أداة/إطار واحد، ترتيب تصاعدي، رسائل عربية بالموضع الأول) + log_returns يدويًا. السمات تقرأ OHLCV الخام وحده (اختبار يحقن range/body مخزنة كاذبة ويثبت عدم الثقة بها).
+- features/vol_features.py: 12 دالة سمات جسرًا نظيفًا فوق quantmath (atr/atr_pct/realized_vol/vov/gap_shock/spread_to_range/expected_holding_vol/range_expansion + normalized_range/directional_efficiency/volume_concentration تحضيرًا لـ2-d) — اختبار الجسر يطابق خرج السمة بنداء quantmath المباشر بايت-بايت.
+- features/registry.py: السجل المركزي الحتمي (11 سمة بأسماء حرفية مثبتة، FeatureCategory الأربع، default_params محفوظة MappingProxyType، compute_feature بالاسم مع تجاوزات مُتحقق منها) — الدليل الحصري لمِحور الاستئصال (2-e).
+- market_state/volatility.py (490 سطرًا): VolatilityConfig/VolatilityState/VolatilityEngine — عقود موثقة: شموع مغلقة فقط (is_closed=False ⇒ ValueError)، المتأخرة تُحصى ولا تغير الحالة (late_ignored)، التكرار المحتجز ⇒ ValueError، لا-نظرة-مستقبلية خاصيةً، مخزن دوّار بطول history_bars.
+- **العتبات التطبيعية (جوهر بوابة المرحلة 2)**: ThresholdKey (7 مفاتيح: STRUCTURAL_LEVEL_BUFFER/DISPLACEMENT_MIN/SWEEP_TOLERANCE/WICK_BREAK_TOLERANCE/ZONE_PROXIMITY/ENTRY_ZONE_HALF_WIDTH/TARGET_ZONE_HALF_WIDTH) + DEFAULT_MULTIPLIERS محفوظة — threshold() = atr × multiplier حصرًا، بلا أي مسار سعري مطلق؛ الاختبار يثبت مضاعفة ATR تضاعف العتبة خطيًا.
+- إصلاحات المنسق بعد الانقطاع: (1) list_features كان يعيد أزواج (مواصفة، دالة) بدل المواصفات — أصلح المولد؛ (2) اختباران يبنيان شموعًا OHLC غير صالحة عرَضًا (إغلاق خارج [low,high]) أعيدت صياغتهما بمدى صريح صالح مع بقاء القصد (خرق الترتيب/العوائد)؛ (3) توقع دافئ خاطئ في expected_holding_vol_manual (عنصري لا آخر-عنصر) صُحح وفق العقد الموثق؛ (4) 4 أخطاء mypy (تعليقات type: ignore[misc] للجمود المتعمد + تعليق إرجاع + Callable بدل object).
+- البوابات (تحقق المنسق): pytest ملفات المهمة = 175 passed · mypy Success 74 ملفًا · ruff format/check نظيفان · lint-imports 6 عقود محفوظة · المجموع الكلي 697 passed + 13 deselected.
+
+Stage Summary:
+- **المسار الوحيد A-02 قائم**: features هي طبقة السمات الصرفة الوحيدة (لا حالة، لا I/O) — الحي والإعادة سيستدعيانها حصرًا؛ السجل المركزي جاهز لتغذية الاستئصال (2-e) والنظام (2-d).
+- **محرك التقلب §16 مكتمل**: كل مقاييس الفقرة السابعة + العتبات التطبيعية بعقد موثق واختبارات خصائص (بادئة مستقلة عن الذيل، حتمية بين محركين).
+- **الالتزام**: ملفات 2-c حصرًا (3140 سطرًا منها 2025 اختبارات) — رقم الالتزام بعد التنفيذ.
+- **جاهز لـ2-d/2-e**: العتبات التطبيعية والسمات (directional_efficiency/normalized_range/volume_concentration/range_expansion) متاحة لمحرك النظام والاستئصال.
