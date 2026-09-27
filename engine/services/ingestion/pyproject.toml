@@ -3,7 +3,7 @@ name = "engine-ingestion"
 version = "0.1.0"
 description = "محول Binance، تنقيح، جودة، بناء شموع (§7, §8)"
 requires-python = ">=3.12"
-dependencies = ["engine-schemas", "engine-common"]
+dependencies = ["engine-schemas", "engine-common", "httpx>=0.28"]
 
 [build-system]
 requires = ["hatchling"]

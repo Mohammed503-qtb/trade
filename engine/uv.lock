@@ -444,12 +444,14 @@ source = { editable = "services/ingestion" }
 dependencies = [
     { name = "engine-common" },
     { name = "engine-schemas" },
+    { name = "httpx" },
 ]
 
 [package.metadata]
 requires-dist = [
     { name = "engine-common", editable = "packages/common" },
     { name = "engine-schemas", editable = "packages/schemas" },
+    { name = "httpx", specifier = ">=0.28" },
 ]
 
 [[package]]
