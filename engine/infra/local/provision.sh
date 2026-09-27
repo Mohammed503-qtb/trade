@@ -30,6 +30,11 @@ download() { # url dest
     curl -fL --retry 3 --retry-delay 2 --connect-timeout 15 -o "$2" "$1"
 }
 
+download_auth() { # url dest token — Docker Hub يتطلب Bearer على طبقات registry منذ 2026
+    curl -fL --retry 3 --retry-delay 2 --connect-timeout 15 \
+        -H "Authorization: Bearer $3" -o "$2" "$1"
+}
+
 # ───────────────────────── 1) nats-server ─────────────────────────
 install_nats() {
     if [[ -x "$BIN_DIR/nats-server" ]] && "$BIN_DIR/nats-server" --version 2>/dev/null | grep -q "$NATS_VERSION"; then
@@ -99,7 +104,7 @@ m = json.load(sys.stdin)
 for layer in sorted(m["layers"], key=lambda l: -l["size"]):
     print(layer["digest"])
 '); do
-        download "https://registry-1.docker.io/v2/chrislusf/seaweedfs/blobs/$digest" "$TMP_DIR/sw-layer.tar"
+        download_auth "https://registry-1.docker.io/v2/chrislusf/seaweedfs/blobs/$digest" "$TMP_DIR/sw-layer.tar" "$token"
         member=$(tar -tf "$TMP_DIR/sw-layer.tar" 2>/dev/null | grep -E "usr/bin/weed$" | head -1 || true)
         if [[ -n "$member" ]]; then
             tar -xf "$TMP_DIR/sw-layer.tar" -C "$TMP_DIR" "$member"
