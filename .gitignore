@@ -64,3 +64,6 @@ engine/.ruff_cache/
 *.pyc
 # استثناء: مثال الإعدادات يُرفع رغم قاعدة .env*
 !engine/.env.example
+
+# tool session artifacts
+tool-results/
