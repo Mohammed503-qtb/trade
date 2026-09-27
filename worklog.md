@@ -272,3 +272,70 @@ Stage Summary:
 - **محرك التقلب §16 مكتمل**: كل مقاييس الفقرة السابعة + العتبات التطبيعية بعقد موثق واختبارات خصائص (بادئة مستقلة عن الذيل، حتمية بين محركين).
 - **الالتزام**: ملفات 2-c حصرًا (3140 سطرًا منها 2025 اختبارات) — رقم الالتزام بعد التنفيذ.
 - **جاهز لـ2-d/2-e**: العتبات التطبيعية والسمات (directional_efficiency/normalized_range/volume_concentration/range_expansion) متاحة لمحرك النظام والاستئصال.
+---
+Task ID: 2-e
+Agent: ablation-builder (full-stack-developer)
+Task: المهمة 2.5/2-e — هيكل مِحور الاستئصال (§43): جدول base/±feature فارغ الوظائف مكتمل التوصيل
+
+Work Log:
+- apps/replay/src/engine_replay/ablation.py (جديد، 383 سطرًا): FeatureSet/Dataset/AblationVariant/AblationSpec/AblationResult/AblationReport/VariantKind كلها frozen؛ الأسماء تتحقق ضد سجل السمات حصرًا (رفض عربي للمجهول والمكرر في القاعدتين).
+- الدلالة الموثقة: base=مجموعة البدء، ablated=المختبرة بُعزلًا — X∉base ⇒ plus_X، وX∈base ⇒ minus_X (لا plus لعضو حاضر: تكرار بلا معلومة — رفض صريح بValueError عربية)؛ الجدول: base ثم كتلة plus ثم كتلة minus بترتيب ablated.
+- نقطة الحقن الوحيدة MetricEvaluator (الافتراضي placeholder_evaluator = عدد السمات حصرًا — لا مقاييس وهمية)؛ run_ablation يحسب كل سمة في كل متغير فعليًا عبر compute_feature (توصيل حقيقي + حارس طول السلسلة = عدد الشموع).
+- الحتمية: to_json بايت-بايت (sort_keys/indent=2)؛ created_at_utc الاستثناء الوحيد؛ now المحقون مصدر الطابع والقياس معًا (ساعة ثابتة ⇒ elapsed_ms=0.0) فتصبح الحتمية كاملة.
+- scripts/run_ablation.py: --dataset phase1 (الوحيد) يبني الشموع من fixtures/phase1 بنمط verify_phase1 حرفيًا (read_parquet_bytes→تنقيح→جودة→CandleBuilder 1m)؛ افتراضي: قاعدة = كل غير-VOLATILITY (5 سمات)، عزل = فئة VOLATILITY كاملة (6)؛ يطبع جدول markdown ويكتب JSON+MD في data/research/ablation/.
+- Makefile: هدف ablation-dryrun + إضافته إلى .PHONY — تحذير التبويبات تحقق فعلًا: أداة التحرير حوّلت تبويبات الملف كله مسافات، فاستعدته من git وأعدت اللصق بسكربت بايت-آمن.
+- tests/unit/test_ablation.py: 38 اختبارًا — البنية والرفض العربي وplaceholder والحتمية البايتية بساعة محقونة وnan الدافئ لا يفجر المحور (window=100 على 6 شموع ⇒ nan كاملة) وحارس التوصيل (monkeypatch بطول مخالف) وجدول مختلط كامل.
+
+Stage Summary:
+- **البوابات حرفيًا**: ruff format "5 files already formatted" ✓ · ruff check "All checks passed!" ✓ · mypy "Success: no issues found in 78 source files" ✓ · pytest "38 passed" ✓ · lint-imports "Contracts: 6 kept, 0 broken" ✓ · make ablation-dryrun نجح: 10 شموع 1m، 7 متغيرات (base + 6 plus لسمات VOLATILITY)، تقرير JSON+MD مكتوب في data/research/ablation/ ✓. المجموع الكلي 735 passed + 13 deselected.
+- **جاهز لـ5a.3/9**: حقن مقاييس الإعادة الحقيقية عبر MetricEvaluator يفعّل بوابات الترقية §41 (التقرير يحمل spec_name/البيانات/السمات/المقاييس/الزمن) دون مساس بنية الجدول.
+---
+Task ID: 2-d
+Agent: regime-builder (full-stack-developer)
+Task: المهمة 2.4/2-d — مصنف نظام السوق (§9.3) + انحياز HTF (§9.2) كحالتين موضعيتين حتميتين
+
+Work Log:
+- قرأت السياق الإلزامي (worklog 2-a/b/c، §9 كاملًا، build_plan سطر 2.4، volatility.py/registry/vol_features) ثم بنيت ملفين جديدين فقط + تصدير __init__: **لا حساب سمات داخل المصنف إطلاقًا** — RegimeFeatures/HtfBiasInputs يملؤهما المستدعي من features/VolatilityState (فصل مسؤولية يجعله قابلًا للإعادة المعزولة).
+- regime.py (404 أسطر): REGIME_RULES_DOC جدول القرار الموثق (7 قواعد بأولوية صارمة + UNKNOWN)؛ بوابة تأكيد confirm_bars متتالية (hysteresis — قطع السلسلة يصفّر العد)؛ TRANSITION مموه عمدًا لا يثبت أبدًا (مصيد الغموض)؛ أي None ⇒ UNKNOWN للتحديث حصرًا مع حفظ النظام المؤكد داخليًا وقطع السلسلة؛ قرارات موثقة: atr_pct_mid مشتق (low+high)/2، volume_concentration مؤكد توسع ثالث في قاعدة 2، حقل إضافي gap_shock_atr=3.0، normalized_range يُحمل ويبوّب النقص بلا دخول في الجدول.
+- htf_bias.py (289 سطرًا): وكيل مرحلي موثق صراحة (§9.2 الكامل يأتي من محرك البنية مرحلة 3 — الواجهة مصممة لاستبدال التغذية دون تغيير المستهلك)؛ «سياق لا مشغل» في الرأس؛ الكفاءة+إشارتها تقودان والوكلاء (nrange/atr_pct/displacement_proxy) يغلقون بوابة الاكتمال؛ تذبذب متكرر (انعكاسات متناوبة transition_flips=2) يفرض قراءة TRANSITION ويثبت بخمس متتاليات بخلاف النظام §9.3 — عدم التماثل موثق ومقصود.
+- 128 اختبارًا (78 نظام + 50 HTF): حالات نقية لكل قاعدة، أولوية الصدمة، hysteresis بثلاثته، TRANSITION لا يثبت، None بعقوده، حتمية بايت-بايت (repr متطابق) بين محركين، لا-نظرة-مستقبلية (بادئة k مستقلة عن الذيل)، تدقيق عتبات نسبي يرفض الثوابت السعرية (< 10.0 وقيم على مقاس ticks ترفض).
+
+Stage Summary:
+- **البوابات حرفيًا**: ruff format "7 files already formatted" ✓ · ruff check "All checks passed!" ✓ · mypy "Success: no issues found in 80 source files" ✓ · pytest الملفين "128 passed in 0.93s" ✓ · lint-imports "Contracts: 6 kept, 0 broken" ✓ — والمجموع الكلي 863 passed + 13 deselected بلا انحدار.
+- **الالتزام ef7316a**: 5 ملفات (1562 إدراجًا) حصرًا. جاهز لـ2-f: لقطة حالة السوق تستهلك RegimeState/HtfBiasState مع VolatilityState والجلسات.
+---
+Task ID: 2-f
+Agent: snapshot-builder (full-stack-developer)
+Task: المهمة 2-f — هجرة market_states (§31.3) + بنّاء لقطة حالة السوق + ناشر NATS (§32) + اختبارات مستهلك وتخزين حية
+
+Work Log:
+- migrations/0003_market_states.py (94 سطرًا): جدول market_states بأعمدة uuid/timestamptz وVARCHAR فوق أطوال التعدادات، payload JSONB، قيد مئيني، فهرس فريد (هدف ON CONFLICT) + فهرس أحدث-لقطة DESC — كلها عبر خريطة التسمية نفسها.
+- **قرار مقياس موثق**: قيد volatility_percentile على [0,100] لا [0,1] — نوع Percentile في schemas نفسه (ge=0, le=100) ومثال §32 (62.4)، وcompute_market_volatility_summary يوثق أن التحويل [0,1]←[0,100] مسؤولية طبقة الدمج هذه (بنّاء اللقطة يضرب في 100).
+- snapshot.py (129): SnapshotInputs مجمّد + build_snapshot حتمي بايت-بايت — الصمت عن الجودة الكسولة (غير-كافٍ ⇒ 0.0 بلا إسقاط)، وsession_id عقد صيغة عند المصدر لا يدخل النموذج (المخطط additionalProperties:false) ويُشتق من event_time عند التخزين.
+- store.py (157): MarketStateStore على asyncpg يستقبل conn من المستدعي (لا يفتح اتصاله) — upsert_snapshot ‏idempotent عبر ON CONFLICT DO UPDATE، latest_snapshot يعيد البناء عبر pydantic (instrument من الحمولة: uuid5 أحادي الاتجاه)، count_snapshots. ترميز uuid5 نفسه الذي في ingestion مثبتًا بالمساواة المباشرة (بلا اعتماد بنيوي بين الطبقتين المتكافئتين).
+- publisher.py في worker (105): SnapshotPublisher رفيع — بروتوكول هيكلي بدل استيراد nats، تنظيف الأداة لرمز موضوع قانوني، رؤوس event_type/schema_version، بث model_dump_json + flush، لا إعادة اتصال ولا تراجع (موثق). __main__: تشغيل تجريبي واحد قبل النبض يبث مثال §32 حرفيًا (ثُبت حيًا: published:market.state.example.5m.updated) بلا مساس بحلقة النبض.
+- jsonschema مضافة لمجموعة dev (uv add --dev jsonschema types-jsonschema — توثيق الغيتس).
+- الاختبارات: test_snapshot.py (59) وtest_publisher.py (18) شاملة jsonschema ضد المخطط المصدَّر؛ test_market_states_live.py (4): هجرة (أعمدة/فهارس/قيود عبر information_schema وpg_indexes وpg_constraint) + مخزن حي (idempotent/أحدث لا يمس القديم/DO UPDATE/عمود الجلسة والحمولة) + مستهلك NATS حي بموضوع معزول test-2f (رؤوس + مخطط + تفك back) + هبوط/صعود.
+
+Stage Summary:
+- **البوابات حرفيًا**: ruff format "14 files already formatted" ✓ · ruff check "All checks passed!" ✓ · mypy "Success: no issues found in 86 source files" ✓ · pytest الملفين الوحدوية "77 passed" ✓ · lint-imports "Contracts: 6 kept, 0 broken" ✓ · alembic current "0003_market_states (head)" ✓ · الحية "4 passed" ✓ · المجموع "940 passed, 17 deselected" (863+77) ✓.
+- **ملاحظة خارج النطاق (قائمة قبل التغيير — أثبتُها بـgit stash)**: test_migrations*.py القديمة تفشل في تشغيل التكامل الكامل لأنها تدبس «head == مراجعتها» وتقادمت مع كل هجرة أحدث — تُترك لمعالجة لاحقة خارج نطاق هذه المهمة.
+- **الالتزام ca675f2**: 12 ملفًا (1598 إدراجًا). جاهز للمرحلة التالية: توصيل بنّاء اللقطة في خط الابتلاع الحي مع SessionTracker.
+
+---
+Task ID: 2-g (+ إغلاق بوابة المرحلة 2)
+Agent: Main Agent (Z.ai Code — Coordinator)
+Task: بوابة خروج المرحلة 2: العينة المرجعية الثلاثية + verify-phase2 + توثيق وإغلاق
+
+Work Log:
+- إصلاح اختباري الهجرات القديمين المتقادمين (كانا يدبسان head == مراجعتهما): مساعد _alembic_head() يشاور alembic نفسه — 10 اختبارات تكامل خضراء (ADR-019).
+- scripts/fetch_phase2_fixture.py: التقاط يوم UTC كامل BTCUSDT بثلاثة أطر — 1440×1m + 192×15m + 168×1h شموع klines مرجعية مثبتة git (334KB) + manifest بالهاشات.
+- scripts/verify_phase2.py + هدف make verify-phase2: مسار السياق الكامل (جلسات ← تقلب ← نظام ← انحياز ← لقطة) على الأطر الثلاثة بسبعة فحوص صارمة.
+- إصلاحات أثناء التطوير: خطأ أحادي في مقارنة البادئة (البادئة تنتج k−1 حالة)، موضوع اشتراك NATS الفعلي (btcusdt لا وهمي)، ونمط ترويسة ruff E402 (أي إسناد قبل sys.path.insert يكسر إتاحة ruff — الحل inline كنمط phase1).
+- التوثيق الحي: progress.md جدول المرحلة 2 + بوابتها وسجل الجلسات؛ decisions.md: ADR-013..019؛ النسخ إلى engine/docs.
+- البوابات النهائية: make gate كاملة = 940 passed + 6 عقود محفوظة + mypy 86 ملفًا نظيفًا؛ make verify-phase2 خضراء بالكامل.
+
+Stage Summary:
+- **بوابة المرحلة 2 مغلقة رسميًا**: `make verify-phase2` — الحتمية (6fbdc7b5e7f035bb… عبر مسارين) + لا-نظرة-مستقبلية على بيانات حقيقية (1429 حالة بادئة مستقلة عن الذيل) + العتبات التطبيعية (threshold/atr ≡ المضاعف حصرًا عبر 7 مفاتيح وكل شمعة) + تتابعات موثقة (نظام 1m وصل 6 حالات مختلفة عبر اليوم؛ انحياز 1h UNKNOWN→NEUTRAL؛ الجلسة الكاملة 09-25) + بث NATS حي وتخزين idempotent.
+- **حصيلة المرحلة 2**: 577 اختبارًا جديدًا (84+75+175+128+38+77 وحدوي/خصائص + 4 تكامل حية) — المجموع الكلي 940 + 17 تكامل مؤجلًا؛ هجرة 0003؛ حزمتان جديدتان مكتملتان (quantmath، features) ومحركات أربعة في market_state (تقلب/نظام/انحياز/لقطة) ومحور استئصال موصول.
+- **التالي**: المرحلة 3 — السيولة والبنية (SMC): swings، BOS/CHoCH، displacement، FVG، OB، premium/discount (§11)، وخريطة السيولة وأهدافها (§10).
