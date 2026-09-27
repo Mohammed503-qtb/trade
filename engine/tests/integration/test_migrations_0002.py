@@ -25,6 +25,22 @@ ENGINE_ROOT = Path(__file__).resolve().parents[2]
 REVISION_0002 = "0002_timeseries_tables"
 REVISION_0001 = "0001_reference_tables"
 
+
+def _alembic_head() -> str:
+    """رأس سلسلة الهجرات الفعلي عبر ‎python -m alembic heads‎ — بلا تدبيس يدوي يتقادم."""
+    proc = subprocess.run(  # مفسرنا وموديولنا الثابت، لا مدخل خارجي
+        [sys.executable, "-m", "alembic", "heads"],
+        cwd=ENGINE_ROOT,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    assert proc.returncode == 0, f"فشل alembic heads بخروج {proc.returncode}: {proc.stderr}"
+    lines = [ln.strip() for ln in proc.stdout.splitlines() if ln.strip()]
+    assert lines, "خرج alembic heads فارغ — لا رأس في السلسلة؟"
+    return lines[0].split(" ")[0]
+
+
 # الأعمدة المتوقعة لكل جدول: الاسم → (نوع information_schema، is_nullable)
 EXPECTED_COLUMNS: dict[str, dict[str, tuple[str, str]]] = {
     "market_events": {
@@ -198,7 +214,8 @@ async def test_upgrade_head_creates_timeseries_tables(pg: asyncpg.Connection) ->
     """الصعود: الجداول الزمنية الثلاثة بأعمدتها وأنواعها وفهارسها وقيودها (§31.2)."""
     _run_alembic("upgrade", "head")
 
-    assert await _current_version(pg) == REVISION_0002
+    # رأس السلسلة الفعلي (ديناميكي — هجرات أحدث قد تعلو 0002، وجداولنا يجب أن تبقى)
+    assert await _current_version(pg) == _alembic_head()
 
     for table, expected in EXPECTED_COLUMNS.items():
         actual = await _columns(pg, table)
@@ -257,7 +274,7 @@ async def test_reupgrade_after_one_step_downgrade_is_idempotent(pg: asyncpg.Conn
     _run_alembic("upgrade", "head")
     _run_alembic("upgrade", "head")  # تكرار head = لا-عملية نظيفة (idempotence)
 
-    assert await _current_version(pg) == REVISION_0002
+    assert await _current_version(pg) == _alembic_head()
 
     for table, expected in EXPECTED_COLUMNS.items():
         assert await _columns(pg, table) == expected, f"أعمدة {table} بعد إعادة الصعود"
