@@ -1,0 +1,9 @@
+{
+  "name": "engine-infra",
+  "version": "0.1.0",
+  "private": true,
+  "description": "غلاف supervisor المحلي — يدير postgres/nats/seaweedfs/migrate/worker (قرار D-15)",
+  "scripts": {
+    "dev": "bun index.js"
+  }
+}

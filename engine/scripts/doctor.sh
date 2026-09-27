@@ -51,15 +51,22 @@ for tool in ruff mypy lint-imports pytest alembic; do
 done
 
 # 4. ثنائيات البنية التحتية
+# (ADR-006: S3 محلياً = seaweedfs — لا minio في وضع sandbox)
 echo "[4] ثنائيات infra (اختياري — infra-provision)"
 BIN_DIR="infra/local/bin"
-for bin_name in nats-server minio postgres; do
+for bin_name in nats-server postgres; do
   if [[ -x "$BIN_DIR/$bin_name" ]]; then
     ok "$bin_name: $($BIN_DIR/$bin_name --version 2>/dev/null | head -1 | cut -c1-60 || echo 'موجود')"
   else
     warn "$bin_name غير منزّل بعد — شغّل: make infra-provision"
   fi
 done
+# seaweedfs: لا يُستعلم بـ--version (سلوك غير موثوق) — الوجود والتنفيذ يكفيان
+if [[ -x "$BIN_DIR/seaweedfs" ]]; then
+  ok "seaweedfs: موجود ($(du -h "$BIN_DIR/seaweedfs" 2>/dev/null | cut -f1))"
+else
+  warn "seaweedfs غير منزّل بعد — شغّل: make infra-provision"
+fi
 
 # 5. الإعدادات
 echo "[5] الإعدادات"
@@ -74,10 +81,16 @@ fi
 
 # 6. اتصال الخدمات (فقط إن كانت تُجيب — لا يفشل doctor عليها)
 echo "[6] خدمات حية (استطلاع)"
-[[ -f .env ]] && source <(grep -E '^[A-Z_]+=' .env | sed 's/^/export /') 2>/dev/null
-PG_PORT="${POSTGRES_PORT:-5543}"; NATS_PORT=4222; MINIO_PORT="${S3_ENDPOINT#*:}"; MINIO_PORT="${MINIO_PORT:-9100}"; API_PORT="${ENGINE_API_PORT:-4001}"
-declare -A PORTS=( [postgres]="$PG_PORT" [nats]=4222 [minio]="$MINIO_PORT" [engine-api]="$API_PORT" )
-for svc in postgres nats minio engine-api; do
+# النمط يشمل الأرقام في الأسماء (S3_ENDPOINT …) — علة [A-Z_]+ كشفتها الجلسة
+if [[ -f .env ]]; then
+  source <(grep -E '^[A-Z_][A-Z0-9_]*=' .env | sed 's/^/export /') 2>/dev/null || true
+fi
+PG_PORT="${POSTGRES_PORT:-5543}"
+API_PORT="${ENGINE_API_PORT:-4001}"
+S3_ENDPOINT="${S3_ENDPOINT:-127.0.0.1:9100}"
+S3_PORT="${S3_ENDPOINT##*:}"
+declare -A PORTS=( [postgres]="$PG_PORT" [nats]=4222 [s3-seaweed]="$S3_PORT" [engine-api]="$API_PORT" )
+for svc in postgres nats s3-seaweed engine-api; do
   port="${PORTS[$svc]}"
   if (echo > "/dev/tcp/127.0.0.1/$port") 2>/dev/null; then
     ok "$svc يستجيب على $port"

@@ -84,11 +84,12 @@ COPY infra/dockerfiles/healthcheck.py /usr/local/bin/healthcheck.py
 
 # تركيب حزم workspace القابل للتحرير فوق الاعتمادات الجاهزة — سريع: لا يعيد
 # تنزيل شيئًا ويكتب مسارات .pth الصحيحة فقط (القفل نفسه — --frozen).
-# ثم alembic بالإصدار المقفول (موجود في uv.lock ضمن مجموعة dev فقط، وخدمة
-# migrate one-shot تحتاجه داخل الصورة — لهذا يُثبَّت بعد sync كي لا يقصّه).
+# ثم alembic + greenlet بالإصدارات المقفولة (ضمن uv.lock في مجموعة dev فقط،
+# وخدمة migrate one-shot تحتاجهما داخل الصورة — لهذا تُثبَّتان بعد sync كيلا
+# يقصّهما exact-sync). env.py غير متزامن عبر asyncpg ويتطلب greenlet.
 # متى نُقل alembic إلى تبعيات تشغيل صريحة تُحذف سطور تثبيته هنا.
 RUN uv sync --frozen --all-packages --no-dev \
-    && uv pip install --python /app/.venv/bin/python "alembic==1.20.0" \
+    && uv pip install --python /app/.venv/bin/python "alembic==1.20.0" "greenlet==3.5.6" \
     && chmod 0755 /usr/local/bin/entrypoint.sh /usr/local/bin/healthcheck.py
 
 # حرس الأسرار (§37.1): يثبت آليًا أن .env لم يدخل نظام ملفات الصورة

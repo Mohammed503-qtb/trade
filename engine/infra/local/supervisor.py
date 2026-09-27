@@ -18,6 +18,7 @@
 
 from __future__ import annotations
 
+import contextlib
 import json
 import os
 import signal
@@ -234,7 +235,7 @@ def probe_health(spec: ServiceSpec, env: dict[str, str] | None = None) -> tuple[
             with urlopen(h["url"], timeout=5) as resp:  # noqa: S310 — داخلي موثوق
                 code = resp.status
             return (code == int(h.get("expect", 200)), f"http {code}")
-        except Exception as exc:  # noqa: BLE001 — فحص تشخيصي
+        except Exception as exc:
             return (False, f"http err: {type(exc).__name__}")
     if htype == "tcp":
         try:
@@ -246,33 +247,59 @@ def probe_health(spec: ServiceSpec, env: dict[str, str] | None = None) -> tuple[
         # توزيعة Zonky بلا pg_isready — الفحص عبر asyncpg (أصدق: يثبت مسار الاستعلام)
         import asyncio
 
-        async def _probe() -> bool:
+        db_name = str(h.get("database", "engine"))
+        conn_kw: dict[str, Any] = {
+            "host": "127.0.0.1",
+            "port": int(env.get("POSTGRES_PORT", "5543")),
+            "user": env.get("POSTGRES_USER", "engine"),
+            "password": env.get("POSTGRES_PASSWORD", "engine"),
+        }
+
+        async def _probe() -> None:
             import asyncpg
 
             conn = await asyncio.wait_for(
-                asyncpg.connect(
-                    host="127.0.0.1",
-                    port=int(env.get("POSTGRES_PORT", "5543")),
-                    user=env.get("POSTGRES_USER", "engine"),
-                    password=env.get("POSTGRES_PASSWORD", "engine"),
-                    database=str(h.get("database", "engine")),
-                    timeout=3,
-                ),
+                asyncpg.connect(database=db_name, timeout=3, **conn_kw),
                 timeout=4,
             )
             try:
                 await conn.fetchval("SELECT 1")
-                return True
+            finally:
+                await conn.close()
+
+        async def _ensure_db() -> None:
+            """تئام ذاتي: Zonky بلا createdb — أنشئ قاعدة الهدف إن غابت.
+
+            يحل حلقة «بيضة-ودجاجة»: خطاف post_healthy لا يعمل إلا بعد نجاح
+            الفحص، والفحص ذاته يحتاج القاعدة موجودة أصلًا.
+            """
+            import asyncpg
+
+            conn = await asyncpg.connect(database="postgres", **conn_kw)
+            try:
+                exists = await conn.fetchval("SELECT 1 FROM pg_database WHERE datname=$1", db_name)
+                if not exists:
+                    await conn.execute(f'CREATE DATABASE "{db_name}"')
+                    log(f"pg_sql: أُنشئت قاعدة البيانات {db_name} (تئام ذاتي)")
             finally:
                 await conn.close()
 
         try:
-            return (asyncio.run(_probe()), "pg SELECT 1 ok")
-        except Exception as exc:  # noqa: BLE001
+            try:
+                asyncio.run(_probe())
+                return (True, "pg SELECT 1 ok")
+            except Exception as exc:
+                # InvalidCatalogNameError: القاعدة لم تُنشأ بعد — أنشئها ثم أعد المحاولة
+                if type(exc).__name__ == "InvalidCatalogNameError":
+                    asyncio.run(_ensure_db())
+                    asyncio.run(_probe())
+                    return (True, "pg SELECT 1 ok (db ensured)")
+                raise
+        except Exception as exc:
             return (False, f"pg err: {type(exc).__name__}")
     if htype == "exec":
         try:
-            result = subprocess.run(
+            result = subprocess.run(  # noqa: S603 — أمر من services.yaml الموثوقة
                 h["cmd"], capture_output=True, timeout=10, check=False
             )
             return (result.returncode == 0, f"rc={result.returncode}")
@@ -295,15 +322,19 @@ def hook_postgres_initdb(env: dict[str, str]) -> None:
     pw_file.write_text(env["POSTGRES_PASSWORD"], encoding="utf-8")
     pw_file.chmod(0o600)
     try:
-        subprocess.run(
+        subprocess.run(  # noqa: S603 — مسار ثابت من infra/local/bin
             [
                 str(BIN_DIR / "pg" / "bin" / "initdb"),
-                "-D", str(pg_data),
-                "-U", env["POSTGRES_USER"],
+                "-D",
+                str(pg_data),
+                "-U",
+                env["POSTGRES_USER"],
                 "--auth-local=trust",
                 "--auth-host=scram-sha-256",
-                "--pwfile", str(pw_file),
-                "-E", "UTF8",
+                "--pwfile",
+                str(pw_file),
+                "-E",
+                "UTF8",
                 "--locale=C",
             ],
             check=True,
@@ -333,7 +364,7 @@ def hook_postgres_ensure_db(env: dict[str, str]) -> None:
                 "SELECT 1 FROM pg_database WHERE datname=$1", env["POSTGRES_DB"]
             )
             if not exists:
-                await conn.execute(f'CREATE DATABASE "{env["POSTGRES_DB"]}"')  # noqa: S608 — اسم من إعداداتنا
+                await conn.execute(f'CREATE DATABASE "{env["POSTGRES_DB"]}"')
                 log(f"postgres: أُنشئت قاعدة البيانات {env['POSTGRES_DB']}")
         finally:
             await conn.close()
@@ -391,27 +422,30 @@ class Supervisor:
             if spec.skip_if_missing and not (ENGINE_ROOT / spec.skip_if_missing).exists():
                 state.state = "SKIPPED"
                 log(f"{spec.name}: متخطى — {spec.skip_if_missing} غير موجود بعد")
+                self.persist_state()
                 continue
             if spec.first_run:
                 hook = FIRST_RUN_HOOKS.get(spec.first_run)
                 if hook:
                     try:
                         hook(self.env)
-                    except Exception:  # noqa: BLE001
+                    except Exception:
                         log(f"{spec.name}: فشل خطاف {spec.first_run}", error=True)
                         state.state = "FAILED"
+                        self.persist_state()
                         continue
             self.spawn(state)
             if spec.kind == "process":
                 self.wait_healthy(state)
                 if state.state != "HEALTHY":
+                    self.persist_state()
                     continue  # السجل وثّق؛ الرقابة ستعيد المحاولة
                 if spec.post_healthy:
                     hook = FIRST_RUN_HOOKS.get(spec.post_healthy)
                     if hook:
                         try:
                             hook(self.env)
-                        except Exception:  # noqa: BLE001
+                        except Exception:
                             log(f"{spec.name}: فشل خطاف {spec.post_healthy}", error=True)
             else:  # oneshot — انتظر الخروج
                 assert state.proc is not None
@@ -419,12 +453,17 @@ class Supervisor:
                 state.exit_code = rc
                 state.state = "EXITED_OK" if rc == 0 else "FAILED"
                 log(f"{spec.name}: oneshot خرج rc={rc} → {state.state}")
+            # حفظ تدريجي — لا ينتظر اكتمال الإقلاع كله (status يبقى صادقًا أثناء الإقلاع)
+            self.persist_state()
 
     def spawn(self, state: ServiceState) -> bool:
         spec = state.spec
         binary = Path(spec.cmd[0])
         if not binary.exists():
-            log(f"{spec.name}: الثنائية غير موجودة: {binary} — شغّل make infra-provision", error=True)
+            log(
+                f"{spec.name}: الثنائية غير موجودة: {binary} — شغّل make infra-provision",
+                error=True,
+            )
             state.state = "FAILED"
             return False
         log_path = LOGS_DIR / f"{spec.name}.log"
@@ -458,6 +497,14 @@ class Supervisor:
                 log(f"{state.spec.name}: مات أثناء الإقلاع", error=True)
                 state.state = "FAILED"
                 return
+            # صحة نوع process: البقاء نفسه هو الدليل — لا فحص خارجي مطلوب
+            # (probe_health لا يعرف هذا النوع؛ هو خاصية دورة الحياة لا فحص شبكة)
+            if state.spec.health.get("type", "process") == "process":
+                state.state = "HEALTHY"
+                state.consecutive_failures = 0
+                state.first_failure_at = None
+                log(f"{state.spec.name}: صحي (process alive)")
+                return
             healthy, detail = probe_health(state.spec, self.env)
             if healthy:
                 state.state = "HEALTHY"
@@ -486,9 +533,13 @@ class Supervisor:
             return
         if state.alive:
             if state.state == "STARTING":
-                healthy, _ = probe_health(spec, self.env)
-                if healthy:
+                # نوع process: البقاء دليل الصحة (probe_health لا يعرفه)
+                if spec.health.get("type", "process") == "process":
                     state.state = "HEALTHY"
+                else:
+                    healthy, _ = probe_health(spec, self.env)
+                    if healthy:
+                        state.state = "HEALTHY"
             return
         # مات — سجل وقرر
         assert state.proc is not None
@@ -515,7 +566,10 @@ class Supervisor:
         # إعادة تعيين التراجع بعد استقرار كافٍ
         if state.started_at and now - state.started_at > BACKOFF_RESET_AFTER_S:
             state.backoff_s = BACKOFF_BASE_S
-        log(f"{spec.name}: خرج rc={rc} — إعادة بعد {wait:.1f}s (محاولة {state.restarts})", error=True)
+        log(
+            f"{spec.name}: خرج rc={rc} — إعادة بعد {wait:.1f}s (محاولة {state.restarts})",
+            error=True,
+        )
         deadline = time.monotonic() + wait
         while time.monotonic() < deadline and self.should_run:
             time.sleep(0.25)
@@ -528,9 +582,7 @@ class Supervisor:
     # ── إيقاف متدرج عكسي ──
     def stop_all(self) -> None:
         log("supervisor: إيقاف نظيف بترتيب عكسي")
-        for state in sorted(
-            self.states.values(), key=lambda s: s.spec.priority, reverse=True
-        ):
+        for state in sorted(self.states.values(), key=lambda s: s.spec.priority, reverse=True):
             if state.spec.kind == "oneshot" or not state.alive:
                 continue
             assert state.proc is not None
@@ -544,10 +596,8 @@ class Supervisor:
             time.sleep(0.2)
         for state in alive_states:
             if state.alive and state.proc is not None:
-                try:
+                with contextlib.suppress(OSError):
                     os.killpg(state.proc.pid, signal.SIGKILL)
-                except OSError:
-                    pass
             state.state = "STOPPED"
             log(f"{state.spec.name}: أُوقف")
         self.persist_state()
@@ -555,9 +605,10 @@ class Supervisor:
     def persist_state(self) -> None:
         try:
             RUN_DIR.mkdir(parents=True, exist_ok=True)
+            services_snapshot = [s.snapshot() for s in self.states.values()]
             STATE_FILE.write_text(
                 json.dumps(
-                    {"updated_at": _now(), "services": [s.snapshot() for s in self.states.values()]},
+                    {"updated_at": _now(), "services": services_snapshot},
                     indent=2,
                     ensure_ascii=False,
                 ),
@@ -641,13 +692,15 @@ def cmd_start() -> int:
     os.setsid()
     pid2 = os.fork()
     if pid2 > 0:
-        os._exit(0)  # noqa: PLN120 — عمدًا: جد لا يعود
+        os._exit(0)
     # الابن الثاني: يفصل نفسه عن الطرفيات ويكتب pidfile بنفسه
     sys.stdout.flush()
     sys.stderr.flush()
     try:
         LOGS_DIR.mkdir(parents=True, exist_ok=True)
-        daemon_log_fd = os.open(LOGS_DIR / "daemon.log", os.O_WRONLY | os.O_CREAT | os.O_APPEND, 0o644)
+        daemon_log_fd = os.open(
+            LOGS_DIR / "daemon.log", os.O_WRONLY | os.O_CREAT | os.O_APPEND, 0o644
+        )
         devnull_fd = os.open(os.devnull, os.O_RDONLY)
         os.dup2(devnull_fd, sys.stdin.fileno())
         os.dup2(daemon_log_fd, sys.stdout.fileno())

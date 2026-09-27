@@ -8,7 +8,10 @@ from pathlib import Path
 from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
-_ENGINE_ROOT = Path(__file__).resolve().parents[3]
+# المسار إلى جذر engine/ — الحزمة على عمق ثابت:
+# engine/packages/common/src/common/config.py → parents[4] = engine
+# (يتطابق أيضًا مع التخطيط داخل حاوية الهدف: /app/packages/… → /app)
+_ENGINE_ROOT = Path(__file__).resolve().parents[4]
 
 
 class Settings(BaseSettings):
