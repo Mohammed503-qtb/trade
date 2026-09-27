@@ -38,6 +38,7 @@ dev = [
     "minio>=7.2",
     "nats-py>=2.8",
     "httpx>=0.28",
+    "sqlalchemy[asyncio]>=2.0",
 ]
 
 [tool.uv.workspace]
@@ -227,7 +228,10 @@ forbidden_modules = [
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 asyncio_mode = "auto"
-addopts = "--strict-markers -q"
+# الافتراضي يستثني اختبارات البنية التحتية الحية (integration) — تُستدعى صراحةً
+# بـ `pytest -m integration` أو `make test-integration`؛ خيار ‎-m اللاحق في
+# سطر الأوامر يتجاوز قيمة addopts (سلوك argparse القياسي: الأخير يفوز).
+addopts = "--strict-markers -q -m 'not integration'"
 markers = [
     "integration: اختبارات تحتاج بنية تحتية حية (PG/NATS/MinIO)",
     "replay: اختبارات إعادة/حتمية",
