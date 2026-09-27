@@ -210,3 +210,26 @@ Stage Summary:
 - **البيئة مستردة بالكامل والبوابات مثبتة من جديد**: لا خسارة لأي كود أو عينات (كلها في git) — الفاقد الوحيد كان بيانات القاعدة/الكائن القابلة لإعادة البناء من العينة المرجعية، وقد أُعيد بناؤها فعلياً بverify-phase1.
 - **درس بيئي جديد موثق**: إعادة إقلاع المنصة تمحو venv وثنائيات infra/local/bin و.env (المتجاهل) — بروتوكول الاسترداد: uv sync → make infra-provision → مواءمة S3_SECRET_KEY مع s3-config.json الناجي → إطلاق الأغلفة. وأصل جذر PX مُصلح في الالتزام cc6949c.
 - **حالة الخطة**: المرحلتان 0 و1 مغلقتان ومثبتتان؛ التالي المرحلة 2 (التقلب والجلسات والسياق) وفق build_plan §D.
+
+---
+Task ID: 2-a
+Agent: math-builder (full-stack-developer)
+Task: المهمة 2.1 — حزمة quantmath: ATR ومئينيات متدحرجة وز-scores وتشبع
+
+Work Log:
+- قراءة السياق الإلزامي كاملًا: worklog.md (المرحلتان 0 و1 مغلقتان)، §16 Volatility Engine (سطور 978-1002)، build_plan المرحلة 2 سطر 2.1، عقود import-linter (سطور 140-215)، pyproject حزمة engine-math، ونمط اختبارات الخصائص في test_schemas_bounds.py/test_candles.py.
+- بناء الحزمة النقية في packages/math/src/quantmath/ — 6 موديولات، 15 دالة علنية، استيراد numpy فقط (لا schemas ولا common ولا أي حزمة مشروع — عقد "quantmath is a foundation"):
+  - _internal.py: اسم النوع FloatArray (PEP 695) + as_f64_1d (إجبار float64 أحادي البعد) + check_window.
+  - rolling.py: rolling_mean/rolling_std(ddof)/rolling_zscore/rolling_percentile — إحصاء لكل نافذة على حدة (لا مجاميع جارية) ليطابق np.mean/np.std حرفيًا بايت-بايت.
+  - atr.py: true_range (فجوات الإغلاق السابق) + wilder_atr (RMA: بذرة متوسط ثم استدعاء ذاتي) + atr_percentile (تفويض للمئيني).
+  - volatility.py: realized_volatility + range_expansion_percentile + vol_of_vol (حارس |mean|<1e-12) + gap_shock (معيارية بالـATR) + expected_holding_vol (جذر الزمن) + spread_to_range.
+  - saturation.py: saturation_run (عدّ متتالٍ مع عقد nan) + is_saturated (boolean).
+  - __init__.py: إعادة تصدير كاملة بـ__all__ مرتب (RUF022) + __version__.
+- قرارات العقود الموثقة في docstrings: النوافذ الخلفية شاملة للقيمة الحالية؛ المئيني = عدد الأصغر قطعيًا ÷ (الأعضاء غير الـnan − 1) فأفضل/أسوأ حالة 1.0/0.0 والتساوي التام ⇒ 0.0؛ nan الحالية ⇒ nan وعناصر nan الأخرى داخل النافذة تُستبعد (بسطًا ومقامًا) بينما inf تمر كما هي دون انفجار؛ حارس z-score: أي std محسوب = 0 ⇒ nan (اكتشف أثناء الخصائص: انهدام تحت-عادي لمربعات الانحرافات يعطي std=0 مع فرق≠0 ⇒ كان سيولد inf)؛ spread_to_range عند range=0 ⇒ 0.0 دائمًا؛ gap_shock[0]=nan وatr=0 مع فجوة>0 ⇒ inf؛ saturation: nan في الموضع ⇒ nan ويقطع الركض؛ expected_holding_vol: horizon صحيح ≥ 1 وإلا ValueError.
+- 84 اختبارًا جديدًا: 16 (ATR) + 22 (rolling) + 28 (volatility) وحدةً بقيم محسوبة يدويًا (وايلدر بخطوات ثنائية التمثيل تقارن حرفيًا ==)، و18 خاصية derandomize: لا-نظرة-مستقبلية (تعديل الذيل لا يمس خرج البادئة) لكل العائلات الأربع، حتمية بايت-بايت (tobytes) على مدخلات فيها nan/inf، نطاقات (ATR≥0، مئينيات∈[0,1]، |z|≤√(window−1)، spread∈[0,1])، رتابة المئيني، مرجع saturation يدوي مستقل، وتركيب √(a·b)=√a·√b لتحجيم الاحتفاظ.
+- إخماد تحذيرات numpy الصامتة (errstate) في كل مسارات التمرير غير المحدود كي يظل "تمرير بلا انفجار" صامتًا حقًا.
+
+Stage Summary:
+- **المنتج**: quantmath 0.1.0 جاهزة كأساس نقي لمحرك التقلب (2.2) — 15 دالة علنية على float64 حصرًا، نوافذ خلفية شاملة، حتمية صرفة، دافئ موضعي nan، عقود nan/inf موثقة لكل دالة. الالتزام d7421b8 (10 ملفات، 1421 سطرًا).
+- **البوابات لملفاتي حرفيًا**: ruff format --check "10 files already formatted" ✓، ruff check "All checks passed" ✓، mypy strict "Success: no issues found in 65 source files" (كلها بما فيها ملفاتي العشرة — صفر أخطاء؛ فشل سابق عابر بملف الوكيل الموازي test_sessions.py:208 زال قبل إعادة الفحص) ✓، pytest للملفات الأربعة "84 passed in 2.31s" ✓، lint-imports "Contracts: 6 kept, 0 broken" — quantmath ما زالت أساسًا نقيًا ✓.
+- **القرارات الحرجة للوكلاء اللاحقين**: rolling_std/realized_volatility بـddof=1 (المقارنة المرجعية np.std(..., ddof=1))؛ atr_percentile على سلسلة ATR ذات دافئ nan تعمل مباشرة (الاستبعاد) فلا حاجة لتقطيع المتصل؛ expected_holding_vol تقبل numpy-int لكنها ترفض float مثل 2.5؛ مقايضة الأداء المتعمدة: إحصاء لكل نافذة O(n·w) مقابل مطابقة مرجع numpy حرفيًا.
