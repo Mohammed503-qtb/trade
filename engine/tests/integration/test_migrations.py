@@ -24,7 +24,8 @@ from common.config import load_settings
 
 ENGINE_ROOT = Path(__file__).resolve().parents[2]
 
-HEAD_REVISION = "0001_reference_tables"
+# رأس السلسلة — يُحدَّث مع كل هجرة جديدة (الآن 0002_timeseries_tables)
+HEAD_REVISION = "0002_timeseries_tables"
 
 # الأعمدة المتوقعة لكل جدول (§31.1 حرفيًا): الاسم → (نوع information_schema، is_nullable)
 EXPECTED_COLUMNS: dict[str, dict[str, tuple[str, str]]] = {
