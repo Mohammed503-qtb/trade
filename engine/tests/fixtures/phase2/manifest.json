@@ -1,0 +1,29 @@
+{
+  "symbol": "BTCUSDT",
+  "venue": "BINANCE_USDM",
+  "source": "klines-rest",
+  "timeframes": {
+    "1m": {
+      "count": 1440,
+      "first_open_time": 1790294400000,
+      "last_close_time": 1790380799999,
+      "sha256": "4262b652dfb609fed4e78b3b0329de2be6e47db98f20ee9d1a59081a206929a5",
+      "bytes": 266521
+    },
+    "15m": {
+      "count": 192,
+      "first_open_time": 1790208000000,
+      "last_close_time": 1790380799999,
+      "sha256": "b99d696f01f18ee54e9e335041d1fe9ca5d63d1fe22c35347102ea2828d96880",
+      "bytes": 35803
+    },
+    "1h": {
+      "count": 168,
+      "first_open_time": 1789776000000,
+      "last_close_time": 1790380799999,
+      "sha256": "6d70fd453f2ae9069f726572c7fe68e6221462e23d0767233c3fbf4c1b690054",
+      "bytes": 31424
+    }
+  },
+  "fetched_at": "2026-09-27T23:02:55Z"
+}
