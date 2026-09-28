@@ -47,8 +47,25 @@ pytestmark = pytest.mark.integration
 
 ENGINE_ROOT = Path(__file__).resolve().parents[2]
 
-REVISION_0003 = "0003_market_states"
 REVISION_0002 = "0002_timeseries_tables"
+
+
+def _alembic_head() -> str:
+    """رأس السلسلة الفعلي عبر ‎python -m alembic heads‎ — بلا تدبيس يتقادم."""
+    import subprocess
+    import sys
+
+    proc = subprocess.run(  # مفسرنا وموديولنا الثابت، لا مدخل خارجي
+        [sys.executable, "-m", "alembic", "heads"],
+        cwd=Path(__file__).resolve().parents[2],
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    assert proc.returncode == 0, f"فشل alembic heads: {proc.stderr}"
+    lines = [ln.strip() for ln in proc.stdout.splitlines() if ln.strip()]
+    assert lines, "خرج alembic heads فارغ — لا رأس؟"
+    return lines[0].split(" ")[0]
 
 # أداة وهمية معزولة لهذه المهمة — لا يعبث بها مستهلك آخر للموضوعات
 INSTRUMENT = "test-2f:SNAPSHOT"
@@ -205,7 +222,7 @@ async def _current_version(pg: asyncpg.Connection) -> str | None:
 async def test_upgrade_head_creates_market_states(pg: asyncpg.Connection) -> None:
     """الهجرة: market_states بأعمدته وأنواعه وفهرسيه وقيد المقياس (§31.3)."""
     _run_alembic("upgrade", "head")
-    assert await _current_version(pg) == REVISION_0003
+    assert await _current_version(pg) == _alembic_head()
 
     assert await _columns(pg, "market_states") == EXPECTED_COLUMNS, (
         "أعمدة market_states لا تطابق المتوقع"
@@ -361,7 +378,7 @@ async def test_nats_live_consumer_roundtrip() -> None:
 
 @pytest.mark.integration
 async def test_downgrade_one_step_then_reupgrade(pg: asyncpg.Connection) -> None:
-    """الهبوط خطوة: downgrade 0002 يزيل market_states وحده ثم الصعود يعيده."""
+    """الهبوط إلى 0002 يزيل جداول 0003/0004 معًا ثم الصعود يعيدها."""
     _run_alembic("upgrade", "head")  # نقطة بداية مضمونة
     _run_alembic("downgrade", REVISION_0002)
 
@@ -370,10 +387,12 @@ async def test_downgrade_one_step_then_reupgrade(pg: asyncpg.Connection) -> None
     )
     tables = {str(r["table_name"]) for r in rows}
     assert "market_states" not in tables, f"الجدول لم يُززل: {tables}"
+    for phase3_table in ("structure_events", "liquidity_zones", "pattern_events"):
+        assert phase3_table not in tables, f"جدول 0004 لم يُززل: {phase3_table}"
     assert {"market_events", "candles", "raw_batches"} <= tables, f"تضررت جداول 0002: {tables}"
     assert {"instruments", "feeds", "strategies"} <= tables, f"تضررت جداول 0001: {tables}"
     assert await _current_version(pg) == REVISION_0002
 
     _run_alembic("upgrade", "head")
-    assert await _current_version(pg) == REVISION_0003
+    assert await _current_version(pg) == _alembic_head()
     assert await _columns(pg, "market_states") == EXPECTED_COLUMNS

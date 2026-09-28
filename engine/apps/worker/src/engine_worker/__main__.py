@@ -6,6 +6,11 @@
 المهمة 2-f: قبل النبض مباشرة، تشغيل تجريبي واحد يبث لقطة مثال §32 عبر
 SnapshotPublisher — إثبات توصيل رسالة ``market.state.updated`` على NATS
 الحي (لا يمس هيكل النبض إطلاقًا: حلقة القياس نفسها بلا تغيير).
+
+المهمة 3-f: تشغيل تجريبي ثانٍ يبث حدثًا بنيويًا مثالًا (INTERNAL_BOS)
+عبر AnalysisEventPublisher بمغلف §32 الكامل ومعرف event_id حتمي (روح
+D-07) على الموضوع ``market.event.example.1m.internal_bos`` — إثبات توصيل
+مسار أحداث التحليل (الكواشف الحية تُوصَّل مع باقي خط الأنابيب لاحقًا).
 """
 
 from __future__ import annotations
@@ -83,11 +88,68 @@ async def _publish_demo_snapshot(nats_url: str) -> str:
         return f"unavailable: {type(exc).__name__}"
 
 
+async def _publish_demo_analysis_event(nats_url: str) -> str:
+    """تشغيل تجريبي: بث حدث بنيوي مثال بمغلف §32 عبر AnalysisEventPublisher.
+
+    حدث INTERNAL_BOS مثالي (كسر داخلي صاعد عند 2026-09-27T02:05:00Z
+    للمستوى sw-h-example) — المغلف بمعرف event_id حتمي (روح D-07) عبر
+    build_envelope (المصنع النقي — receive_time = event_time في هذا
+    التوثيق التنفيذي). الفشل غير قاتل كعاده.
+    """
+    try:
+        from nats.aio.client import Client as NATSClient
+        from structure.events import EmittedEvent
+
+        from engine_worker.analysis_publisher import AnalysisEventPublisher, build_envelope
+
+        nc: NATSClient = NATSClient()
+        await nc.connect(servers=[nats_url], connect_timeout=3, max_reconnect_attempts=1)
+        try:
+            publisher = AnalysisEventPublisher(nc)
+            event_time = datetime(2026, 9, 27, 2, 5, tzinfo=UTC)
+            event = EmittedEvent(
+                event_type=schemas.EventType.INTERNAL_BOS,
+                event_time=event_time,
+                payload=schemas.StructureBreakPayload(
+                    instrument="EXAMPLE",
+                    timeframe="1m",
+                    bar_time=event_time,
+                    swing_id="sw-h-example",
+                    swing_scope=schemas.SwingScope.INTERNAL,
+                    break_direction=schemas.BreakDirection.UP,
+                    breach_distance_atr=1.4,
+                    closing_acceptance=0.8,
+                    follow_through=0.0,
+                    choch_prior_direction=None,
+                ),
+            )
+            envelope = build_envelope(
+                event,
+                "EXAMPLE",
+                source="engine_worker.demo",
+                trace_id="worker-demo",
+                receive_time=event_time,
+            )
+            await publisher.publish(envelope)
+            return f"published:{publisher.subject(envelope.event_type, 'EXAMPLE', '1m')}"
+        finally:
+            await nc.drain()
+    except Exception as exc:
+        return f"unavailable: {type(exc).__name__}"
+
+
 async def _heartbeat_forever() -> None:
     settings = load_settings()
-    # تشغيل تجريبي واحد قبل النبض — إثبات توصيل ناشر §32 (المهمة 2-f)
+    # تشغيلان تجريبيان قبل النبض — إثبات توصيل ناشر §32 (2-f) ومسار
+    # أحداث التحليل الحتمية (3-f)
     demo_state = await _publish_demo_snapshot(settings.nats_url)
-    await log.ainfo("worker.demo_publish", state=demo_state, schema_version=schemas.SCHEMA_VERSION)
+    demo_event = await _publish_demo_analysis_event(settings.nats_url)
+    await log.ainfo(
+        "worker.demo_publish",
+        state=demo_state,
+        analysis_event=demo_event,
+        schema_version=schemas.SCHEMA_VERSION,
+    )
     beat = 0
     while True:
         nats_state = await _probe_nats(settings.nats_url)
