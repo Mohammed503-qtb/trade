@@ -1,7 +1,8 @@
-"""اختبارات خصائص محرك البنية الكامل (المهمة 3-b) — §26.3 والحتمية والتحجيم.
+"""اختبارات خصائص محرك البنية الكامل — §26.3 والحتمية والتحجيم.
 
-تُفرض الخصائص على :class:`structure.StructureEngine` بأ_componentاتها
-الثلاثة (متطرفات/كسور/إزاحة) مع محرك التقلب الموازي يغذي الحالة عند كل
+تُفرض الخصائص على :class:`structure.StructureEngine` بمكوناته الستة
+(متطرفات/كسور/إزاحة من 3-b + فجوات/كتل أوامر/موقع من 3-c) مع محرك
+التقلب الموازي يغذي الحالة عند كل
 شمعة (نمط verify_phase2 — عقد الواجهة):
 
 - **لا نظرة مستقبلية (§26.3)**: أحداث ومتطرفات البادئة [0..k] لا تتغير
@@ -12,9 +13,11 @@
   الحالة التقلبية تُعاد اشتقاقها من الشموع المحجّمة فيتحجّج ATR معها —
   فتبقى كل المقاييس عديمة البُعد (``breach_distance_atr`` و
   ``closing_acceptance`` و``strength`` و``body_fraction`` و``range_zscore``
-  و``atr_multiple``) والتصنيفات (أنواع الأحداث والاتجاهات والنطاقات)
-  ومعرفات المتطرفات متطابقة **بالتساوي الصرف** (قوى الأساسين تُبقيها
-  عمليات float الدقيقة)، بينما تتحجّج الأسعار و``velocity`` (سعر/شمعة)
+  و``atr_multiple`` و``size_atr`` و``normalized_distance``) والتصنيفات
+  (أنواع الأحداث والاتجاهات والنطاقات) ومعرفات المتطرفات والفجوات
+  والكتل (مفاتيح uuid5 خالية من الأسعار) متطابقة **بالتساوي الصرف**
+  (قوى الأساسين تُبقيها عمليات float الدقيقة)، بينما تتحجّج الأسعار
+  و``velocity`` (سعر/شمعة) وحدود الفجوة والمنطقة وحدود النطاق ومنصفه
   بـλ بالضبط.
 """
 
@@ -27,7 +30,16 @@ from hypothesis import given
 from hypothesis import settings as hyp_settings
 from hypothesis import strategies as st
 from market_state.volatility import VolatilityConfig, VolatilityEngine
-from schemas import Candle, DataQuality, DisplacementEventPayload, StructureBreakPayload, Swing
+from schemas import (
+    Candle,
+    DataQuality,
+    DisplacementEventPayload,
+    FvgEventPayload,
+    OrderBlockEventPayload,
+    PremiumDiscountEventPayload,
+    StructureBreakPayload,
+    Swing,
+)
 from structure import DisplacementConfig, StructureConfig, StructureEngine, SwingConfig
 from structure.events import EmittedEvent
 
@@ -179,12 +191,44 @@ def _assert_scaled_event(original: EmittedEvent, scaled: EmittedEvent, lam: floa
         # كل حقول حمولة الكسر عديمة البُعد — تتطابق بالتساوي الصرف.
         assert scaled.payload == original.payload
         return
-    assert isinstance(original.payload, DisplacementEventPayload)
-    assert isinstance(scaled.payload, DisplacementEventPayload)
+    if isinstance(original.payload, DisplacementEventPayload):
+        assert isinstance(scaled.payload, DisplacementEventPayload)
+        left = original.payload.model_dump()
+        right = scaled.payload.model_dump()
+        assert right.pop("velocity") == lam * left.pop("velocity")  # سعر/شمعة
+        assert right == left  # zscore/جسم/موقع/مضاعف ATR — عديمة البُعد بالضبط
+        return
+    if isinstance(original.payload, FvgEventPayload):
+        assert isinstance(scaled.payload, FvgEventPayload)
+        left = original.payload.model_dump()
+        right = scaled.payload.model_dump()
+        # حدود الفجوة أسعار مطلقة — تتحجّج بـλ بالضبط.
+        assert right.pop("gap_low") == lam * left.pop("gap_low")
+        assert right.pop("gap_high") == lam * left.pop("gap_high")
+        # size_atr (فاصل/ATR) والاتجاه والحالة — عديمة البُعد بالضبط.
+        assert right == left
+        return
+    if isinstance(original.payload, OrderBlockEventPayload):
+        assert isinstance(scaled.payload, OrderBlockEventPayload)
+        left = original.payload.model_dump()
+        right = scaled.payload.model_dump()
+        # حدود المنطقة أسعار مطلقة — تتحجّج بـλ بالضبط.
+        assert right.pop("zone_low") == lam * left.pop("zone_low")
+        assert right.pop("zone_high") == lam * left.pop("zone_high")
+        # size_atr والمعرفات (uuid5 بلا أسعار) والنتيجة والاتجاه — ثابتة بالضبط.
+        assert right == left
+        return
+    assert isinstance(original.payload, PremiumDiscountEventPayload)
+    assert isinstance(scaled.payload, PremiumDiscountEventPayload)
     left = original.payload.model_dump()
     right = scaled.payload.model_dump()
-    assert right.pop("velocity") == lam * left.pop("velocity")  # سعر/شمعة — يتحجّم بـλ
-    assert right == left  # zscore/جسم/موقع/مضاعف ATR — عديمة البُعد بالضبط
+    # حدود النطاق والمنصف والسعر أسعار مطلقة — تتحجّج بـλ بالضبط.
+    assert right.pop("range_low") == lam * left.pop("range_low")
+    assert right.pop("range_high") == lam * left.pop("range_high")
+    assert right.pop("equilibrium") == lam * left.pop("equilibrium")
+    assert right.pop("price") == lam * left.pop("price")
+    # normalized_distance (إقصاء مطبَّع) والاسم والجانب — عديمة البُعد بالضبط.
+    assert right == left
 
 
 def _assert_scaled_swing(original: Swing, scaled: Swing, lam: float) -> None:

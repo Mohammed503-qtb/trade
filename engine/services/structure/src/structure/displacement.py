@@ -175,14 +175,18 @@ class DisplacementDetector:
         if expansion is None or expansion < self._config.percentile_min:
             return []
         # ── البوابة 4: مضاعف ATR (العتبة التطبيعية §16) ──
+        # العقد البُعدي: ``threshold = atr × المعامل`` **مسافة سعرية**،
+        # فتُقارن بمدى الشمعة (سعرًا بسعر) — لا بمضاعف ATR عديم البُعد.
+        # (خلل سابق قارن النسبة بالمسعة السعرية: عند ATR كبير يُرفض
+        # الاندفاع الصحيح وعند صغير يُقبل الضعيف — كشفته خاصية التحجيم.)
         threshold = vol.threshold(ThresholdKey.DISPLACEMENT_MIN) if vol is not None else None
         atr = vol.atr if vol is not None else None
         price_range = candle.high - candle.low
         if threshold is None or atr is None or atr <= 0.0:
             return []
-        atr_multiple = price_range / atr
-        if atr_multiple < threshold:
+        if price_range < threshold:
             return []
+        atr_multiple = price_range / atr
         # ── البوابة 2: كفاءة الجسم (من الخام — عقد A-02) ──
         body_fraction = abs(candle.close - candle.open) / price_range if price_range > 0.0 else 0.0
         if body_fraction < self._config.body_min:

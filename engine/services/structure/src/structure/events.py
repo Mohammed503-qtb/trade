@@ -13,11 +13,15 @@
 - **لا-نظرة-مستقبلية (§26.3)**: ``event_time`` هو ``bar_time`` الشمعة التي
   **أكدت** الحدث — البث بعدها حصرًا (§27 فصل المتطور عن المؤكد).
 
-- **نوع الحمولة محتكر**: ``payload`` اتحاد الحمولتين البنيويتين الموثقتين
+- **نوع الحمولة محتكر**: ``payload`` اتحاد الحمولات البنيوية الموثقة
   في 3-a حصرًا (``StructureBreakPayload`` لـINTERNAL_BOS/EXTERNAL_BOS/CHOCH
-  و``DisplacementEventPayload`` لـDISPLACEMENT_UP/DOWN) — لا ``dict`` يدوي
-  ولا ``BaseModel`` مبهم؛ الطور اللاحق من المرحلة 3 (FVG/OB/premium)
-  يوسع الاتحاد بإضافة موثقة على هذا الملف وحده.
+  و``DisplacementEventPayload`` لـDISPLACEMENT_UP/DOWN و
+  ``FvgEventPayload`` لـFVG_BULLISH/BEARISH و
+  ``OrderBlockEventPayload`` لـORDER_BLOCK_BULLISH/BEARISH و
+  ``PremiumDiscountEventPayload`` لـPREMIUM/DISCOUNT_LOCATION) — لا
+  ``dict`` يدوي ولا ``BaseModel`` مبهم. **الطور الثاني من المرحلة 3
+  (المهمة 3-c: FVG/OB/premium) وسّع الاتحاد هنا وحده** كما وعد هذا
+  الملف في تسليم 3-b؛ أي توسيع لاحق يوثق هنا كذلك.
 """
 
 from __future__ import annotations
@@ -25,7 +29,14 @@ from __future__ import annotations
 from dataclasses import dataclass
 from datetime import datetime
 
-from schemas import DisplacementEventPayload, EventType, StructureBreakPayload
+from schemas import (
+    DisplacementEventPayload,
+    EventType,
+    FvgEventPayload,
+    OrderBlockEventPayload,
+    PremiumDiscountEventPayload,
+    StructureBreakPayload,
+)
 
 __all__ = ["EmittedEvent"]
 
@@ -42,4 +53,10 @@ class EmittedEvent:
 
     event_type: EventType
     event_time: datetime
-    payload: StructureBreakPayload | DisplacementEventPayload
+    payload: (
+        StructureBreakPayload
+        | DisplacementEventPayload
+        | FvgEventPayload
+        | OrderBlockEventPayload
+        | PremiumDiscountEventPayload
+    )
