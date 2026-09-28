@@ -3,7 +3,7 @@ name = "engine-liquidity"
 version = "0.1.0"
 description = "خريطة السيولة، sweep، أهداف (§10)"
 requires-python = ">=3.12"
-dependencies = ["engine-schemas", "engine-common", "engine-features"]
+dependencies = ["engine-schemas", "engine-common", "engine-features", "engine-market-state"]
 
 [build-system]
 requires = ["hatchling"]

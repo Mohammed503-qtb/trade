@@ -1,0 +1,79 @@
+{
+  "$defs": {
+    "BreakDirection": {
+      "description": "اتجاه الكسر أو الإزاحة — صعودًا أم هبوطًا (§11.2/§11.4).\n\nمستوى الكسر/الاندفاع ثنائي القطبية، لا LONG/SHORT — القرار الاتجاهي\nمسؤولية الدمج (§19) لا الكاشف.",
+      "enum": [
+        "UP",
+        "DOWN"
+      ],
+      "title": "BreakDirection",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "description": "حمولة الإزاحة — تخدم DISPLACEMENT_UP / DISPLACEMENT_DOWN\n(§11.4 + §20): السمات الست الحرفية لنص §11.4.\n\n«الإزاحة تقيس حركة سعرية اتجاهية غير معتادة نسبةً إلى التقلب الحديث»\n(§11.4) — كل قيمة هنا قياس لتلك الحركة، و``velocity`` مدى لكل شمعة\n(موجب دائمًا: الإزاحة سفر لا اتجاه، والاتجاه في ``direction``).",
+  "properties": {
+    "atr_multiple": {
+      "exclusiveMinimum": 0.0,
+      "title": "Atr Multiple",
+      "type": "number"
+    },
+    "bar_time": {
+      "format": "date-time",
+      "title": "Bar Time",
+      "type": "string"
+    },
+    "body_fraction": {
+      "maximum": 1.0,
+      "minimum": 0.0,
+      "title": "Body Fraction",
+      "type": "number"
+    },
+    "close_location": {
+      "maximum": 1.0,
+      "minimum": 0.0,
+      "title": "Close Location",
+      "type": "number"
+    },
+    "direction": {
+      "$ref": "#/$defs/BreakDirection"
+    },
+    "follow_through": {
+      "maximum": 1.0,
+      "minimum": 0.0,
+      "title": "Follow Through",
+      "type": "number"
+    },
+    "instrument": {
+      "title": "Instrument",
+      "type": "string"
+    },
+    "range_zscore": {
+      "title": "Range Zscore",
+      "type": "number"
+    },
+    "timeframe": {
+      "title": "Timeframe",
+      "type": "string"
+    },
+    "velocity": {
+      "exclusiveMinimum": 0.0,
+      "title": "Velocity",
+      "type": "number"
+    }
+  },
+  "required": [
+    "instrument",
+    "timeframe",
+    "bar_time",
+    "direction",
+    "range_zscore",
+    "body_fraction",
+    "close_location",
+    "atr_multiple",
+    "velocity",
+    "follow_through"
+  ],
+  "title": "DisplacementEventPayload",
+  "type": "object"
+}

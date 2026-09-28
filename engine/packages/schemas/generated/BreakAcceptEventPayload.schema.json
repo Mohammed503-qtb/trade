@@ -1,0 +1,65 @@
+{
+  "$defs": {
+    "LiquiditySide": {
+      "description": "جانب السيولة (§10.1 حرفيًا) — أي جانب السوق تراكمت عنده الأوامر.\n\n- ``BUY_SIDE``: سيولة شرائية عند القمم — «Buy-side candidates: prior\n  swing highs; equal highs; session highs; previous day/week highs;\n  range boundaries; obvious repeated highs; untested external\n  liquidity» (§10.1). يجتاحها البائعون فيصعد السعر إليها ثم يُرفض.\n- ``SELL_SIDE``: سيولة بيعية عند القعور — «Sell-side candidates:\n  prior swing lows; equal lows; session lows; previous day/week lows;\n  range boundaries; obvious repeated lows; untested external\n  liquidity» (§10.1).",
+      "enum": [
+        "BUY_SIDE",
+        "SELL_SIDE"
+      ],
+      "title": "LiquiditySide",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "description": "حمولة الكسر بالقبول — تخدم BREAK_AND_ACCEPT_HIGH / BREAK_AND_ACCEPT_LOW\n(§20): «Break + closes/volume acceptance» والقياس الرئيس «Acceptance\nratio».\n\nهذا الطرف المقابل للاجتياح في التصنيف الخمسي (§10.4): القبول خلف\nالحافة يستهلك المنطقة (``ZoneState.CONSUMED``) بدل اجتياحها ورفضها.\n``window_bars`` نافذة القياس المعلنة، و``acceptance_ratio`` نسبة\nالإغلاقات المقبولة وراء الحافة داخلها.",
+  "properties": {
+    "acceptance_ratio": {
+      "maximum": 1.0,
+      "minimum": 0.0,
+      "title": "Acceptance Ratio",
+      "type": "number"
+    },
+    "bar_time": {
+      "format": "date-time",
+      "title": "Bar Time",
+      "type": "string"
+    },
+    "excursion_atr": {
+      "exclusiveMinimum": 0.0,
+      "title": "Excursion Atr",
+      "type": "number"
+    },
+    "instrument": {
+      "title": "Instrument",
+      "type": "string"
+    },
+    "timeframe": {
+      "title": "Timeframe",
+      "type": "string"
+    },
+    "window_bars": {
+      "minimum": 0,
+      "title": "Window Bars",
+      "type": "integer"
+    },
+    "zone_id": {
+      "title": "Zone Id",
+      "type": "string"
+    },
+    "zone_side": {
+      "$ref": "#/$defs/LiquiditySide"
+    }
+  },
+  "required": [
+    "instrument",
+    "timeframe",
+    "bar_time",
+    "zone_id",
+    "zone_side",
+    "excursion_atr",
+    "acceptance_ratio",
+    "window_bars"
+  ],
+  "title": "BreakAcceptEventPayload",
+  "type": "object"
+}

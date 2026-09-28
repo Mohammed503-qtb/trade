@@ -1,0 +1,84 @@
+{
+  "$defs": {
+    "FvgDirection": {
+      "description": "قطبية الفجوة/المنطقة المصدرية (§11.5/§11.6).\n\nBULLISH/BEARISH يطابق أسماء أحداث §20 نفسها (FVG_BULLISH/BEARISH\nوORDER_BLOCK_BULLISH/BEARISH).",
+      "enum": [
+        "BULLISH",
+        "BEARISH"
+      ],
+      "title": "FvgDirection",
+      "type": "string"
+    },
+    "StructureConsequence": {
+      "description": "النتيجة البنيوية للإزاحة المولِّدة لمنطقة Order Block (§11.6 خطوة 3).\n\n«Verify the impulse generated meaningful structure change or liquidity\ninteraction» — الخطوة الثالثة من خط الأنابيب؛ القيمة ``NONE_YET``\nتعني أن التحقق لم يكتمل بعد لا أن المنطقة باطلة.",
+      "enum": [
+        "BOS",
+        "LIQUIDITY_INTERACTION",
+        "NONE_YET"
+      ],
+      "title": "StructureConsequence",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "description": "حمولة تكوين Order Block — تخدم ORDER_BLOCK_BULLISH / ORDER_BLOCK_BEARISH\n(§11.6 + §20): المنطقة المصدرية قبل إزاحة مؤكدة «تظل ذات صلة بعد الحركة».\n\n``origin_time`` وقت الشمعة/العنقود المعاكس المصدر (خطوة 2 من خط\nالأنابيب §11.6)، و``displacement_id`` الإزاحة المؤكدة المولِّدة\n(خطوة 1)، و``structure_consequence`` نتيجة الخطوة 3. «لا يُفسَّر\nOrder Block أبدًا كدليل على أمر مؤسسي» (§11.6).",
+  "properties": {
+    "bar_time": {
+      "format": "date-time",
+      "title": "Bar Time",
+      "type": "string"
+    },
+    "direction": {
+      "$ref": "#/$defs/FvgDirection"
+    },
+    "displacement_id": {
+      "title": "Displacement Id",
+      "type": "string"
+    },
+    "instrument": {
+      "title": "Instrument",
+      "type": "string"
+    },
+    "origin_time": {
+      "format": "date-time",
+      "title": "Origin Time",
+      "type": "string"
+    },
+    "size_atr": {
+      "exclusiveMinimum": 0.0,
+      "title": "Size Atr",
+      "type": "number"
+    },
+    "structure_consequence": {
+      "$ref": "#/$defs/StructureConsequence"
+    },
+    "timeframe": {
+      "title": "Timeframe",
+      "type": "string"
+    },
+    "zone_high": {
+      "exclusiveMinimum": 0.0,
+      "title": "Zone High",
+      "type": "number"
+    },
+    "zone_low": {
+      "exclusiveMinimum": 0.0,
+      "title": "Zone Low",
+      "type": "number"
+    }
+  },
+  "required": [
+    "instrument",
+    "timeframe",
+    "bar_time",
+    "direction",
+    "zone_low",
+    "zone_high",
+    "origin_time",
+    "displacement_id",
+    "structure_consequence",
+    "size_atr"
+  ],
+  "title": "OrderBlockEventPayload",
+  "type": "object"
+}

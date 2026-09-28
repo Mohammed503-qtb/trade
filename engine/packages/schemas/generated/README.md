@@ -4,7 +4,7 @@
 > حرس الجودة: `python -m schemas.export check` يجب أن يبقى أخضر في كل بوابة (لا رسالة بلا مخطط مُصدَّر).
 
 - إصدار المخططات: `1.0.0`
-- عدد النماذج الجذرية: 15
+- عدد النماذج الجذرية: 24
 
 | النموذج | الملف | الوحدة | فقرة الخطة |
 |---|---|---|---|
@@ -13,6 +13,15 @@
 | `Candle` | `Candle.schema.json` | `schemas.market` | §8.1 |
 | `FootprintBar` | `FootprintBar.schema.json` | `schemas.market` | §8.2 + §12.7 |
 | `MarketStateSnapshot` | `MarketStateSnapshot.schema.json` | `schemas.market` | §32 (المثال) |
+| `LiquidityZone` | `LiquidityZone.schema.json` | `schemas.liquidity` | §10.2 |
+| `SweepEventPayload` | `SweepEventPayload.schema.json` | `schemas.liquidity` | §10.4 + §20 |
+| `BreakAcceptEventPayload` | `BreakAcceptEventPayload.schema.json` | `schemas.liquidity` | §10.4 + §20 |
+| `Swing` | `Swing.schema.json` | `schemas.structure` | §11.1 |
+| `StructureBreakPayload` | `StructureBreakPayload.schema.json` | `schemas.structure` | §11.2-3 + §20 |
+| `DisplacementEventPayload` | `DisplacementEventPayload.schema.json` | `schemas.structure` | §11.4 + §20 |
+| `FvgEventPayload` | `FvgEventPayload.schema.json` | `schemas.structure` | §11.5 + §20 |
+| `OrderBlockEventPayload` | `OrderBlockEventPayload.schema.json` | `schemas.structure` | §11.6 + §20 |
+| `PremiumDiscountEventPayload` | `PremiumDiscountEventPayload.schema.json` | `schemas.structure` | §11.7 + §20 |
 | `EvidenceRecord` | `EvidenceRecord.schema.json` | `schemas.evidence` | §19.1 |
 | `PriceZone` | `PriceZone.schema.json` | `schemas.scenario` | §18.1 (entry_zone) |
 | `TriggerDefinition` | `TriggerDefinition.schema.json` | `schemas.scenario` | §18.1 + §18.4 |

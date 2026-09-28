@@ -1,0 +1,71 @@
+{
+  "$defs": {
+    "FvgDirection": {
+      "description": "قطبية الفجوة/المنطقة المصدرية (§11.5/§11.6).\n\nBULLISH/BEARISH يطابق أسماء أحداث §20 نفسها (FVG_BULLISH/BEARISH\nوORDER_BLOCK_BULLISH/BEARISH).",
+      "enum": [
+        "BULLISH",
+        "BEARISH"
+      ],
+      "title": "FvgDirection",
+      "type": "string"
+    },
+    "FvgState": {
+      "description": "حالة الفجوة في لحظة البث (§11.5).\n\nحدث البث هو التكوين حصرًا (``CREATED``)؛ الملء والنفاد («fill\npercentage» و«first mitigation time» و«invalidation/consumption\nstate» بنص §11.5) حالة تتبعية داخل الكاشف تُقرأ عند الحاجة — «لا\nيُفترض أن كل فجوة يجب أن تُملأ» (§11.5) فلا تُبث حالة ملء كأنها حدث.",
+      "enum": [
+        "CREATED"
+      ],
+      "title": "FvgState",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "description": "حمولة تكوين فجوة القيمة — تخدم FVG_BULLISH / FVG_BEARISH\n(§11.5 + §20): «الفجوة تُخزَّن فاصلًا سعريًا» مع وقت الأصل والاتجاه\nوالحجم المُطبَّع بـATR المحلي (§11.5).\n\nحدث البث هو التكوين (``state=CREATED`` انظر FvgState)؛ الملء والنفاد\nحالة تتبعية في الكاشف لا تُبث — «لا يُفترض أن كل فجوة يجب أن تُملأ».",
+  "properties": {
+    "bar_time": {
+      "format": "date-time",
+      "title": "Bar Time",
+      "type": "string"
+    },
+    "direction": {
+      "$ref": "#/$defs/FvgDirection"
+    },
+    "gap_high": {
+      "exclusiveMinimum": 0.0,
+      "title": "Gap High",
+      "type": "number"
+    },
+    "gap_low": {
+      "exclusiveMinimum": 0.0,
+      "title": "Gap Low",
+      "type": "number"
+    },
+    "instrument": {
+      "title": "Instrument",
+      "type": "string"
+    },
+    "size_atr": {
+      "exclusiveMinimum": 0.0,
+      "title": "Size Atr",
+      "type": "number"
+    },
+    "state": {
+      "$ref": "#/$defs/FvgState"
+    },
+    "timeframe": {
+      "title": "Timeframe",
+      "type": "string"
+    }
+  },
+  "required": [
+    "instrument",
+    "timeframe",
+    "bar_time",
+    "direction",
+    "gap_low",
+    "gap_high",
+    "size_atr",
+    "state"
+  ],
+  "title": "FvgEventPayload",
+  "type": "object"
+}

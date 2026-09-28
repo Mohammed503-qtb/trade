@@ -1,0 +1,85 @@
+{
+  "$defs": {
+    "LiquiditySide": {
+      "description": "جانب السيولة (§10.1 حرفيًا) — أي جانب السوق تراكمت عنده الأوامر.\n\n- ``BUY_SIDE``: سيولة شرائية عند القمم — «Buy-side candidates: prior\n  swing highs; equal highs; session highs; previous day/week highs;\n  range boundaries; obvious repeated highs; untested external\n  liquidity» (§10.1). يجتاحها البائعون فيصعد السعر إليها ثم يُرفض.\n- ``SELL_SIDE``: سيولة بيعية عند القعور — «Sell-side candidates:\n  prior swing lows; equal lows; session lows; previous day/week lows;\n  range boundaries; obvious repeated lows; untested external\n  liquidity» (§10.1).",
+      "enum": [
+        "BUY_SIDE",
+        "SELL_SIDE"
+      ],
+      "title": "LiquiditySide",
+      "type": "string"
+    },
+    "SweepClassification": {
+      "description": "تصنيف الاجتياح الخمسي (§10.4) — الاجتياح تسلسل لا فتيل واحد.",
+      "enum": [
+        "FAILED_SWEEP",
+        "PARTIAL_SWEEP",
+        "CONFIRMED_SWEEP",
+        "BREAK_AND_ACCEPT",
+        "UNKNOWN"
+      ],
+      "title": "SweepClassification",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "description": "حمولة اجتياح السيولة — تخدم LIQUIDITY_SWEEP_HIGH / LIQUIDITY_SWEEP_LOW\n(§10.4 + §20): حدث بثّ بعد اكتمال التسلسل، لا الفتيل الأول.\n\n«الاجتياح تسلسل لا فتيل واحد» (§10.4): ``penetration_reached`` هي\nالشرط 3 (بلغ التجاوز عتبة نسبةً إلى التقلب المحلي وعرض المنطقة)،\nو``reclaim_bars`` سرعة الاسترجاع — قياس §20 الرئيس («Excursion,\nreclaim speed»). ``classification`` دائمًا CONFIRMED_SWEEP عند بث هذه\nالأنواع (البث نفسه هو التأكيد) لكن يبقى الحقل للتقرير الذاتي\nللتصنيف عند البث — لا للاختزال الصامت؛ التصنيفات الأخرى\n(FAILED/PARTIAL/BREAK_AND_ACCEPT/UNKNOWN) حالات كاشف لا تُبث بهذين\nالنوعين.\n\n``test_count_at_event`` لقطة عدّاد الاختبارات لحظة الحدث — تجعل\nالحمولة مكتفية ذاتيًا للتقادم (§31.3) بلا الرجوع لسجل المنطقة.",
+  "properties": {
+    "bar_time": {
+      "format": "date-time",
+      "title": "Bar Time",
+      "type": "string"
+    },
+    "classification": {
+      "$ref": "#/$defs/SweepClassification"
+    },
+    "excursion_atr": {
+      "exclusiveMinimum": 0.0,
+      "title": "Excursion Atr",
+      "type": "number"
+    },
+    "instrument": {
+      "title": "Instrument",
+      "type": "string"
+    },
+    "penetration_reached": {
+      "title": "Penetration Reached",
+      "type": "boolean"
+    },
+    "reclaim_bars": {
+      "minimum": 0,
+      "title": "Reclaim Bars",
+      "type": "integer"
+    },
+    "test_count_at_event": {
+      "minimum": 0,
+      "title": "Test Count At Event",
+      "type": "integer"
+    },
+    "timeframe": {
+      "title": "Timeframe",
+      "type": "string"
+    },
+    "zone_id": {
+      "title": "Zone Id",
+      "type": "string"
+    },
+    "zone_side": {
+      "$ref": "#/$defs/LiquiditySide"
+    }
+  },
+  "required": [
+    "instrument",
+    "timeframe",
+    "bar_time",
+    "zone_id",
+    "zone_side",
+    "classification",
+    "excursion_atr",
+    "penetration_reached",
+    "reclaim_bars",
+    "test_count_at_event"
+  ],
+  "title": "SweepEventPayload",
+  "type": "object"
+}

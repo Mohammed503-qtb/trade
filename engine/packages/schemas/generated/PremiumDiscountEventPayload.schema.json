@@ -1,0 +1,75 @@
+{
+  "$defs": {
+    "PremiumDiscountSide": {
+      "description": "جانب النطاق (§11.7 حرفيًا): فوق المنصف premium وتحته discount.",
+      "enum": [
+        "PREMIUM",
+        "DISCOUNT"
+      ],
+      "title": "PremiumDiscountSide",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "description": "حمولة الموقع داخل نطاق المعالجة — تخدم PREMIUM_LOCATION /\nDISCOUNT_LOCATION (§11.7 + §20).\n\n«يجب تسمية نطاق المعالجة صراحةً» (§11.7) — لذلك ``range_name`` إلزامي،\nوالمحرك «يرفض حسابات premium/discount ملتبسة تغيّر تعريف النطاق بصمت».\n``normalized_distance`` = (price − equilibrium) / ((range_high −\nrange_low) / 2): إقصاء مطبَّع قد يتجاوز ±1 عندما يخرج السعر من\nالنطاق نفسه — القيمة خارج [−1, +1] معلومة (خروج عن النطاق) لا خطأ.",
+  "properties": {
+    "bar_time": {
+      "format": "date-time",
+      "title": "Bar Time",
+      "type": "string"
+    },
+    "equilibrium": {
+      "exclusiveMinimum": 0.0,
+      "title": "Equilibrium",
+      "type": "number"
+    },
+    "instrument": {
+      "title": "Instrument",
+      "type": "string"
+    },
+    "location": {
+      "$ref": "#/$defs/PremiumDiscountSide"
+    },
+    "normalized_distance": {
+      "title": "Normalized Distance",
+      "type": "number"
+    },
+    "price": {
+      "exclusiveMinimum": 0.0,
+      "title": "Price",
+      "type": "number"
+    },
+    "range_high": {
+      "exclusiveMinimum": 0.0,
+      "title": "Range High",
+      "type": "number"
+    },
+    "range_low": {
+      "exclusiveMinimum": 0.0,
+      "title": "Range Low",
+      "type": "number"
+    },
+    "range_name": {
+      "title": "Range Name",
+      "type": "string"
+    },
+    "timeframe": {
+      "title": "Timeframe",
+      "type": "string"
+    }
+  },
+  "required": [
+    "instrument",
+    "timeframe",
+    "bar_time",
+    "range_name",
+    "range_low",
+    "range_high",
+    "equilibrium",
+    "location",
+    "normalized_distance",
+    "price"
+  ],
+  "title": "PremiumDiscountEventPayload",
+  "type": "object"
+}

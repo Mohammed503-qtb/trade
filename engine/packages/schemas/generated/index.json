@@ -1,6 +1,14 @@
 {
+  "BreakAcceptEventPayload": {
+    "file": "BreakAcceptEventPayload.schema.json",
+    "schema_version": "1.0.0"
+  },
   "Candle": {
     "file": "Candle.schema.json",
+    "schema_version": "1.0.0"
+  },
+  "DisplacementEventPayload": {
+    "file": "DisplacementEventPayload.schema.json",
     "schema_version": "1.0.0"
   },
   "EventEnvelope": {
@@ -19,6 +27,10 @@
     "file": "FootprintBar.schema.json",
     "schema_version": "1.0.0"
   },
+  "FvgEventPayload": {
+    "file": "FvgEventPayload.schema.json",
+    "schema_version": "1.0.0"
+  },
   "InvalidationRule": {
     "file": "InvalidationRule.schema.json",
     "schema_version": "1.0.0"
@@ -27,12 +39,24 @@
     "file": "LatencyRecord.schema.json",
     "schema_version": "1.0.0"
   },
+  "LiquidityZone": {
+    "file": "LiquidityZone.schema.json",
+    "schema_version": "1.0.0"
+  },
   "MarketStateSnapshot": {
     "file": "MarketStateSnapshot.schema.json",
     "schema_version": "1.0.0"
   },
+  "OrderBlockEventPayload": {
+    "file": "OrderBlockEventPayload.schema.json",
+    "schema_version": "1.0.0"
+  },
   "OrderIntent": {
     "file": "OrderIntent.schema.json",
+    "schema_version": "1.0.0"
+  },
+  "PremiumDiscountEventPayload": {
+    "file": "PremiumDiscountEventPayload.schema.json",
     "schema_version": "1.0.0"
   },
   "PriceZone": {
@@ -45,6 +69,18 @@
   },
   "SlippageRecord": {
     "file": "SlippageRecord.schema.json",
+    "schema_version": "1.0.0"
+  },
+  "StructureBreakPayload": {
+    "file": "StructureBreakPayload.schema.json",
+    "schema_version": "1.0.0"
+  },
+  "SweepEventPayload": {
+    "file": "SweepEventPayload.schema.json",
+    "schema_version": "1.0.0"
+  },
+  "Swing": {
+    "file": "Swing.schema.json",
     "schema_version": "1.0.0"
   },
   "TargetZone": {

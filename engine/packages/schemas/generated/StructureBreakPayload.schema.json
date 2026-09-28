@@ -1,0 +1,90 @@
+{
+  "$defs": {
+    "BreakDirection": {
+      "description": "اتجاه الكسر أو الإزاحة — صعودًا أم هبوطًا (§11.2/§11.4).\n\nمستوى الكسر/الاندفاع ثنائي القطبية، لا LONG/SHORT — القرار الاتجاهي\nمسؤولية الدمج (§19) لا الكاشف.",
+      "enum": [
+        "UP",
+        "DOWN"
+      ],
+      "title": "BreakDirection",
+      "type": "string"
+    },
+    "SwingScope": {
+      "description": "نطاق المتطرف (§11.1 حرفيًا — اسم الحقل ``external_or_internal``).\n\nالقيمتان من §11.2 نفسه: «classify as internal or external» — البنية\nالخارجية هي الإطار الأكبر والداخلية حركة داخله.",
+      "enum": [
+        "EXTERNAL",
+        "INTERNAL"
+      ],
+      "title": "SwingScope",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "description": "حمولة كسر البنية — تخدم INTERNAL_BOS / EXTERNAL_BOS / CHOCH\n(§11.2-3 + §20) داخل EventEnvelope (§32).\n\n``swing_scope`` يعيد نطاق المتطرف المكسور (داخلي/خارجي — تصنيف §11.2)،\nو``breach_distance_atr`` هو «breach distance normalized by ATR/local\nrange» (مقياس §11.2) و``closing_acceptance`` «closing acceptance».\n``choch_prior_direction`` يُضع للـCHOCH حصرًا (§11.3: «اتجاه\nالاستمرار السابق المنتَهَك») ويبقى None لكسري BOS.",
+  "properties": {
+    "bar_time": {
+      "format": "date-time",
+      "title": "Bar Time",
+      "type": "string"
+    },
+    "breach_distance_atr": {
+      "exclusiveMinimum": 0.0,
+      "title": "Breach Distance Atr",
+      "type": "number"
+    },
+    "break_direction": {
+      "$ref": "#/$defs/BreakDirection"
+    },
+    "choch_prior_direction": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/BreakDirection"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "closing_acceptance": {
+      "maximum": 1.0,
+      "minimum": 0.0,
+      "title": "Closing Acceptance",
+      "type": "number"
+    },
+    "follow_through": {
+      "maximum": 1.0,
+      "minimum": 0.0,
+      "title": "Follow Through",
+      "type": "number"
+    },
+    "instrument": {
+      "title": "Instrument",
+      "type": "string"
+    },
+    "swing_id": {
+      "title": "Swing Id",
+      "type": "string"
+    },
+    "swing_scope": {
+      "$ref": "#/$defs/SwingScope"
+    },
+    "timeframe": {
+      "title": "Timeframe",
+      "type": "string"
+    }
+  },
+  "required": [
+    "instrument",
+    "timeframe",
+    "bar_time",
+    "swing_id",
+    "swing_scope",
+    "break_direction",
+    "breach_distance_atr",
+    "closing_acceptance",
+    "follow_through"
+  ],
+  "title": "StructureBreakPayload",
+  "type": "object"
+}

@@ -19,6 +19,7 @@ from .envelope import EventEnvelope
 from .evidence import EvidenceRecord
 from .execution import LatencyRecord, OrderIntent, SlippageRecord
 from .learning import ExperienceRecord
+from .liquidity import BreakAcceptEventPayload, LiquidityZone, SweepEventPayload
 from .market import Candle, FootprintBar, MarketStateSnapshot, TradeEvent
 from .scenario import (
     InvalidationRule,
@@ -27,8 +28,17 @@ from .scenario import (
     TargetZone,
     TriggerDefinition,
 )
+from .structure import (
+    DisplacementEventPayload,
+    FvgEventPayload,
+    OrderBlockEventPayload,
+    PremiumDiscountEventPayload,
+    StructureBreakPayload,
+    Swing,
+)
 
-# كل النماذج الجذرية — مرتبة بالطبقة (مغلف ← سوق ← دليل ← سيناريو ← تنفيذ ← تعلم).
+# كل النماذج الجذرية — مرتبة بالطبقة (مغلف ← سوق ← سيولة ← بنية ← دليل ←
+# سيناريو ← تنفيذ ← تعلم).
 ALL_MODELS: dict[str, type[BaseModel]] = {
     # مغلف الرسائل (§32)
     "EventEnvelope": EventEnvelope,
@@ -37,6 +47,17 @@ ALL_MODELS: dict[str, type[BaseModel]] = {
     "Candle": Candle,
     "FootprintBar": FootprintBar,
     "MarketStateSnapshot": MarketStateSnapshot,
+    # كائنات السيولة (§10) وحمولاتها (§20)
+    "LiquidityZone": LiquidityZone,
+    "SweepEventPayload": SweepEventPayload,
+    "BreakAcceptEventPayload": BreakAcceptEventPayload,
+    # كائنات البنية (§11) وحمولاتها (§20)
+    "Swing": Swing,
+    "StructureBreakPayload": StructureBreakPayload,
+    "DisplacementEventPayload": DisplacementEventPayload,
+    "FvgEventPayload": FvgEventPayload,
+    "OrderBlockEventPayload": OrderBlockEventPayload,
+    "PremiumDiscountEventPayload": PremiumDiscountEventPayload,
     # الدليل (§19.1)
     "EvidenceRecord": EvidenceRecord,
     # السيناريو ومكوناته (§18/§10.5)
@@ -60,6 +81,15 @@ MODEL_PLAN_REFS: dict[str, str] = {
     "Candle": "§8.1",
     "FootprintBar": "§8.2 + §12.7",
     "MarketStateSnapshot": "§32 (المثال)",
+    "LiquidityZone": "§10.2",
+    "SweepEventPayload": "§10.4 + §20",
+    "BreakAcceptEventPayload": "§10.4 + §20",
+    "Swing": "§11.1",
+    "StructureBreakPayload": "§11.2-3 + §20",
+    "DisplacementEventPayload": "§11.4 + §20",
+    "FvgEventPayload": "§11.5 + §20",
+    "OrderBlockEventPayload": "§11.6 + §20",
+    "PremiumDiscountEventPayload": "§11.7 + §20",
     "EvidenceRecord": "§19.1",
     "PriceZone": "§18.1 (entry_zone)",
     "TriggerDefinition": "§18.1 + §18.4",

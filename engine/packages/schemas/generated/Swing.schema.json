@@ -1,0 +1,73 @@
+{
+  "$defs": {
+    "SwingDirection": {
+      "description": "قطبية المتطرف (§11.1) — قمة أم قاع.\n\n§11.1 يسمي الحقل ``direction`` دون نطاق قيم؛ HIGH/LOW يطابق لغة §10.1\nنفسها («prior swing highs» / «prior swing lows») وأسماء أحداث §20\n(LIQUIDITY_SWEEP_HIGH / LIQUIDITY_SWEEP_LOW) — لا LONG/SHORT لأن\nالمتطرف مستوى لا انحيازًا اتجاهيًا.",
+      "enum": [
+        "HIGH",
+        "LOW"
+      ],
+      "title": "SwingDirection",
+      "type": "string"
+    },
+    "SwingScope": {
+      "description": "نطاق المتطرف (§11.1 حرفيًا — اسم الحقل ``external_or_internal``).\n\nالقيمتان من §11.2 نفسه: «classify as internal or external» — البنية\nالخارجية هي الإطار الأكبر والداخلية حركة داخله.",
+      "enum": [
+        "EXTERNAL",
+        "INTERNAL"
+      ],
+      "title": "SwingScope",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "description": "متطرف مؤكد (§11.1 حرفيًا) — يُؤكَّد فقط بعد اكتمال قاعدة النظر\nالخلفي/التأكيد، والقاعدة «لا تعتمد على شموع مستقبلية في الوضع الحي\nبعد تأخير التأكيد المطلوب» (§11.1).\n\n**الامتداد التشغيلي الموثق الوحيد**: ``bar_time`` — وقت شمعة القمة/\nالقاع نفسها. §11.1 لا يذكره لكنه لازم لعقدين تشغيليين: (أ) ``origin_time``\nلمناطق البنية المنبثقة عن المتطرف (§11.6)، و(ب) الترتيب الزمني\nللمتطرفات عند تساوي أوقات التأكيد. العلاقة القانونية:\n``confirmation_time = bar_time + تأخير التأكيد`` — الفارق بينهما هو\nقاعدة النظر الخلفي نفسها، ولا يجوز أن يكون سالبًا أبدًا.",
+  "properties": {
+    "bar_time": {
+      "format": "date-time",
+      "title": "Bar Time",
+      "type": "string"
+    },
+    "confirmation_time": {
+      "format": "date-time",
+      "title": "Confirmation Time",
+      "type": "string"
+    },
+    "direction": {
+      "$ref": "#/$defs/SwingDirection"
+    },
+    "external_or_internal": {
+      "$ref": "#/$defs/SwingScope"
+    },
+    "price": {
+      "exclusiveMinimum": 0.0,
+      "title": "Price",
+      "type": "number"
+    },
+    "strength": {
+      "maximum": 1.0,
+      "minimum": 0.0,
+      "title": "Strength",
+      "type": "number"
+    },
+    "swing_id": {
+      "title": "Swing Id",
+      "type": "string"
+    },
+    "timeframe": {
+      "title": "Timeframe",
+      "type": "string"
+    }
+  },
+  "required": [
+    "swing_id",
+    "price",
+    "timeframe",
+    "direction",
+    "strength",
+    "confirmation_time",
+    "external_or_internal",
+    "bar_time"
+  ],
+  "title": "Swing",
+  "type": "object"
+}

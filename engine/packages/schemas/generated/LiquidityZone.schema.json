@@ -1,0 +1,152 @@
+{
+  "$defs": {
+    "LiquiditySide": {
+      "description": "جانب السيولة (§10.1 حرفيًا) — أي جانب السوق تراكمت عنده الأوامر.\n\n- ``BUY_SIDE``: سيولة شرائية عند القمم — «Buy-side candidates: prior\n  swing highs; equal highs; session highs; previous day/week highs;\n  range boundaries; obvious repeated highs; untested external\n  liquidity» (§10.1). يجتاحها البائعون فيصعد السعر إليها ثم يُرفض.\n- ``SELL_SIDE``: سيولة بيعية عند القعور — «Sell-side candidates:\n  prior swing lows; equal lows; session lows; previous day/week lows;\n  range boundaries; obvious repeated lows; untested external\n  liquidity» (§10.1).",
+      "enum": [
+        "BUY_SIDE",
+        "SELL_SIDE"
+      ],
+      "title": "LiquiditySide",
+      "type": "string"
+    },
+    "LiquiditySourceType": {
+      "description": "نوع مصدر المنطقة — قوائم §10.1 مصنّفة إلى أنواع قابلة للبرمجة.\n\nالقرار الموثق: «obvious repeated highs/lows» و«untested external\nliquidity» ليستا نوعَي مصدر بل **خصيصتين تُقاسان**: التكرار عبر\n``test_count`` وطزاجة المنطقة عبر حالتها (``ZoneState`` و\n``sweep_status``) — عدُّهما نوعين مستقلين يكرر المعلومة نفسها ويكسر\nتعامد الحقول.",
+      "enum": [
+        "PRIOR_SWING",
+        "EQUAL_LEVEL",
+        "SESSION_EXTREME",
+        "PREV_DAY_EXTREME",
+        "PREV_WEEK_EXTREME",
+        "RANGE_BOUNDARY"
+      ],
+      "title": "LiquiditySourceType",
+      "type": "string"
+    },
+    "SweepClassification": {
+      "description": "تصنيف الاجتياح الخمسي (§10.4) — الاجتياح تسلسل لا فتيل واحد.",
+      "enum": [
+        "FAILED_SWEEP",
+        "PARTIAL_SWEEP",
+        "CONFIRMED_SWEEP",
+        "BREAK_AND_ACCEPT",
+        "UNKNOWN"
+      ],
+      "title": "SweepClassification",
+      "type": "string"
+    },
+    "ZoneState": {
+      "description": "حالة دورة حياة المنطقة (§31.3: «liquidity zones … and lifecycle\nstate») — مدخل «whether the zone has already been consumed» في قوة\nالمنطقة (§10.3) يُقرأ من هنا.\n\n- ``ACTIVE``: قائمة لم تُجتَح بعد.\n- ``SWEPT``: اجتاحها حدث LIQUIDITY_SWEEP_* مؤكد (§10.4).\n- ``CONSUMED``: استُهلكت بقبول (BREAK_AND_ACCEPT — §10.4/§20) فلم تعد\n  هدفًا معتبرًا.\n- ``INVALIDATED``: بطل تعريفها البنيوي (المتطرف المصدر انكسر كسرًا\n  خارجيًا مثلًا) — تُبقى للتاريخ لا للاستهداف.",
+      "enum": [
+        "ACTIVE",
+        "SWEPT",
+        "CONSUMED",
+        "INVALIDATED"
+      ],
+      "title": "ZoneState",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "description": "منطقة سيولة (§10.2 حرفيًا) — خريطة مستنتَجة لمواضع الأوامر.\n\nالحقول الاثنا عشر الحرفية من نص §10.2 كاملة هنا. الامتدادات\nالتشغيلية الموثقة: ``instrument`` و``timeframe`` (تمركز ذاتي —\nالمنطقة تُنقل وتُؤرشف مستقلة عن المجري الذي أنشأها)، و``state``\n(حالة دورة الحياة §31.3 — مدخل الاستهلاك في قوة المنطقة §10.3).\n\n``age`` عمر المنطقة بالشموع **عند آخر تحديث** — قيمة مشتقة ديناميكيًا\n(أصل السجل − آخر شمعة) والقيمة المخزونة لقطة وقت الكتابة، فقديمتها\nتُعاد اشتقاقها عند القراءة لا تُصدَّق كوقت حي.\n\n``reaction_score`` و``unmitigated_score`` و``importance_score`` مدخلات\nقوة المنطقة السبعة (§10.3) بدرجات خام — «الدرجة ليست احتمالًا»\n(§10.3 حرفيًا).",
+  "properties": {
+    "age": {
+      "minimum": 0,
+      "title": "Age",
+      "type": "integer"
+    },
+    "importance_score": {
+      "maximum": 1.0,
+      "minimum": 0.0,
+      "title": "Importance Score",
+      "type": "number"
+    },
+    "instrument": {
+      "title": "Instrument",
+      "type": "string"
+    },
+    "last_test_time": {
+      "anyOf": [
+        {
+          "format": "date-time",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Last Test Time"
+    },
+    "origin_time": {
+      "format": "date-time",
+      "title": "Origin Time",
+      "type": "string"
+    },
+    "price_high": {
+      "exclusiveMinimum": 0.0,
+      "title": "Price High",
+      "type": "number"
+    },
+    "price_low": {
+      "exclusiveMinimum": 0.0,
+      "title": "Price Low",
+      "type": "number"
+    },
+    "reaction_score": {
+      "maximum": 1.0,
+      "minimum": 0.0,
+      "title": "Reaction Score",
+      "type": "number"
+    },
+    "side": {
+      "$ref": "#/$defs/LiquiditySide"
+    },
+    "source_type": {
+      "$ref": "#/$defs/LiquiditySourceType"
+    },
+    "state": {
+      "$ref": "#/$defs/ZoneState"
+    },
+    "sweep_status": {
+      "$ref": "#/$defs/SweepClassification"
+    },
+    "test_count": {
+      "minimum": 0,
+      "title": "Test Count",
+      "type": "integer"
+    },
+    "timeframe": {
+      "title": "Timeframe",
+      "type": "string"
+    },
+    "unmitigated_score": {
+      "maximum": 1.0,
+      "minimum": 0.0,
+      "title": "Unmitigated Score",
+      "type": "number"
+    },
+    "zone_id": {
+      "title": "Zone Id",
+      "type": "string"
+    }
+  },
+  "required": [
+    "zone_id",
+    "side",
+    "price_low",
+    "price_high",
+    "origin_time",
+    "age",
+    "source_type",
+    "test_count",
+    "last_test_time",
+    "sweep_status",
+    "reaction_score",
+    "unmitigated_score",
+    "importance_score",
+    "instrument",
+    "timeframe",
+    "state"
+  ],
+  "title": "LiquidityZone",
+  "type": "object"
+}

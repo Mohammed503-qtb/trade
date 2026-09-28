@@ -117,6 +117,11 @@ class ThresholdKey(StrEnum):
     ENTRY_ZONE_HALF_WIDTH = "ENTRY_ZONE_HALF_WIDTH"
     #: نصف عرض منطقة الهدف (§10.5/§24.1: الأهداف مناطق لا نقاط).
     TARGET_ZONE_HALF_WIDTH = "TARGET_ZONE_HALF_WIDTH"
+    #: تسامح اعتبار المستويات متساوية/متراصة (§10.1 «equal highs»/«equal
+    #: lows» + §11.6 «compact opposing cluster») — يُستخدم في تجميع
+    #: المستويات المتساوية ضمن منطقة واحدة وعنقيد المعاكس المتراص قبل
+    #: الإزاحة؛ عتبة تطبيعية ``atr × multiplier`` ككل مفاتيح القاموس.
+    EQUAL_LEVEL_TOLERANCE = "EQUAL_LEVEL_TOLERANCE"
 
 
 #: المعاملات الافتراضية — نقطة انطلاق إعدادية معلنة، تُعايَر لاحقًا (ليست توصية).
@@ -129,6 +134,7 @@ DEFAULT_MULTIPLIERS: Mapping[ThresholdKey, float] = MappingProxyType(
         ThresholdKey.ZONE_PROXIMITY: 2.0,
         ThresholdKey.ENTRY_ZONE_HALF_WIDTH: 0.25,
         ThresholdKey.TARGET_ZONE_HALF_WIDTH: 0.25,
+        ThresholdKey.EQUAL_LEVEL_TOLERANCE: 0.25,
     }
 )
 
