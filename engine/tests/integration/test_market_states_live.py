@@ -67,6 +67,7 @@ def _alembic_head() -> str:
     assert lines, "خرج alembic heads فارغ — لا رأس؟"
     return lines[0].split(" ")[0]
 
+
 # أداة وهمية معزولة لهذه المهمة — لا يعبث بها مستهلك آخر للموضوعات
 INSTRUMENT = "test-2f:SNAPSHOT"
 TIMEFRAME = "5m"
