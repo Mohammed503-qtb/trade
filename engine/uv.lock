@@ -491,6 +491,7 @@ source = { editable = "services/liquidity" }
 dependencies = [
     { name = "engine-common" },
     { name = "engine-features" },
+    { name = "engine-market-state" },
     { name = "engine-schemas" },
 ]
 
@@ -498,6 +499,7 @@ dependencies = [
 requires-dist = [
     { name = "engine-common", editable = "packages/common" },
     { name = "engine-features", editable = "packages/features" },
+    { name = "engine-market-state", editable = "services/market_state" },
     { name = "engine-schemas", editable = "packages/schemas" },
 ]
 
@@ -636,6 +638,7 @@ source = { editable = "services/structure" }
 dependencies = [
     { name = "engine-common" },
     { name = "engine-features" },
+    { name = "engine-market-state" },
     { name = "engine-schemas" },
 ]
 
@@ -643,6 +646,7 @@ dependencies = [
 requires-dist = [
     { name = "engine-common", editable = "packages/common" },
     { name = "engine-features", editable = "packages/features" },
+    { name = "engine-market-state", editable = "services/market_state" },
     { name = "engine-schemas", editable = "packages/schemas" },
 ]
 
