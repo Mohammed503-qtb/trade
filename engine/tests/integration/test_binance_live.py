@@ -7,6 +7,7 @@ API آخر فشل حقيقي يُرفع.
 
 from __future__ import annotations
 
+import asyncio
 import itertools
 
 import httpx
@@ -18,20 +19,35 @@ pytestmark = pytest.mark.integration
 
 
 def _skip_on_network_failure(exc: BaseException) -> None:
-    """سياسة التخطي النظيف: انقطاع/حجب الشبكة ليس فشل كود."""
-    if isinstance(exc, (httpx.TransportError, OSError)):
+    """سياسة التخطي النظيف: انقطاع/حجب الشبكة ليس فشل كود.
+
+    تشمل ``TimeoutError`` (المهلة الصلبة للأداة أدناه): حل DNS المعلق في
+    بيئة محجوبة قد لا تُلغيه مهلة httpx (خيط getaddrinfo لا يُقاطع) فالسقف
+    الصلب حول الاستدعاء هو الحاسم — انتهاؤه تخطٍ لا فشل.
+    """
+    if isinstance(exc, (httpx.TransportError, OSError, TimeoutError)):
         pytest.skip(f"الشبكة محجوبة في هذه البيئة: {exc}")
-    if isinstance(exc, httpx.HTTPStatusError) and exc.response.status_code in (403, 451):
+    # 403/451 حجب جغرافي صريح؛ 418 «إبريق الشاي» هو رمز حظر/حجب Binance
+    # الموثق (بعد استنفاد العميل محاولاته الشرعية) — كلاهما بيئة لا فشل كود
+    if isinstance(exc, httpx.HTTPStatusError) and exc.response.status_code in (403, 451, 418):
         pytest.skip(f"البوابة محجوبة جغرافيًا: {exc.response.status_code}")
     raise exc
 
 
 async def test_live_klines_fetch_and_convert() -> None:
-    """10 شموع حية 1m من البورصة المرجعية — التحويل والعقد سليمان."""
-    async with BinanceRestClient() as client:
+    """10 شموع حية 1m من البورصة المرجعية — التحويل والعقد سليمان.
+
+    عميل سريع الفشل (محاولتان بتراجع لطيف): البيئة المحجوبة جغرافيًا
+    تستنفد محاولاتها في أجزاء الثانية فتتخطى نظيفًا بدل انتظار التراجع
+    الكامل (1+2+4+8 ثوانٍ لكل طلب) — استراتيجية العميل الكاملة تختبرها
+    وحدات المحاكاة بلا شبكة.
+    """
+    async with BinanceRestClient(max_attempts=1) as client:
         try:
-            bars = await client.fetch_klines("BTCUSDT", "1m", limit=10)
-        except (httpx.TransportError, OSError, httpx.HTTPStatusError) as exc:
+            bars = await asyncio.wait_for(
+                client.fetch_klines("BTCUSDT", "1m", limit=10), timeout=30
+            )
+        except (httpx.TransportError, OSError, httpx.HTTPStatusError, TimeoutError) as exc:
             _skip_on_network_failure(exc)
             raise AssertionError("غير قابل للوصول") from exc
     # الحد أقصى لا ضمان عددي — البيانات الحية قد تعيد أقل عند حدود الدقيقة
@@ -51,16 +67,22 @@ async def test_live_aggtrades_match_closed_kline_extremes() -> None:
     بالضبط، وتحقق: high ≥ أقصى سعر صفقة، low ≤ أدنى سعر، ومجموع الكميات
     يقارب حجم الشمعة (تسامح 1% لحدود المللي ثانية).
     """
-    async with BinanceRestClient() as client:
-        try:
+
+    async def _fetch_pair() -> tuple[KlineBar, list[TradeEvent]]:
+        # العميل كله داخل السقف الصلب (إلغاء aclose المنتظر خيط DNS معلقًا)
+        async with BinanceRestClient(max_attempts=1) as client:
             bars = await client.fetch_klines("BTCUSDT", "1m", limit=10)
             closed = bars[-2]
-            events: list[TradeEvent] = await client.fetch_aggtrades(
+            events = await client.fetch_aggtrades(
                 "BTCUSDT", closed.open_time_ms, closed.close_time_ms
             )
-        except (httpx.TransportError, OSError, httpx.HTTPStatusError) as exc:
-            _skip_on_network_failure(exc)
-            raise AssertionError("غير قابل للوصول") from exc
+            return closed, events
+
+    try:
+        closed, events = await asyncio.wait_for(_fetch_pair(), timeout=45)
+    except (httpx.TransportError, OSError, httpx.HTTPStatusError, TimeoutError) as exc:
+        _skip_on_network_failure(exc)
+        raise AssertionError("غير قابل للوصول") from exc
     assert isinstance(closed, KlineBar)
     assert events, "دقيقة مكتملة لـBTCUSDT يجب أن تحمل صفقات"
     prices = [event.price for event in events]
