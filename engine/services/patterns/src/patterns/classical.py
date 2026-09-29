@@ -563,6 +563,8 @@ class _BreakState:
     candidate: _Candidate
     direction: BreakDirection
     breakout_level: float
+    invalidation_level: float
+    measured_move: float
     bars_since_break: int = 0
 
 
@@ -803,6 +805,8 @@ class ClassicalPatternDetector:
             candidate=candidate,
             direction=direction,
             breakout_level=breakout_level,
+            invalidation_level=invalidation,
+            measured_move=measured,
         )
         self._candidate = None
         self._candidate_dead = False
@@ -824,8 +828,8 @@ class ClassicalPatternDetector:
             anchor_points=candidate.anchors,
             completion_time=self._candles[-1].bar_time,
             breakout_level=state.breakout_level,
-            invalidation_level=candidate.invalidation_level,
-            measured_move=candidate.measured_move,
+            invalidation_level=state.invalidation_level,
+            measured_move=state.measured_move,
             quality=candidate.quality,
             break_direction=state.direction,
             status=(
