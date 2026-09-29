@@ -1,0 +1,51 @@
+{
+  "additionalProperties": false,
+  "description": "تقرير المعايرة (§19.6) — «الدرجة الخام ليست احتمالًا» أبدًا.\n\nالبنية مكتملة من day-one والملء مشروط: ``eligible=False`` حصرًا حتى\nتتوفر بيانات خارج العينة كافية لمعاير صريح (isotonic/Platt) على\nبيانات لم تُستخدم في تحسين الدرجة الخام — مسؤولية الإعادة والوسم\n(المرحلة 9). «الدرجة الخام لا توصف بأنها فرصة 94٪ أبدًا» (§19.6).",
+  "properties": {
+    "calibrated_probability": {
+      "anyOf": [
+        {
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Calibrated Probability"
+    },
+    "calibration_regime": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Calibration Regime"
+    },
+    "calibration_sample_size": {
+      "default": 0,
+      "title": "Calibration Sample Size",
+      "type": "integer"
+    },
+    "deferral_reason": {
+      "title": "Deferral Reason",
+      "type": "string"
+    },
+    "eligible": {
+      "default": false,
+      "title": "Eligible",
+      "type": "boolean"
+    }
+  },
+  "required": [
+    "deferral_reason"
+  ],
+  "title": "CalibrationReport",
+  "type": "object"
+}

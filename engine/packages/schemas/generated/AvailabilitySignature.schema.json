@@ -1,0 +1,69 @@
+{
+  "$defs": {
+    "EvidenceGroup": {
+      "description": "مجموعات الدليل الست (§19.3) — تجميع لتجنب العد المزدوج (§2.3).",
+      "enum": [
+        "STRUCTURE",
+        "LIQUIDITY_LOCATION",
+        "ORDER_FLOW",
+        "PRICE_ACTION",
+        "VOLATILITY_SESSION",
+        "MACRO"
+      ],
+      "title": "EvidenceGroup",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "description": "توقيع الإتاحة (D-03-ب + A-01) — سجل صريح لمن حضر ومن غاب.\n\n«إعادة توزيع حتمية عند الخلو + تسجيل توقيع إتاحة مع كل لقطة دمج»:\nأي قارئ للقطة يعرف أي المجموعات الست كان لها دليل مؤهل، وما الحصص\nالافتراضية، وما الحصص الفعلية بعد إعادة التوزيع التناسبي — فلا\n«تضخيم» درجة بالمجموعات الحاضرة يمر صامتًا (سبب رفض D-03 للمتوسط\nالبسيط).",
+  "properties": {
+    "absent_groups": {
+      "items": {
+        "$ref": "#/$defs/EvidenceGroup"
+      },
+      "title": "Absent Groups",
+      "type": "array"
+    },
+    "default_shares": {
+      "additionalProperties": {
+        "type": "number"
+      },
+      "propertyNames": {
+        "$ref": "#/$defs/EvidenceGroup"
+      },
+      "title": "Default Shares",
+      "type": "object"
+    },
+    "effective_shares": {
+      "additionalProperties": {
+        "type": "number"
+      },
+      "propertyNames": {
+        "$ref": "#/$defs/EvidenceGroup"
+      },
+      "title": "Effective Shares",
+      "type": "object"
+    },
+    "present_groups": {
+      "items": {
+        "$ref": "#/$defs/EvidenceGroup"
+      },
+      "title": "Present Groups",
+      "type": "array"
+    },
+    "redistributed_share": {
+      "minimum": 0.0,
+      "title": "Redistributed Share",
+      "type": "number"
+    }
+  },
+  "required": [
+    "present_groups",
+    "absent_groups",
+    "default_shares",
+    "effective_shares",
+    "redistributed_share"
+  ],
+  "title": "AvailabilitySignature",
+  "type": "object"
+}

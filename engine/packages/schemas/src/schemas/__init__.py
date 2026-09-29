@@ -25,7 +25,16 @@ from .enums import (
     SweepClassification,
 )
 from .envelope import EVENT_PAYLOAD_MODELS, EventEnvelope, payload_model_for
-from .evidence import EvidenceRecord
+from .evidence import (
+    CALIBRATION_DEFERRAL_REASON,
+    AvailabilitySignature,
+    CalibrationReport,
+    EvidenceRecord,
+    ExplanationObject,
+    FusionSnapshot,
+    GroupScore,
+    validate_explanation_completeness,
+)
 from .execution import LatencyRecord, OrderIntent, SlippageRecord
 from .learning import ExperienceRecord
 from .liquidity import (
@@ -89,6 +98,7 @@ SCHEMA_VERSION = "1.0.0"
 # ثم الفئات ثم الأسماء السفلية (__version__ قبل الدوال — ترتيب بايتات
 # الشرطة السفلية). كل تعدادة ونموذج علني في الحزمة موجود هنا.
 __all__ = [
+    "CALIBRATION_DEFERRAL_REASON",
     "CANDLE_FEATURE_KEYS",
     "DEFAULT_EVENT_WEIGHTS",
     "DEFAULT_GROUP_SHARES",
@@ -98,8 +108,10 @@ __all__ = [
     "AbsorptionConditions",
     "AbsorptionEventPayload",
     "AnchorPoint",
+    "AvailabilitySignature",
     "BreakAcceptEventPayload",
     "BreakDirection",
+    "CalibrationReport",
     "Candle",
     "CandlePatternEventPayload",
     "CandlePatternFamily",
@@ -114,12 +126,15 @@ __all__ = [
     "EvidenceRecord",
     "ExhaustionEventPayload",
     "ExperienceRecord",
+    "ExplanationObject",
     "FlowContinuationEventPayload",
     "FlowDirection",
     "FootprintBar",
+    "FusionSnapshot",
     "FvgDirection",
     "FvgEventPayload",
     "FvgState",
+    "GroupScore",
     "HTFBias",
     "HardBlockReason",
     "ImbalanceClusterEventPayload",
@@ -157,4 +172,5 @@ __all__ = [
     "ZoneState",
     "__version__",
     "payload_model_for",
+    "validate_explanation_completeness",
 ]

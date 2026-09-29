@@ -16,7 +16,14 @@ from pydantic import BaseModel
 
 from . import SCHEMA_VERSION
 from .envelope import EventEnvelope
-from .evidence import EvidenceRecord
+from .evidence import (
+    AvailabilitySignature,
+    CalibrationReport,
+    EvidenceRecord,
+    ExplanationObject,
+    FusionSnapshot,
+    GroupScore,
+)
 from .execution import LatencyRecord, OrderIntent, SlippageRecord
 from .learning import ExperienceRecord
 from .liquidity import BreakAcceptEventPayload, LiquidityZone, SweepEventPayload
@@ -80,8 +87,13 @@ ALL_MODELS: dict[str, type[BaseModel]] = {
     "AnchorPoint": AnchorPoint,
     "CandlePatternEventPayload": CandlePatternEventPayload,
     "ClassicalPatternEventPayload": ClassicalPatternEventPayload,
-    # الدليل (§19.1)
+    # الدليل (§19.1) ومخرجات دمجه (§19.2-6 + D-03) والتفسير (§2.8)
     "EvidenceRecord": EvidenceRecord,
+    "AvailabilitySignature": AvailabilitySignature,
+    "GroupScore": GroupScore,
+    "CalibrationReport": CalibrationReport,
+    "FusionSnapshot": FusionSnapshot,
+    "ExplanationObject": ExplanationObject,
     # السيناريو ومكوناته (§18/§10.5)
     "PriceZone": PriceZone,
     "TriggerDefinition": TriggerDefinition,
@@ -121,6 +133,11 @@ MODEL_PLAN_REFS: dict[str, str] = {
     "CandlePatternEventPayload": "§13.1 + §20",
     "ClassicalPatternEventPayload": "§13.2 + §20",
     "EvidenceRecord": "§19.1",
+    "AvailabilitySignature": "D-03-ب + A-01",
+    "GroupScore": "§19.3 + D-03-أ",
+    "CalibrationReport": "§19.6",
+    "FusionSnapshot": "§19.2-5 + D-03",
+    "ExplanationObject": "§2.8",
     "PriceZone": "§18.1 (entry_zone)",
     "TriggerDefinition": "§18.1 + §18.4",
     "InvalidationRule": "§18.5 + §23.4",

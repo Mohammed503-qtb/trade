@@ -1,0 +1,73 @@
+{
+  "additionalProperties": false,
+  "description": "كائن التفسير (§2.8 حرفيًا) — يرافق كل نية تداول وكل رفض.\n\n«Every trade intent must have an explanation object containing: market\ncontext, liquidity map, structural state, supporting evidence, opposing\nevidence, trigger, invalidation, expected path, cost estimate, and\nreason for rejection when no trade is taken» — الحقول العشرة بالترتيب.\nالمرحلة 6 تبني الكائن من لقطة الدمج والسياق المتاح؛ الحقول التي\nتملؤها مراحل لاحقة تحمل نص التأجيل الصريح (لا فراغ صامت): تقدير\nالتكاليف §25.2 يُستكمل في المرحلة 8، والمشغل الحي في المرحلة 7.",
+  "properties": {
+    "cost_estimate": {
+      "title": "Cost Estimate",
+      "type": "string"
+    },
+    "expected_path": {
+      "title": "Expected Path",
+      "type": "string"
+    },
+    "invalidation": {
+      "title": "Invalidation",
+      "type": "string"
+    },
+    "liquidity_map": {
+      "title": "Liquidity Map",
+      "type": "string"
+    },
+    "market_context": {
+      "title": "Market Context",
+      "type": "string"
+    },
+    "opposing_evidence": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Opposing Evidence",
+      "type": "array"
+    },
+    "rejection_reason": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Rejection Reason"
+    },
+    "structural_state": {
+      "title": "Structural State",
+      "type": "string"
+    },
+    "supporting_evidence": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Supporting Evidence",
+      "type": "array"
+    },
+    "trigger": {
+      "title": "Trigger",
+      "type": "string"
+    }
+  },
+  "required": [
+    "market_context",
+    "liquidity_map",
+    "structural_state",
+    "supporting_evidence",
+    "opposing_evidence",
+    "trigger",
+    "invalidation",
+    "expected_path",
+    "cost_estimate"
+  ],
+  "title": "ExplanationObject",
+  "type": "object"
+}

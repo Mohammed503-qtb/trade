@@ -1,0 +1,51 @@
+{
+  "$defs": {
+    "EvidenceGroup": {
+      "description": "مجموعات الدليل الست (§19.3) — تجميع لتجنب العد المزدوج (§2.3).",
+      "enum": [
+        "STRUCTURE",
+        "LIQUIDITY_LOCATION",
+        "ORDER_FLOW",
+        "PRICE_ACTION",
+        "VOLATILITY_SESSION",
+        "MACRO"
+      ],
+      "title": "EvidenceGroup",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "description": "درجة مجموعة واحدة — الشفافية الرقمية الكاملة لخطوة الدمج.\n\n«درجة المجموعة = مجموع مساهمات أعضائها المؤهلين مطبَّقًا عليها سقف\nالمجموعة (الحصة الافتراضية §19.3) بآلية تشبع tanh» (D-03-أ):\n``score = effective_share × tanh(raw_sum / effective_share)`` —\nالقيمة داخل (−effective_share, +effective_share) حتمًا مهما كثر\nالأعضاء أو ضخمت مساهماتهم.",
+  "properties": {
+    "effective_share": {
+      "maximum": 1.0,
+      "minimum": 0.0,
+      "title": "Effective Share",
+      "type": "number"
+    },
+    "group": {
+      "$ref": "#/$defs/EvidenceGroup"
+    },
+    "qualified_count": {
+      "title": "Qualified Count",
+      "type": "integer"
+    },
+    "raw_sum": {
+      "title": "Raw Sum",
+      "type": "number"
+    },
+    "score": {
+      "title": "Score",
+      "type": "number"
+    }
+  },
+  "required": [
+    "group",
+    "qualified_count",
+    "raw_sum",
+    "effective_share",
+    "score"
+  ],
+  "title": "GroupScore",
+  "type": "object"
+}

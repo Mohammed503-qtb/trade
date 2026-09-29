@@ -1,0 +1,255 @@
+{
+  "$defs": {
+    "AvailabilitySignature": {
+      "additionalProperties": false,
+      "description": "توقيع الإتاحة (D-03-ب + A-01) — سجل صريح لمن حضر ومن غاب.\n\n«إعادة توزيع حتمية عند الخلو + تسجيل توقيع إتاحة مع كل لقطة دمج»:\nأي قارئ للقطة يعرف أي المجموعات الست كان لها دليل مؤهل، وما الحصص\nالافتراضية، وما الحصص الفعلية بعد إعادة التوزيع التناسبي — فلا\n«تضخيم» درجة بالمجموعات الحاضرة يمر صامتًا (سبب رفض D-03 للمتوسط\nالبسيط).",
+      "properties": {
+        "absent_groups": {
+          "items": {
+            "$ref": "#/$defs/EvidenceGroup"
+          },
+          "title": "Absent Groups",
+          "type": "array"
+        },
+        "default_shares": {
+          "additionalProperties": {
+            "type": "number"
+          },
+          "propertyNames": {
+            "$ref": "#/$defs/EvidenceGroup"
+          },
+          "title": "Default Shares",
+          "type": "object"
+        },
+        "effective_shares": {
+          "additionalProperties": {
+            "type": "number"
+          },
+          "propertyNames": {
+            "$ref": "#/$defs/EvidenceGroup"
+          },
+          "title": "Effective Shares",
+          "type": "object"
+        },
+        "present_groups": {
+          "items": {
+            "$ref": "#/$defs/EvidenceGroup"
+          },
+          "title": "Present Groups",
+          "type": "array"
+        },
+        "redistributed_share": {
+          "minimum": 0.0,
+          "title": "Redistributed Share",
+          "type": "number"
+        }
+      },
+      "required": [
+        "present_groups",
+        "absent_groups",
+        "default_shares",
+        "effective_shares",
+        "redistributed_share"
+      ],
+      "title": "AvailabilitySignature",
+      "type": "object"
+    },
+    "CalibrationReport": {
+      "additionalProperties": false,
+      "description": "تقرير المعايرة (§19.6) — «الدرجة الخام ليست احتمالًا» أبدًا.\n\nالبنية مكتملة من day-one والملء مشروط: ``eligible=False`` حصرًا حتى\nتتوفر بيانات خارج العينة كافية لمعاير صريح (isotonic/Platt) على\nبيانات لم تُستخدم في تحسين الدرجة الخام — مسؤولية الإعادة والوسم\n(المرحلة 9). «الدرجة الخام لا توصف بأنها فرصة 94٪ أبدًا» (§19.6).",
+      "properties": {
+        "calibrated_probability": {
+          "anyOf": [
+            {
+              "maximum": 1.0,
+              "minimum": 0.0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Calibrated Probability"
+        },
+        "calibration_regime": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Calibration Regime"
+        },
+        "calibration_sample_size": {
+          "default": 0,
+          "title": "Calibration Sample Size",
+          "type": "integer"
+        },
+        "deferral_reason": {
+          "title": "Deferral Reason",
+          "type": "string"
+        },
+        "eligible": {
+          "default": false,
+          "title": "Eligible",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "deferral_reason"
+      ],
+      "title": "CalibrationReport",
+      "type": "object"
+    },
+    "Direction": {
+      "description": "الاتجاه الاتجاهي المثالث — LONG/SHORT وFLAT للحياد الصريح.",
+      "enum": [
+        "LONG",
+        "SHORT",
+        "FLAT"
+      ],
+      "title": "Direction",
+      "type": "string"
+    },
+    "EvidenceGroup": {
+      "description": "مجموعات الدليل الست (§19.3) — تجميع لتجنب العد المزدوج (§2.3).",
+      "enum": [
+        "STRUCTURE",
+        "LIQUIDITY_LOCATION",
+        "ORDER_FLOW",
+        "PRICE_ACTION",
+        "VOLATILITY_SESSION",
+        "MACRO"
+      ],
+      "title": "EvidenceGroup",
+      "type": "string"
+    },
+    "GroupScore": {
+      "additionalProperties": false,
+      "description": "درجة مجموعة واحدة — الشفافية الرقمية الكاملة لخطوة الدمج.\n\n«درجة المجموعة = مجموع مساهمات أعضائها المؤهلين مطبَّقًا عليها سقف\nالمجموعة (الحصة الافتراضية §19.3) بآلية تشبع tanh» (D-03-أ):\n``score = effective_share × tanh(raw_sum / effective_share)`` —\nالقيمة داخل (−effective_share, +effective_share) حتمًا مهما كثر\nالأعضاء أو ضخمت مساهماتهم.",
+      "properties": {
+        "effective_share": {
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "Effective Share",
+          "type": "number"
+        },
+        "group": {
+          "$ref": "#/$defs/EvidenceGroup"
+        },
+        "qualified_count": {
+          "title": "Qualified Count",
+          "type": "integer"
+        },
+        "raw_sum": {
+          "title": "Raw Sum",
+          "type": "number"
+        },
+        "score": {
+          "title": "Score",
+          "type": "number"
+        }
+      },
+      "required": [
+        "group",
+        "qualified_count",
+        "raw_sum",
+        "effective_share",
+        "score"
+      ],
+      "title": "GroupScore",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "description": "لقطة دمج واحدة — النتيجة الكاملة القابلة للأرشفة والتفسير.\n\nمركز مخرجات المرحلة 6: تُحسب من سلسلة EvidenceRecord حتمية\n(c_i بمعادلة §19.2 حرفيًا) وتُخزن في fusion_snapshots وتُقرأ سلسلة\nالدليل كاملة (السجلات + اللقطة) باستعلام واحد — بوابة الخروج 6.",
+  "properties": {
+    "availability": {
+      "$ref": "#/$defs/AvailabilitySignature"
+    },
+    "calibration": {
+      "$ref": "#/$defs/CalibrationReport"
+    },
+    "direction": {
+      "$ref": "#/$defs/Direction"
+    },
+    "evidence_ids": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Evidence Ids",
+      "type": "array"
+    },
+    "fusion_time": {
+      "format": "date-time",
+      "title": "Fusion Time",
+      "type": "string"
+    },
+    "group_scores": {
+      "items": {
+        "$ref": "#/$defs/GroupScore"
+      },
+      "title": "Group Scores",
+      "type": "array"
+    },
+    "opposition_contribution": {
+      "minimum": 0.0,
+      "title": "Opposition Contribution",
+      "type": "number"
+    },
+    "opposition_evidence_ids": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Opposition Evidence Ids",
+      "type": "array"
+    },
+    "raw_evidence_score": {
+      "maximum": 1.0,
+      "minimum": -1.0,
+      "title": "Raw Evidence Score",
+      "type": "number"
+    },
+    "scenario_id": {
+      "title": "Scenario Id",
+      "type": "string"
+    },
+    "support_contribution": {
+      "minimum": 0.0,
+      "title": "Support Contribution",
+      "type": "number"
+    },
+    "veto_reasons": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Veto Reasons",
+      "type": "array"
+    },
+    "vetoed": {
+      "title": "Vetoed",
+      "type": "boolean"
+    }
+  },
+  "required": [
+    "scenario_id",
+    "direction",
+    "fusion_time",
+    "group_scores",
+    "raw_evidence_score",
+    "support_contribution",
+    "opposition_contribution",
+    "opposition_evidence_ids",
+    "evidence_ids",
+    "availability",
+    "vetoed",
+    "veto_reasons",
+    "calibration"
+  ],
+  "title": "FusionSnapshot",
+  "type": "object"
+}

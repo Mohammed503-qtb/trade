@@ -4,7 +4,7 @@
 > حرس الجودة: `python -m schemas.export check` يجب أن يبقى أخضر في كل بوابة (لا رسالة بلا مخطط مُصدَّر).
 
 - إصدار المخططات: `1.0.0`
-- عدد النماذج الجذرية: 32
+- عدد النماذج الجذرية: 37
 
 | النموذج | الملف | الوحدة | فقرة الخطة |
 |---|---|---|---|
@@ -31,6 +31,11 @@
 | `CandlePatternEventPayload` | `CandlePatternEventPayload.schema.json` | `schemas.patterns` | §13.1 + §20 |
 | `ClassicalPatternEventPayload` | `ClassicalPatternEventPayload.schema.json` | `schemas.patterns` | §13.2 + §20 |
 | `EvidenceRecord` | `EvidenceRecord.schema.json` | `schemas.evidence` | §19.1 |
+| `AvailabilitySignature` | `AvailabilitySignature.schema.json` | `schemas.evidence` | D-03-ب + A-01 |
+| `GroupScore` | `GroupScore.schema.json` | `schemas.evidence` | §19.3 + D-03-أ |
+| `CalibrationReport` | `CalibrationReport.schema.json` | `schemas.evidence` | §19.6 |
+| `FusionSnapshot` | `FusionSnapshot.schema.json` | `schemas.evidence` | §19.2-5 + D-03 |
+| `ExplanationObject` | `ExplanationObject.schema.json` | `schemas.evidence` | §2.8 |
 | `PriceZone` | `PriceZone.schema.json` | `schemas.scenario` | §18.1 (entry_zone) |
 | `TriggerDefinition` | `TriggerDefinition.schema.json` | `schemas.scenario` | §18.1 + §18.4 |
 | `InvalidationRule` | `InvalidationRule.schema.json` | `schemas.scenario` | §18.5 + §23.4 |

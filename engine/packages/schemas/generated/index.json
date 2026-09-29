@@ -11,8 +11,16 @@
     "file": "AnchorPoint.schema.json",
     "schema_version": "1.0.0"
   },
+  "AvailabilitySignature": {
+    "file": "AvailabilitySignature.schema.json",
+    "schema_version": "1.0.0"
+  },
   "BreakAcceptEventPayload": {
     "file": "BreakAcceptEventPayload.schema.json",
+    "schema_version": "1.0.0"
+  },
+  "CalibrationReport": {
+    "file": "CalibrationReport.schema.json",
     "schema_version": "1.0.0"
   },
   "Candle": {
@@ -47,6 +55,10 @@
     "file": "ExperienceRecord.schema.json",
     "schema_version": "1.0.0"
   },
+  "ExplanationObject": {
+    "file": "ExplanationObject.schema.json",
+    "schema_version": "1.0.0"
+  },
   "FlowContinuationEventPayload": {
     "file": "FlowContinuationEventPayload.schema.json",
     "schema_version": "1.0.0"
@@ -55,8 +67,16 @@
     "file": "FootprintBar.schema.json",
     "schema_version": "1.0.0"
   },
+  "FusionSnapshot": {
+    "file": "FusionSnapshot.schema.json",
+    "schema_version": "1.0.0"
+  },
   "FvgEventPayload": {
     "file": "FvgEventPayload.schema.json",
+    "schema_version": "1.0.0"
+  },
+  "GroupScore": {
+    "file": "GroupScore.schema.json",
     "schema_version": "1.0.0"
   },
   "ImbalanceClusterEventPayload": {
