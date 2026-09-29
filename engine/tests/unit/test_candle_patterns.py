@@ -619,7 +619,8 @@ class TestDetector:
 
     def test_identity_capture_from_first_candle(self) -> None:
         detector = CandlePatternDetector(CFG)
-        assert detector.instrument_id is None
+        before: str | None = detector.instrument_id
+        assert before is None
         detector.on_candle(filler(0))
         assert detector.instrument_id == _INSTRUMENT
         assert detector.timeframe == "1m"
