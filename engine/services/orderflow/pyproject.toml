@@ -3,7 +3,7 @@ name = "engine-orderflow"
 version = "0.1.0"
 description = "delta/POC/VA، امتصاص، إنهاك، اختلالات (§12)"
 requires-python = ">=3.12"
-dependencies = ["engine-schemas", "engine-common", "engine-features"]
+dependencies = ["engine-schemas", "engine-common", "engine-features", "engine-ingestion", "engine-market-state"]
 
 [build-system]
 requires = ["hatchling"]
