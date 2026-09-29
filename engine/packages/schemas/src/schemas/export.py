@@ -21,6 +21,13 @@ from .execution import LatencyRecord, OrderIntent, SlippageRecord
 from .learning import ExperienceRecord
 from .liquidity import BreakAcceptEventPayload, LiquidityZone, SweepEventPayload
 from .market import Candle, FootprintBar, MarketStateSnapshot, TradeEvent
+from .orderflow import (
+    AbsorptionConditions,
+    AbsorptionEventPayload,
+    ExhaustionEventPayload,
+    FlowContinuationEventPayload,
+    ImbalanceClusterEventPayload,
+)
 from .scenario import (
     InvalidationRule,
     PriceZone,
@@ -58,6 +65,12 @@ ALL_MODELS: dict[str, type[BaseModel]] = {
     "FvgEventPayload": FvgEventPayload,
     "OrderBlockEventPayload": OrderBlockEventPayload,
     "PremiumDiscountEventPayload": PremiumDiscountEventPayload,
+    # حمولات التدفق (§12 + §20)
+    "AbsorptionConditions": AbsorptionConditions,
+    "AbsorptionEventPayload": AbsorptionEventPayload,
+    "FlowContinuationEventPayload": FlowContinuationEventPayload,
+    "ExhaustionEventPayload": ExhaustionEventPayload,
+    "ImbalanceClusterEventPayload": ImbalanceClusterEventPayload,
     # الدليل (§19.1)
     "EvidenceRecord": EvidenceRecord,
     # السيناريو ومكوناته (§18/§10.5)
@@ -90,6 +103,11 @@ MODEL_PLAN_REFS: dict[str, str] = {
     "FvgEventPayload": "§11.5 + §20",
     "OrderBlockEventPayload": "§11.6 + §20",
     "PremiumDiscountEventPayload": "§11.7 + §20",
+    "AbsorptionConditions": "§12.3",
+    "AbsorptionEventPayload": "§12.3 + §20",
+    "FlowContinuationEventPayload": "§12.2 + §20",
+    "ExhaustionEventPayload": "§12.4 + §20",
+    "ImbalanceClusterEventPayload": "§12.6 + §20",
     "EvidenceRecord": "§19.1",
     "PriceZone": "§18.1 (entry_zone)",
     "TriggerDefinition": "§18.1 + §18.4",

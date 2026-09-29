@@ -4,7 +4,7 @@
 > حرس الجودة: `python -m schemas.export check` يجب أن يبقى أخضر في كل بوابة (لا رسالة بلا مخطط مُصدَّر).
 
 - إصدار المخططات: `1.0.0`
-- عدد النماذج الجذرية: 24
+- عدد النماذج الجذرية: 29
 
 | النموذج | الملف | الوحدة | فقرة الخطة |
 |---|---|---|---|
@@ -22,6 +22,11 @@
 | `FvgEventPayload` | `FvgEventPayload.schema.json` | `schemas.structure` | §11.5 + §20 |
 | `OrderBlockEventPayload` | `OrderBlockEventPayload.schema.json` | `schemas.structure` | §11.6 + §20 |
 | `PremiumDiscountEventPayload` | `PremiumDiscountEventPayload.schema.json` | `schemas.structure` | §11.7 + §20 |
+| `AbsorptionConditions` | `AbsorptionConditions.schema.json` | `schemas.orderflow` | §12.3 |
+| `AbsorptionEventPayload` | `AbsorptionEventPayload.schema.json` | `schemas.orderflow` | §12.3 + §20 |
+| `FlowContinuationEventPayload` | `FlowContinuationEventPayload.schema.json` | `schemas.orderflow` | §12.2 + §20 |
+| `ExhaustionEventPayload` | `ExhaustionEventPayload.schema.json` | `schemas.orderflow` | §12.4 + §20 |
+| `ImbalanceClusterEventPayload` | `ImbalanceClusterEventPayload.schema.json` | `schemas.orderflow` | §12.6 + §20 |
 | `EvidenceRecord` | `EvidenceRecord.schema.json` | `schemas.evidence` | §19.1 |
 | `PriceZone` | `PriceZone.schema.json` | `schemas.scenario` | §18.1 (entry_zone) |
 | `TriggerDefinition` | `TriggerDefinition.schema.json` | `schemas.scenario` | §18.1 + §18.4 |

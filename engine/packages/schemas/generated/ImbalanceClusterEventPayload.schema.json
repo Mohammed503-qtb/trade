@@ -1,0 +1,64 @@
+{
+  "$defs": {
+    "ImbalanceSide": {
+      "description": "جهة الاختلال الصفّي (§12.6).\n\nاختلال شرائي = صف الشراء يهيمن على صف البيع المقابل؛ الاختلالات\nالمتكررة بجهة واحدة تصنع عنقيدًا (BUY/SELL_IMBALANCE_CLUSTER).",
+      "enum": [
+        "BUY",
+        "SELL"
+      ],
+      "title": "ImbalanceSide",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "description": "حمولة عنقيد الاختلالات — تخدم BUY_IMBALANCE_CLUSTER /\nSELL_IMBALANCE_CLUSTER (§12.6 + §20).\n\n«اختلال معزول له وزن اتجاهي منخفض؛ اختلالات متكررة متوائمة مع\nالإزاحة والبنية تحمل دليلًا أكثر» (§12.6) — النظام يخزن الرصد الخام\n(عدادات الشريط) والأهمية السياقية معًا.",
+  "properties": {
+    "aligned_with_displacement": {
+      "title": "Aligned With Displacement",
+      "type": "boolean"
+    },
+    "bar_count": {
+      "minimum": 1,
+      "title": "Bar Count",
+      "type": "integer"
+    },
+    "bar_time": {
+      "format": "date-time",
+      "title": "Bar Time",
+      "type": "string"
+    },
+    "instrument": {
+      "title": "Instrument",
+      "type": "string"
+    },
+    "max_row_ratio": {
+      "exclusiveMinimum": 0.0,
+      "title": "Max Row Ratio",
+      "type": "number"
+    },
+    "side": {
+      "$ref": "#/$defs/ImbalanceSide"
+    },
+    "timeframe": {
+      "title": "Timeframe",
+      "type": "string"
+    },
+    "total_imbalances": {
+      "minimum": 0,
+      "title": "Total Imbalances",
+      "type": "integer"
+    }
+  },
+  "required": [
+    "instrument",
+    "timeframe",
+    "bar_time",
+    "side",
+    "bar_count",
+    "total_imbalances",
+    "max_row_ratio",
+    "aligned_with_displacement"
+  ],
+  "title": "ImbalanceClusterEventPayload",
+  "type": "object"
+}

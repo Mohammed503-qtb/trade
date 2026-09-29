@@ -14,6 +14,12 @@ from pydantic import BaseModel, ConfigDict
 from ._types import UTCDatetime
 from .enums import EventType
 from .liquidity import BreakAcceptEventPayload, SweepEventPayload
+from .orderflow import (
+    AbsorptionEventPayload,
+    ExhaustionEventPayload,
+    FlowContinuationEventPayload,
+    ImbalanceClusterEventPayload,
+)
 from .structure import (
     DisplacementEventPayload,
     FvgEventPayload,
@@ -45,10 +51,11 @@ class EventEnvelope(BaseModel):
 #: سجل حمولات الأحداث (§20+§32): نوع الحدث → نموذج الحمولة الموثق
 #: الذي يملأ ``payload`` داخل EventEnvelope ويُتحقق ضد مخططه المُصدَّر.
 #:
-#: **المرحلة 3 تغطي الأحداث البنيوية/السيولية الخمسة عشر** حصرًا؛ الطور
-#: اللاحق يوسع الخريطة (orderflow/patterns/sessions/...) — أي نوع خارج
-#: الخريطة بلا حمولة موثقة بعد، و``payload_model_for`` تعيد له None:
-#: غياب الحمولة إعلان صريح لا صمت موافقة.
+#: **المرحلة 3 تغطي الأحداث البنيوية/السيولية الخمسة عشر والمرحلة 4
+#: تضيف أحداث التدفق الثمانية**؛ الطور اللاحق يوسع الخريطة
+#: (patterns/sessions/...) — أي نوع خارج الخريطة بلا حمولة موثقة بعد،
+#: و``payload_model_for`` تعيد له None: غياب الحمولة إعلان صريح لا
+#: صمت موافقة.
 EVENT_PAYLOAD_MODELS: dict[EventType, type[BaseModel]] = {
     # كسور البنية (§11.2-3)
     EventType.INTERNAL_BOS: StructureBreakPayload,
@@ -69,6 +76,15 @@ EVENT_PAYLOAD_MODELS: dict[EventType, type[BaseModel]] = {
     EventType.ORDER_BLOCK_BEARISH: OrderBlockEventPayload,
     EventType.PREMIUM_LOCATION: PremiumDiscountEventPayload,
     EventType.DISCOUNT_LOCATION: PremiumDiscountEventPayload,
+    # التدفق: الامتصاص والاستمرار والإنهاك وعناقيد الاختلال (§12)
+    EventType.ABSORPTION_BUY: AbsorptionEventPayload,
+    EventType.ABSORPTION_SELL: AbsorptionEventPayload,
+    EventType.FLOW_CONTINUATION_UP: FlowContinuationEventPayload,
+    EventType.FLOW_CONTINUATION_DOWN: FlowContinuationEventPayload,
+    EventType.EXHAUSTION_UP: ExhaustionEventPayload,
+    EventType.EXHAUSTION_DOWN: ExhaustionEventPayload,
+    EventType.BUY_IMBALANCE_CLUSTER: ImbalanceClusterEventPayload,
+    EventType.SELL_IMBALANCE_CLUSTER: ImbalanceClusterEventPayload,
 }
 
 

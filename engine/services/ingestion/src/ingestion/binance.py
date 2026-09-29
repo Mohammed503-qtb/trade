@@ -173,8 +173,16 @@ class KlineBar(NamedTuple):
     """شمعة خام من Binance klines — تمثيل أولي للمقارنة المرجعية (golden).
 
     تستهلكها المهمتان 1.4/1.6: مطابقة الشموع المبنية من aggTrades ضد مرجع
-    البورصة نفسه. الحقول الإضافية المنبعثة upstream (quoteVolume وtakerBuy*
-    وعدد الصفقات) خارج الحاجة الأولية — تُضاف عند الحاجة بتوثيق لا استباقًا.
+    البورصة نفسه. الحقول الإضافية المنبعثة upstream (quoteVolume و
+    takerBuyQuoteVolume) خارج الحاجة الأولية — تُضاف عند الحاجة بتوثيق لا
+    استباقًا.
+
+    **المرحلة 4 (توسيع موثق)**: ``taker_buy_volume`` (حجم القاعدة الذي
+    المشترون هم المتسببون به — البورصة تجمعه لكل شمعة) هو المرجع الذهبي
+    لحجم الشراء التدفقي المبني من aggTrades عبر علم ``buyer_is_maker``
+    (شراء عدواني = مشترٍ متسبب ⇒ ``m=False``): مجموع كميات الصفقات التي
+    ``buyer_is_maker=False`` داخل الدلو يجب أن يطابقه. ``trade_count``
+    (عدد الصفقات) مرجع ذهبي مساند لعدّ أحداث aggTrades داخل الدلو.
     """
 
     open_time_ms: int
@@ -184,6 +192,8 @@ class KlineBar(NamedTuple):
     low: float
     close: float
     volume: float
+    taker_buy_volume: float  # حجم الشراء المتسبب (index 9) — المرجع الذهبي للفوتبرنت
+    trade_count: int  # عدد الصفقات في الشمعة (index 8) — مرجع مساند
 
 
 def parse_kline(raw: list[Any]) -> KlineBar:
@@ -204,6 +214,11 @@ def parse_kline(raw: list[Any]) -> KlineBar:
     low = _positive_float(raw[3], "low")
     close = _positive_float(raw[4], "close")
     volume = _nonnegative_float(raw[5], "volume")
+    #: المرجع الذهبي للفوتبرنت (المرحلة 4): حجم الشراء المتسبب (index 9)
+    #: وعدد الصفقات (index 8) — لا يُقبل ناقصًا، والكمية الصفرية شمعة
+    #: خاملة مشروعة (فراغ تداول داخل نافذة).
+    taker_buy = _nonnegative_float(raw[9], "takerBuyBaseAssetVolume")
+    trade_count = _coerce_int(raw[8], "tradeCount", minimum=0)
     if not (high >= open_ and high >= close and high >= low and low <= open_ and low <= close):
         raise BinanceParseError(
             f"OHLC غير متسق: high يجب أن يكون الأقصى وlow الأدنى — o={open_} h={high} "
@@ -217,6 +232,8 @@ def parse_kline(raw: list[Any]) -> KlineBar:
         low=low,
         close=close,
         volume=volume,
+        taker_buy_volume=taker_buy,
+        trade_count=trade_count,
     )
 
 

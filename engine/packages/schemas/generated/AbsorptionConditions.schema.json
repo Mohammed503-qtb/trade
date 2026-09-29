@@ -1,0 +1,37 @@
+{
+  "additionalProperties": false,
+  "description": "الشروط الأربعة لمرشح الامتصاص (§12.3 حرفيًا).\n\nالشرط الرابع اختياري (``None`` حتى يحدث) — «إزاحة لاحقة معاكسة\nاختيارية»؛ بقية الشروط إلزامية لكي يُعدّ المرشح مكتمل الشروط.",
+  "properties": {
+    "elevated_delta": {
+      "title": "Elevated Delta",
+      "type": "boolean"
+    },
+    "limited_extension": {
+      "title": "Limited Extension",
+      "type": "boolean"
+    },
+    "opposite_displacement": {
+      "anyOf": [
+        {
+          "type": "boolean"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Opposite Displacement"
+    },
+    "repeated_response": {
+      "title": "Repeated Response",
+      "type": "boolean"
+    }
+  },
+  "required": [
+    "elevated_delta",
+    "limited_extension",
+    "repeated_response"
+  ],
+  "title": "AbsorptionConditions",
+  "type": "object"
+}

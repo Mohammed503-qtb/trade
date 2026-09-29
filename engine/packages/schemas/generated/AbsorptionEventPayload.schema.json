@@ -1,0 +1,117 @@
+{
+  "$defs": {
+    "AbsorbedPressure": {
+      "description": "جهة الضغط المُمتص (§12.3 + §20).\n\nABSORPTION_BUY = «الضغط البيعي امتُص» (عدوانية بيعية كبيرة بردّ محدود)\n⇒ الضغط الممتص SELL والعكس لـABSORPTION_SELL. الحقل يجعل الحمولة\nمتمركزة ذاتيًا (تُفهم بلا معرفة النوع).",
+      "enum": [
+        "SELL",
+        "BUY"
+      ],
+      "title": "AbsorbedPressure",
+      "type": "string"
+    },
+    "AbsorptionConditions": {
+      "additionalProperties": false,
+      "description": "الشروط الأربعة لمرشح الامتصاص (§12.3 حرفيًا).\n\nالشرط الرابع اختياري (``None`` حتى يحدث) — «إزاحة لاحقة معاكسة\nاختيارية»؛ بقية الشروط إلزامية لكي يُعدّ المرشح مكتمل الشروط.",
+      "properties": {
+        "elevated_delta": {
+          "title": "Elevated Delta",
+          "type": "boolean"
+        },
+        "limited_extension": {
+          "title": "Limited Extension",
+          "type": "boolean"
+        },
+        "opposite_displacement": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Opposite Displacement"
+        },
+        "repeated_response": {
+          "title": "Repeated Response",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "elevated_delta",
+        "limited_extension",
+        "repeated_response"
+      ],
+      "title": "AbsorptionConditions",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "description": "حمولة الامتصاص — تخدم ABSORPTION_BUY / ABSORPTION_SELL\n(§12.3 + §20: «Delta vs excursion»).\n\nعدم توافق بين الحجم المتداول العدواني والحركة السعرية المحققة عند\nموقع ذي معنى. المرشح يخرج غير مؤكد (``confirmed=False``): «فرضيات يجب\nأن تؤكدها الاستجابة اللاحقة» (§12.2) — التأكيد لا يخترع حدثًا جديدًا\nبل يرفع درجة المرشح نفسه.",
+  "properties": {
+    "absorbed_pressure": {
+      "$ref": "#/$defs/AbsorbedPressure"
+    },
+    "bar_time": {
+      "format": "date-time",
+      "title": "Bar Time",
+      "type": "string"
+    },
+    "conditions": {
+      "$ref": "#/$defs/AbsorptionConditions"
+    },
+    "confirmed": {
+      "default": false,
+      "title": "Confirmed",
+      "type": "boolean"
+    },
+    "delta": {
+      "title": "Delta",
+      "type": "number"
+    },
+    "delta_share": {
+      "maximum": 1.0,
+      "minimum": -1.0,
+      "title": "Delta Share",
+      "type": "number"
+    },
+    "excursion_atr": {
+      "exclusiveMinimum": 0.0,
+      "title": "Excursion Atr",
+      "type": "number"
+    },
+    "instrument": {
+      "title": "Instrument",
+      "type": "string"
+    },
+    "timeframe": {
+      "title": "Timeframe",
+      "type": "string"
+    },
+    "zone_id": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Zone Id"
+    }
+  },
+  "required": [
+    "instrument",
+    "timeframe",
+    "bar_time",
+    "absorbed_pressure",
+    "delta",
+    "delta_share",
+    "excursion_atr",
+    "conditions"
+  ],
+  "title": "AbsorptionEventPayload",
+  "type": "object"
+}

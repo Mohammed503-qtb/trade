@@ -478,3 +478,26 @@ Stage Summary:
 - **لا فاقد إطلاقاً:** كل عمل المرحلتين 2 و3 كان ملتزماً ومرفوعاً على GitHub — الاسترداد كان مزامنة استرجاع لا إعادة بناء.
 - **الحالة بحسب الخطة:** المراحل 0 و1 و2 و3 مكتملة ببواباتها المغلقة وموثقة في progress.md (ADR-001..021) — **التالي: المرحلة 4 (التدفق والـfootprint) بحسب build_plan §D**.
 - **درس مؤكد:** أي تراجع للقطة المحلية يُسترد بالمزامنة من البعيد أولاً ثم بروتوكول R-1 للبيئة — الرفع المنتظم بعد كل مرحلة هو صمام الأمان الفعلي.
+
+---
+Task ID: 4-a
+Agent: Main Agent (Z.ai Code — Coordinator)
+Task: أسس المرحلة 4 — حمولات أحداث التدفق + العتبات + المرجع الذهبي + عينة المرحلة 4
+
+Work Log:
+- قراءة §12 كاملاً (739-825) + §8.2 (FootprintBar) + §20 (صفوف التدفق: ABSORPTION_BUY/SELL وFLOW_CONTINUATION_UP/DOWN وEXHAUSTION_UP/DOWN وBUY/SELL_IMBALANCE_CLUSTER بأوزانها) + §31.2 (footprint_bars/rows) + §38.1 (fixtures الامتصاص) + بنية المرحلة 3 (envelope/structure/events/store/verify_phase3) وعقود import-linter (orderflow في طبقة الكواشف فوق market_state/ingestion).
+- schemas/orderflow.py: وحدة كاملة — FlowDirection (UP/DOWN) وAbsorbedPressure (BUY/SELL — ABSORPTION_BUY⇒الضغط البيعي امتُص حرفي §20) وImbalanceSide + AbsorptionConditions (الشروط الأربعة §12.3 حرفيًا: elevated_delta/limited_extension/repeated_response/opposite_disployment اختياري None) + 4 حمولات: AbsorptionEventPayload (delta/delta_share/excursion_atr/conditions/zone_id/confirmed=False مرشح §12.2) وFlowContinuationEventPayload (delta/delta_share/response_atr/efficiency) وExhaustionEventPayload (efficiency/efficiency_prev/decay_ratio/failed_extremes/follow_through §12.4) وImbalanceClusterEventPayload (bar_count≥1/total_imbalances/max_row_ratio/aligned_with_displacement §12.6) — كلها مجمّدة extra=forbid بوسم المصدر الموثق (§12.7) في الترويسة.
+- تسجيل الثمانية في EVENT_PAYLOAD_MODELS (envelope.py) وتوسيع صادرات __init__ (8 أسماء بترتيبها الأبجدي) وexport.py (ALL_MODELS + MODEL_PLAN_REFS: §12.2/§12.3/§12.4/§12.6) — 29 مخططًا مُصدَّرة idempotent بايت-بايت.
+- ThresholdKey مفتاحان جديدان بمعاملين افتراضيين 0.5: ABSORPTION_EXTENSION_MAX (§12.3 شرط 2 — «امتداد محدود» نسبة للعدوان) وFLOW_RESPONSE_MIN (§12.2 — «استجابة قوية» لاتفاق الجهد والنتيجة) — اختبارات التغطية والخطية الموجودة تمتد تلقائيًا.
+- KlineBar توسعة موثقة (الوعد المعلق في docstring): taker_buy_volume (index 9 — المرجع الذهبي لحجم الشراء العدواني: buyer_is_maker=False ⇒ مشترٍ متسبب) وtrade_count (index 8) — التوافق الخلفي مثبت (صفوف الاختبارات الافتراضية تحمل الفهرسين).
+- scripts/fetch_phase4_fixture.py + التقاط فعلي: نافذة 120 دقيقة BTCUSDT (30 ساعة خلفًا، محاذاة حد الدقيقة): 35,932 صفقة aggTrades → trades.parquet 680KB حتمي + 120 شمعة 1m مرجعية بـtaker_buy_volume → tests/fixtures/phase4/.
+- **إثبات المرجع الذهبي فورًا**: مجموع كميات buyer_is_maker=False عبر النافذة = 1640.4220 == takerBuyBaseAssetVolume للبورصة (فرق 0.000000) — «المطابقة الإحصائية» لبوة المرحلة 4 قابلة للتحقق الدلو-بالدلو. ملاحظة موثقة: عدّاد klines يعدّ الصفقات الفردية بينما aggTrades مجمّعة — فالمرجع الحجمي هو الذهبي، والعدّاد استرشادي.
+- PositiveInt أضيف إلى _types.py (إضافة تراكمية) لعنقيد لا يصح بصفر أشرطة.
+- اختبارات: tests/unit/test_schemas_orderflow.py — 38 اختبارًا (round-trip/جمود/حقول غريبة لكل الخمسة + الحدود §12 + التطابق الاتجاهي ABSORPTION_BUY⇒SELL + المرشحية confirmed=False + التسجيل الثماني في الخريطة) + تحديث اختبارَي سجل المرحلة 3 للتوسعة المشروعة (15 بنيوية حصرًا → 15+8=23 مع فصل المجموعتين صراحة).
+- تصحيحات بوابة: ruff format للسكربت وE501 وraw-string للمطابقة النمطية و6 إصلاحات آلية.
+- البوابة: make gate = 1411 passed (+38) وschemas check = 29 مخططًا idempotent.
+
+Stage Summary:
+- **أسس المرحلة 4 مكتملة ومثبتة**: عقود حمولات التدفق الثمانية موثقة ومصدَّرة ومسجلة في مغلف §32، وعتبتا التدفق التطبيعيتان (atr×0.5) في قاموس ThresholdKey الموحد، والمرجع الذهبي (taker_buy) ملتقط في عينة 120 دقيقة حقيقية مع إثبات تطابق تام.
+- **عقد الواجهة للكواشف اللاحقين**: الكواشف تستهلك schemas.FootprintBar (+Candle+VolatilityState) وتخرج سجلات EmittedEvent الخاصة بها على نمط structure/events.py — لا تعتمد على بنّاء الفوتبرنت الداخلي (توازٍ آمن بين 4-b/4-c/4-d).
+- **التالي**: 4-b بنّاء الفوتبرنت (ذهبي دلو-بدلو ضد klines) بالتوازي مع 4-c (مقاييس وعناقيد) و4-d (امتصاص/إنهاك/جهد-نتيجة).

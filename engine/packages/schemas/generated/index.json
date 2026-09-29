@@ -1,4 +1,12 @@
 {
+  "AbsorptionConditions": {
+    "file": "AbsorptionConditions.schema.json",
+    "schema_version": "1.0.0"
+  },
+  "AbsorptionEventPayload": {
+    "file": "AbsorptionEventPayload.schema.json",
+    "schema_version": "1.0.0"
+  },
   "BreakAcceptEventPayload": {
     "file": "BreakAcceptEventPayload.schema.json",
     "schema_version": "1.0.0"
@@ -19,8 +27,16 @@
     "file": "EvidenceRecord.schema.json",
     "schema_version": "1.0.0"
   },
+  "ExhaustionEventPayload": {
+    "file": "ExhaustionEventPayload.schema.json",
+    "schema_version": "1.0.0"
+  },
   "ExperienceRecord": {
     "file": "ExperienceRecord.schema.json",
+    "schema_version": "1.0.0"
+  },
+  "FlowContinuationEventPayload": {
+    "file": "FlowContinuationEventPayload.schema.json",
     "schema_version": "1.0.0"
   },
   "FootprintBar": {
@@ -29,6 +45,10 @@
   },
   "FvgEventPayload": {
     "file": "FvgEventPayload.schema.json",
+    "schema_version": "1.0.0"
+  },
+  "ImbalanceClusterEventPayload": {
+    "file": "ImbalanceClusterEventPayload.schema.json",
     "schema_version": "1.0.0"
   },
   "InvalidationRule": {

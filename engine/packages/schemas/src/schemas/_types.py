@@ -48,3 +48,6 @@ Percentile = Annotated[float, Field(ge=0.0, le=100.0, allow_inf_nan=False)]
 
 # عدد صحيح غير سالب — تعدادات الصفوف والاختلالات (§8.2).
 NonNegativeInt = Annotated[int, Field(ge=0)]
+
+# عدد صحيح موجب (≥ 1) — تعدادات لا تصح بصفر (مثل عدد أشرطة عنقيد §12.6).
+PositiveInt = Annotated[int, Field(ge=1)]

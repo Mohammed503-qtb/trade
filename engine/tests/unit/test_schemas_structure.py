@@ -491,12 +491,27 @@ STRUCTURAL_EVENT_TYPES: set[EventType] = {
 }
 
 
-class TestPayloadRegistry:
-    """الخريطة: 15 نوعًا بنيويًا/سيوليًا حصرًا، كلها نماذج موثقة."""
+#: أحداث التدفق الثمانية الموثقة في المرحلة 4 (§12 + §20) — توسعة مشروعة
+#: لخريطة الحمولات فوق الخمسة عشر البنيوية/السيولية.
+FLOW_EVENT_TYPES = {
+    EventType.ABSORPTION_BUY,
+    EventType.ABSORPTION_SELL,
+    EventType.FLOW_CONTINUATION_UP,
+    EventType.FLOW_CONTINUATION_DOWN,
+    EventType.EXHAUSTION_UP,
+    EventType.EXHAUSTION_DOWN,
+    EventType.BUY_IMBALANCE_CLUSTER,
+    EventType.SELL_IMBALANCE_CLUSTER,
+}
 
-    def test_registry_covers_exactly_the_fifteen_structural_types(self) -> None:
-        assert set(EVENT_PAYLOAD_MODELS) == STRUCTURAL_EVENT_TYPES
-        assert len(EVENT_PAYLOAD_MODELS) == 15
+
+class TestPayloadRegistry:
+    """الخريطة: 15 نوعًا بنيويًا/سيوليًا (المرحلة 3) + 8 تدفقية (المرحلة 4)."""
+
+    def test_registry_covers_structural_types_exactly(self) -> None:
+        assert set(EVENT_PAYLOAD_MODELS) >= STRUCTURAL_EVENT_TYPES
+        assert (set(EVENT_PAYLOAD_MODELS) - STRUCTURAL_EVENT_TYPES) == FLOW_EVENT_TYPES
+        assert len(EVENT_PAYLOAD_MODELS) == 23
 
     def test_every_mapped_model_is_pydantic_base_model(self) -> None:
         for model in EVENT_PAYLOAD_MODELS.values():
@@ -520,10 +535,9 @@ class TestPayloadRegistry:
         assert payload_model_for(EventType.PREMIUM_LOCATION) is PremiumDiscountEventPayload
         assert payload_model_for(EventType.DISCOUNT_LOCATION) is PremiumDiscountEventPayload
 
-    def test_payload_model_for_none_outside_phase3_map(self) -> None:
-        # غير بنيوي: orderflow — بلا حمولة موثقة بعد
-        assert payload_model_for(EventType.ABSORPTION_BUY) is None
-        # بنيوي الجوار لكن خارج خريطة المرحلة 3 (HTF §20/§9.2 — طور لاحق)
+    def test_payload_model_for_none_outside_documented_map(self) -> None:
+        # الأنماط والجلسات وHTF بلا حمولة موثقة بعد (طور لاحق) —
+        # الأحداث التدفقية موثقة منذ المرحلة 4 (§12)
         assert payload_model_for(EventType.HTF_BULLISH) is None
         assert payload_model_for(EventType.HTF_BEARISH) is None
 

@@ -1,0 +1,65 @@
+{
+  "$defs": {
+    "FlowDirection": {
+      "description": "اتجاه الحركة التدفقية — صعودًا أم هبوطًا (§12.2).\n\nيخدم FLOW_CONTINUATION وEXHAUSTION (اتجاه الجهد الذي يُقاس مفعوله).",
+      "enum": [
+        "UP",
+        "DOWN"
+      ],
+      "title": "FlowDirection",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "description": "حمولة توافق التدفق — تخدم FLOW_CONTINUATION_UP / FLOW_CONTINUATION_DOWN\n(§12.2 + §20: «Delta efficiency»).\n\n«دلتا موجبة كبيرة + صعود قوي ⇒ شراء عدواني مقبول» — الجهد والنتيجة\nيتفقان. حدث مباشر لا مرشح: التوافق قياس لحظة إغلاق الشريط.",
+  "properties": {
+    "bar_time": {
+      "format": "date-time",
+      "title": "Bar Time",
+      "type": "string"
+    },
+    "delta": {
+      "title": "Delta",
+      "type": "number"
+    },
+    "delta_share": {
+      "maximum": 1.0,
+      "minimum": -1.0,
+      "title": "Delta Share",
+      "type": "number"
+    },
+    "direction": {
+      "$ref": "#/$defs/FlowDirection"
+    },
+    "efficiency": {
+      "exclusiveMinimum": 0.0,
+      "title": "Efficiency",
+      "type": "number"
+    },
+    "instrument": {
+      "title": "Instrument",
+      "type": "string"
+    },
+    "response_atr": {
+      "exclusiveMinimum": 0.0,
+      "title": "Response Atr",
+      "type": "number"
+    },
+    "timeframe": {
+      "title": "Timeframe",
+      "type": "string"
+    }
+  },
+  "required": [
+    "instrument",
+    "timeframe",
+    "bar_time",
+    "direction",
+    "delta",
+    "delta_share",
+    "response_atr",
+    "efficiency"
+  ],
+  "title": "FlowContinuationEventPayload",
+  "type": "object"
+}

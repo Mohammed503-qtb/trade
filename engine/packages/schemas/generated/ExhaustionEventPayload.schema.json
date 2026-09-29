@@ -1,0 +1,72 @@
+{
+  "$defs": {
+    "FlowDirection": {
+      "description": "اتجاه الحركة التدفقية — صعودًا أم هبوطًا (§12.2).\n\nيخدم FLOW_CONTINUATION وEXHAUSTION (اتجاه الجهد الذي يُقاس مفعوله).",
+      "enum": [
+        "UP",
+        "DOWN"
+      ],
+      "title": "FlowDirection",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "description": "حمولة الإنهاك — تخدم EXHAUSTION_UP / EXHAUSTION_DOWN\n(§12.4 + §20: «Efficiency decay»).\n\nتراجع الفعالية الاتجاهية: امتداد أقل لكل وحدة حجم اتجاهي، ومتابعة\nمتناقصة، وقمم/قيعان فاشلة متكررة، وكفاءة دلتا متدهورة. «الإنهاك وحده\nليس إشارة انعكاس» (§12.4) — الحمولة قياس تراجع لا توصية.",
+  "properties": {
+    "bar_time": {
+      "format": "date-time",
+      "title": "Bar Time",
+      "type": "string"
+    },
+    "decay_ratio": {
+      "exclusiveMinimum": 0.0,
+      "title": "Decay Ratio",
+      "type": "number"
+    },
+    "direction": {
+      "$ref": "#/$defs/FlowDirection"
+    },
+    "efficiency": {
+      "exclusiveMinimum": 0.0,
+      "title": "Efficiency",
+      "type": "number"
+    },
+    "efficiency_prev": {
+      "exclusiveMinimum": 0.0,
+      "title": "Efficiency Prev",
+      "type": "number"
+    },
+    "failed_extremes": {
+      "minimum": 0,
+      "title": "Failed Extremes",
+      "type": "integer"
+    },
+    "follow_through": {
+      "maximum": 1.0,
+      "minimum": 0.0,
+      "title": "Follow Through",
+      "type": "number"
+    },
+    "instrument": {
+      "title": "Instrument",
+      "type": "string"
+    },
+    "timeframe": {
+      "title": "Timeframe",
+      "type": "string"
+    }
+  },
+  "required": [
+    "instrument",
+    "timeframe",
+    "bar_time",
+    "direction",
+    "efficiency",
+    "efficiency_prev",
+    "decay_ratio",
+    "failed_extremes",
+    "follow_through"
+  ],
+  "title": "ExhaustionEventPayload",
+  "type": "object"
+}

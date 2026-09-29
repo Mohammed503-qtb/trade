@@ -122,6 +122,16 @@ class ThresholdKey(StrEnum):
     #: المستويات المتساوية ضمن منطقة واحدة وعنقيد المعاكس المتراص قبل
     #: الإزاحة؛ عتبة تطبيعية ``atr × multiplier`` ككل مفاتيح القاموس.
     EQUAL_LEVEL_TOLERANCE = "EQUAL_LEVEL_TOLERANCE"
+    #: الحد الأقصى للامتداد السعري المحقق باتجاه العدوان كي يُعد «محدودًا»
+    #: في مرشح الامتصاص (§12.3 شرط 2: «limited price extension relative
+    #: to the aggression») — الامتصاص عدم توافق بين حجم العدوان واستجابة
+    #: السعر؛ عتبة تطبيعية ``atr × multiplier`` ككل مفاتيح القاموس.
+    ABSORPTION_EXTENSION_MAX = "ABSORPTION_EXTENSION_MAX"
+    #: الحد الأدنى لاستجابة السعر باتجاه الجهد كي تُعد «قوية» في توافق
+    #: التدفق (§12.2: «large positive delta + strong price rise ⇒
+    #: aggressive buying accepted») — الجهد والنتيجة يُقارنان عند هذا
+    #: الفاصل؛ عتبة تطبيعية ``atr × multiplier`` ككل مفاتيح القاموس.
+    FLOW_RESPONSE_MIN = "FLOW_RESPONSE_MIN"
 
 
 #: المعاملات الافتراضية — نقطة انطلاق إعدادية معلنة، تُعايَر لاحقًا (ليست توصية).
@@ -135,6 +145,8 @@ DEFAULT_MULTIPLIERS: Mapping[ThresholdKey, float] = MappingProxyType(
         ThresholdKey.ENTRY_ZONE_HALF_WIDTH: 0.25,
         ThresholdKey.TARGET_ZONE_HALF_WIDTH: 0.25,
         ThresholdKey.EQUAL_LEVEL_TOLERANCE: 0.25,
+        ThresholdKey.ABSORPTION_EXTENSION_MAX: 0.5,
+        ThresholdKey.FLOW_RESPONSE_MIN: 0.5,
     }
 )
 
