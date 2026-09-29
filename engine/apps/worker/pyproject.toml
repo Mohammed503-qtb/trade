@@ -3,7 +3,7 @@ name = "engine-worker"
 version = "0.1.0"
 description = "عملية خط الأنابيب الحية: ingestion→…→risk (build_plan A.1)"
 requires-python = ">=3.12"
-dependencies = ["nats-py>=2.8", "asyncpg>=0.30", "minio>=7.2", "structlog>=24.4", "httpx>=0.28", "engine-schemas", "engine-common"]
+dependencies = ["nats-py>=2.8", "asyncpg>=0.30", "minio>=7.2", "structlog>=24.4", "httpx>=0.28", "engine-schemas", "engine-common", "engine-orderflow"]
 
 [build-system]
 requires = ["hatchling"]

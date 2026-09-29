@@ -33,17 +33,29 @@ from orderflow.rows import (
     row_imbalance_side,
     row_ratio,
 )
+from orderflow.store import (
+    FLOW_EVENT_TYPES,
+    FootprintStore,
+    OrderflowStoreError,
+    flow_event_id,
+    orderflow_instrument_uuid,
+)
 
 __all__ = [
+    "FLOW_EVENT_TYPES",
     "IMBALANCE_RATIO",
     "METHODOLOGY_AGGTRADE_TAKER",
     "SATURATED_ROW_RATIO",
     "BarRows",
     "EmittedEvent",
     "FootprintRow",
+    "FootprintStore",
     "ImbalanceClusterConfig",
     "ImbalanceClusterDetector",
+    "OrderflowStoreError",
     "delta_trend",
+    "flow_event_id",
+    "orderflow_instrument_uuid",
     "row_imbalance_side",
     "row_ratio",
     "volume_concentration",

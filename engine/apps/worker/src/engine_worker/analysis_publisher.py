@@ -1,4 +1,4 @@
-"""ناشر أحداث التحليل البنيوية/السيولية عبر NATS — تجميع مغلفات §32 (3-f).
+"""ناشر أحداث التحليل عبر NATS — تجميع مغلفات §32 (3-f، توسعة 4-e للتدفق).
 
 مسؤوليتان منفصلتان بعقد صارم:
 
@@ -8,6 +8,10 @@
   من المستدعي (المسار الحي يمرر طابع الاستقبال الفعلي؛ الإعادة التاريخية
   تمرر ``event_time`` نفسها فتثبت الحتمية)، و``source``/``trace_id``
   صريحان. لا ساعة داخلية ولا عشوائية — المصنع نقي قابل للإعادة بتّيًا.
+  **توسعة 4-e**: التوقيع بروتوكول هيكلي :class:`EmittedEventLike` فيقبل
+  سجلات البنية/السيولة (3-b/3-d) وسجلات التدفق (4-c/4-d) على السواء —
+  الشكل واحد (نوع §20 + وقت التأكيد + حمولة pydantic موثقة) والبقية
+  شأن الكاشف صاحب السجل.
 
 - **الناشر** :class:`AnalysisEventPublisher` — رفيع عمدًا كناشر اللقطات
   (2-f): يقبل عميل NATS محضّرًا (متصلًا)، يبث بالترميز القانوني للمخطط
@@ -25,8 +29,8 @@ from datetime import datetime
 from typing import Protocol
 
 import schemas
+from pydantic import BaseModel
 from schemas import EventEnvelope, EventType
-from structure.events import EmittedEvent as StructureEmittedEvent
 from structure.store import deterministic_event_id
 
 from engine_worker.publisher import normalize_instrument
@@ -34,6 +38,7 @@ from engine_worker.publisher import normalize_instrument
 __all__ = [
     "ANALYSIS_EVENT_SUBJECT_PREFIX",
     "AnalysisEventPublisher",
+    "EmittedEventLike",
     "NATSPublishClient",
     "build_envelope",
     "subject_for",
@@ -41,6 +46,25 @@ __all__ = [
 
 #: بادئة موضوع أحداث التحليل — نمط §32 الجالب.
 ANALYSIS_EVENT_SUBJECT_PREFIX = "market.event"
+
+
+class EmittedEventLike(Protocol):
+    """الشكل الهيكلي لسجل حدث مكشوف — البنية (3-b/3-d) والتدفق (4-c/4-d).
+
+    سجلات ``EmittedEvent`` في الحزمتين dataclasses مجمّدة بهذه الحقول
+    الثلاثة نفسها؛ البروتوكول يقبلهما معًا بلا استيراد أي منهما (الناشر
+    طبقة تركيب محايدة تجاه الكواشف). الحقول خصائص قراءة فقط (تغايرية)
+    فاتحاد حمولات كل حزمة يحقق ``BaseModel`` دون تثبيت تغاير السمات.
+    """
+
+    @property
+    def event_type(self) -> EventType: ...
+
+    @property
+    def event_time(self) -> datetime: ...
+
+    @property
+    def payload(self) -> BaseModel: ...
 
 
 class NATSPublishClient(Protocol):
@@ -70,7 +94,7 @@ def subject_for(event_type: EventType, instrument: str, timeframe: str) -> str:
 
 
 def build_envelope(
-    event: StructureEmittedEvent,
+    event: EmittedEventLike,
     instrument: str,
     *,
     source: str,

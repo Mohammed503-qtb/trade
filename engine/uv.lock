@@ -540,6 +540,8 @@ source = { editable = "services/orderflow" }
 dependencies = [
     { name = "engine-common" },
     { name = "engine-features" },
+    { name = "engine-ingestion" },
+    { name = "engine-market-state" },
     { name = "engine-schemas" },
 ]
 
@@ -547,6 +549,8 @@ dependencies = [
 requires-dist = [
     { name = "engine-common", editable = "packages/common" },
     { name = "engine-features", editable = "packages/features" },
+    { name = "engine-ingestion", editable = "services/ingestion" },
+    { name = "engine-market-state", editable = "services/market_state" },
     { name = "engine-schemas", editable = "packages/schemas" },
 ]
 
@@ -657,6 +661,7 @@ source = { editable = "apps/worker" }
 dependencies = [
     { name = "asyncpg" },
     { name = "engine-common" },
+    { name = "engine-orderflow" },
     { name = "engine-schemas" },
     { name = "httpx" },
     { name = "minio" },
@@ -668,6 +673,7 @@ dependencies = [
 requires-dist = [
     { name = "asyncpg", specifier = ">=0.30" },
     { name = "engine-common", editable = "packages/common" },
+    { name = "engine-orderflow", editable = "services/orderflow" },
     { name = "engine-schemas", editable = "packages/schemas" },
     { name = "httpx", specifier = ">=0.28" },
     { name = "minio", specifier = ">=7.2" },

@@ -11,6 +11,11 @@ SnapshotPublisher — إثبات توصيل رسالة ``market.state.updated`` 
 عبر AnalysisEventPublisher بمغلف §32 الكامل ومعرف event_id حتمي (روح
 D-07) على الموضوع ``market.event.example.1m.internal_bos`` — إثبات توصيل
 مسار أحداث التحليل (الكواشف الحية تُوصَّل مع باقي خط الأنابيب لاحقًا).
+
+المهمة 4-e: تشغيل تجريبي ثالث يبث حدثًا تدفقيًا مثالًا (ABSORPTION_BUY —
+مرشح امتصاص شرائي كامل الشروط §12.3) عبر الناشر نفسه بتوسعة البروتوكول
+(EmittedEventLike) على الموضوع ``market.event.example.1m.absorption_buy``
+— إثبات توصيل مسار أحداث التدفق من كواشف المرحلة 4.
 """
 
 from __future__ import annotations
@@ -138,16 +143,74 @@ async def _publish_demo_analysis_event(nats_url: str) -> str:
         return f"unavailable: {type(exc).__name__}"
 
 
+async def _publish_demo_flow_event(nats_url: str) -> str:
+    """تشغيل تجريبي (4-e): بث حدث تدفقي مثال عبر ناشر أحداث التحليل.
+
+    ABSORPTION_BUY كامل الشروط §12.3 (عدوانية بيعية −0.62 وامتداد محدود
+    0.31×ATR وفشل مواصلة متكرر) بمرشح غير مؤكد (confirmed=False — فرضية
+    تؤكدها الاستجابة اللاحقة §12.2) — المغلف بمعرف event_id حتمي عبر
+    build_envelope (توسعة البروتوكول — سجل orderflow.EmittedEvent).
+    """
+    try:
+        from nats.aio.client import Client as NATSClient
+        from orderflow.events import EmittedEvent as FlowEmittedEvent
+        from schemas import AbsorbedPressure, AbsorptionConditions
+
+        from engine_worker.analysis_publisher import AnalysisEventPublisher, build_envelope
+
+        nc: NATSClient = NATSClient()
+        await nc.connect(servers=[nats_url], connect_timeout=3, max_reconnect_attempts=1)
+        try:
+            publisher = AnalysisEventPublisher(nc)
+            event_time = datetime(2026, 9, 28, 3, 5, tzinfo=UTC)
+            event = FlowEmittedEvent(
+                event_type=schemas.EventType.ABSORPTION_BUY,
+                event_time=event_time,
+                payload=schemas.AbsorptionEventPayload(
+                    instrument="EXAMPLE",
+                    timeframe="1m",
+                    bar_time=event_time,
+                    absorbed_pressure=AbsorbedPressure.SELL,
+                    delta=-412.5,
+                    delta_share=-0.62,
+                    excursion_atr=0.31,
+                    conditions=AbsorptionConditions(
+                        elevated_delta=True,
+                        limited_extension=True,
+                        repeated_response=True,
+                        opposite_displacement=None,
+                    ),
+                    zone_id=None,
+                    confirmed=False,
+                ),
+            )
+            envelope = build_envelope(
+                event,
+                "EXAMPLE",
+                source="engine_worker.demo",
+                trace_id="worker-demo-flow",
+                receive_time=event_time,
+            )
+            await publisher.publish(envelope)
+            return f"published:{publisher.subject(envelope.event_type, 'EXAMPLE', '1m')}"
+        finally:
+            await nc.drain()
+    except Exception as exc:
+        return f"unavailable: {type(exc).__name__}"
+
+
 async def _heartbeat_forever() -> None:
     settings = load_settings()
     # تشغيلان تجريبيان قبل النبض — إثبات توصيل ناشر §32 (2-f) ومسار
     # أحداث التحليل الحتمية (3-f)
     demo_state = await _publish_demo_snapshot(settings.nats_url)
     demo_event = await _publish_demo_analysis_event(settings.nats_url)
+    demo_flow = await _publish_demo_flow_event(settings.nats_url)
     await log.ainfo(
         "worker.demo_publish",
         state=demo_state,
         analysis_event=demo_event,
+        flow_event=demo_flow,
         schema_version=schemas.SCHEMA_VERSION,
     )
     beat = 0
