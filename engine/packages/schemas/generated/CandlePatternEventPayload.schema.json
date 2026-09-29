@@ -1,0 +1,82 @@
+{
+  "$defs": {
+    "CandlePatternFamily": {
+      "description": "عائلات أنماط الشموع الثماني (§13.1 حرفيًا بالترتيب).\n\nكل عائلة مستعار لتركيبة من السمات الست — لا تحمل سلطة تنبؤية\nذاتية؛ فُصلت hammer/shooting star عن pin/rejection لأن الأولى\nتشترط سياق الاتجاه السابق (قاع/قمة) بينما الثانية رفض في الموضع\nأياً كان السياق (§13.1 يسميهما عائلتين مستقلتين).",
+      "enum": [
+        "ENGULFING",
+        "PIN_REJECTION",
+        "HAMMER_SHOOTING_STAR",
+        "INSIDE_BAR",
+        "DOJI",
+        "MORNING_EVENING_STAR",
+        "STRONG_CLOSING",
+        "EXPANSION"
+      ],
+      "title": "CandlePatternFamily",
+      "type": "string"
+    },
+    "PatternDirection": {
+      "description": "توجيه النمط — يطابق لغة أحداث §20 الشمعية (BULLISH_ENGULFING).\n\n``NEUTRAL`` للعائلات غير الموجهة عند التصنيف السياقي (مثل doji\nوinside bar قبل الكسر)؛ الأحداث المبثوثة (§20) توجيهية حصرًا.",
+      "enum": [
+        "BULLISH",
+        "BEARISH",
+        "NEUTRAL"
+      ],
+      "title": "PatternDirection",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "description": "حمولة نمط شموعي — تخدم BULLISH_ENGULFING / BEARISH_ENGULFING /\nREJECTION_CANDLE / INSIDE_BAR_BREAK (§13.1 + §20) داخل المغلف (§32).\n\n«الأسماء مستعارات لتركيبات سمات»: ``feature_readings`` تحمل قراءات\nالسمات الست القانونية (مفاتيح ``CANDLE_FEATURE_KEYS`` حصرًا) التي\nقرّرت العائلة — قيمها عند شمعة القرار (آخر شمعة من شموع النمط ما\nلم توثّق العائلة غير ذلك في هندستها). ``strength`` مقياس «لماذا\nيهم» العمودي في §20 (نسبة الجسم للابتلاع، نسبة الذيل للرفض،\nضغط/توسع المدى للداخلية).",
+  "properties": {
+    "bar_time": {
+      "format": "date-time",
+      "title": "Bar Time",
+      "type": "string"
+    },
+    "bars_in_pattern": {
+      "minimum": 1,
+      "title": "Bars In Pattern",
+      "type": "integer"
+    },
+    "direction": {
+      "$ref": "#/$defs/PatternDirection"
+    },
+    "family": {
+      "$ref": "#/$defs/CandlePatternFamily"
+    },
+    "feature_readings": {
+      "additionalProperties": {
+        "type": "number"
+      },
+      "title": "Feature Readings",
+      "type": "object"
+    },
+    "instrument": {
+      "title": "Instrument",
+      "type": "string"
+    },
+    "strength": {
+      "maximum": 1.0,
+      "minimum": 0.0,
+      "title": "Strength",
+      "type": "number"
+    },
+    "timeframe": {
+      "title": "Timeframe",
+      "type": "string"
+    }
+  },
+  "required": [
+    "instrument",
+    "timeframe",
+    "bar_time",
+    "family",
+    "direction",
+    "feature_readings",
+    "strength",
+    "bars_in_pattern"
+  ],
+  "title": "CandlePatternEventPayload",
+  "type": "object"
+}

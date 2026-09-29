@@ -1,0 +1,27 @@
+{
+  "additionalProperties": false,
+  "description": "نقطة إرساء هندسية في نمط كلاسيكي (§13.2 ``anchor_points``).\n\n``role`` اسم الدور الحر الموثق (P1..Pn للقمم/القيعان المتعاقبة،\nNECKLINE لرقبة الرأس والكتفين، POLE/BREAKOUT...) — البُنى الثماني\nتتشارك شكل النقطة لا أدوارها، فالحقل نص موسوم يوثقه الكاشف في\nهندسته؛ الشموع المتطابقة زمنًا ممنوعة (إرساء واحد لكل لحظة).",
+  "properties": {
+    "price": {
+      "exclusiveMinimum": 0.0,
+      "title": "Price",
+      "type": "number"
+    },
+    "role": {
+      "title": "Role",
+      "type": "string"
+    },
+    "time": {
+      "format": "date-time",
+      "title": "Time",
+      "type": "string"
+    }
+  },
+  "required": [
+    "time",
+    "price",
+    "role"
+  ],
+  "title": "AnchorPoint",
+  "type": "object"
+}

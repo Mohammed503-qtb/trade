@@ -47,6 +47,16 @@ from .orderflow import (
     ImbalanceClusterEventPayload,
     ImbalanceSide,
 )
+from .patterns import (
+    CANDLE_FEATURE_KEYS,
+    AnchorPoint,
+    CandlePatternEventPayload,
+    CandlePatternFamily,
+    ClassicalPatternEventPayload,
+    ClassicalPatternType,
+    PatternDirection,
+    PatternStatus,
+)
 from .scenario import (
     InvalidationRule,
     PriceZone,
@@ -79,6 +89,7 @@ SCHEMA_VERSION = "1.0.0"
 # ثم الفئات ثم الأسماء السفلية (__version__ قبل الدوال — ترتيب بايتات
 # الشرطة السفلية). كل تعدادة ونموذج علني في الحزمة موجود هنا.
 __all__ = [
+    "CANDLE_FEATURE_KEYS",
     "DEFAULT_EVENT_WEIGHTS",
     "DEFAULT_GROUP_SHARES",
     "EVENT_PAYLOAD_MODELS",
@@ -86,9 +97,14 @@ __all__ = [
     "AbsorbedPressure",
     "AbsorptionConditions",
     "AbsorptionEventPayload",
+    "AnchorPoint",
     "BreakAcceptEventPayload",
     "BreakDirection",
     "Candle",
+    "CandlePatternEventPayload",
+    "CandlePatternFamily",
+    "ClassicalPatternEventPayload",
+    "ClassicalPatternType",
     "DataQuality",
     "Direction",
     "DisplacementEventPayload",
@@ -118,6 +134,8 @@ __all__ = [
     "OrderBlockEventPayload",
     "OrderIntent",
     "OrderPolicy",
+    "PatternDirection",
+    "PatternStatus",
     "PremiumDiscountEventPayload",
     "PremiumDiscountSide",
     "PriceZone",

@@ -20,6 +20,10 @@ from .orderflow import (
     FlowContinuationEventPayload,
     ImbalanceClusterEventPayload,
 )
+from .patterns import (
+    CandlePatternEventPayload,
+    ClassicalPatternEventPayload,
+)
 from .structure import (
     DisplacementEventPayload,
     FvgEventPayload,
@@ -52,10 +56,10 @@ class EventEnvelope(BaseModel):
 #: الذي يملأ ``payload`` داخل EventEnvelope ويُتحقق ضد مخططه المُصدَّر.
 #:
 #: **المرحلة 3 تغطي الأحداث البنيوية/السيولية الخمسة عشر والمرحلة 4
-#: تضيف أحداث التدفق الثمانية**؛ الطور اللاحق يوسع الخريطة
-#: (patterns/sessions/...) — أي نوع خارج الخريطة بلا حمولة موثقة بعد،
-#: و``payload_model_for`` تعيد له None: غياب الحمولة إعلان صريح لا
-#: صمت موافقة.
+#: تضيف أحداث التدفق الثمانية والمرحلة 5a تضيف أحداث الأنماط الستة**؛
+#: الطور اللاحق يوسع الخريطة (sessions/...) — أي نوع خارج الخريطة بلا
+#: حمولة موثقة بعد، و``payload_model_for`` تعيد له None: غياب الحمولة
+#: إعلان صريح لا صمت موافقة.
 EVENT_PAYLOAD_MODELS: dict[EventType, type[BaseModel]] = {
     # كسور البنية (§11.2-3)
     EventType.INTERNAL_BOS: StructureBreakPayload,
@@ -85,6 +89,13 @@ EVENT_PAYLOAD_MODELS: dict[EventType, type[BaseModel]] = {
     EventType.EXHAUSTION_DOWN: ExhaustionEventPayload,
     EventType.BUY_IMBALANCE_CLUSTER: ImbalanceClusterEventPayload,
     EventType.SELL_IMBALANCE_CLUSTER: ImbalanceClusterEventPayload,
+    # الأنماط: الشموعي والكلاسيكي (§13)
+    EventType.BULLISH_ENGULFING: CandlePatternEventPayload,
+    EventType.BEARISH_ENGULFING: CandlePatternEventPayload,
+    EventType.REJECTION_CANDLE: CandlePatternEventPayload,
+    EventType.INSIDE_BAR_BREAK: CandlePatternEventPayload,
+    EventType.CLASSICAL_BREAKOUT: ClassicalPatternEventPayload,
+    EventType.CLASSICAL_FAILED_BREAKOUT: ClassicalPatternEventPayload,
 }
 
 

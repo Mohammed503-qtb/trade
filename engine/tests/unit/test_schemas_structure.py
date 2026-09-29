@@ -505,13 +505,28 @@ FLOW_EVENT_TYPES = {
 }
 
 
+#: أحداث الأنماط الستة الموثقة في المرحلة 5a (§13 + §20) — أربعة شموعية
+#: واثنان كلاسيكيان فوق الخمسة عشر البنيوية والثمانية التدفقية.
+PATTERN_EVENT_TYPES = {
+    EventType.BULLISH_ENGULFING,
+    EventType.BEARISH_ENGULFING,
+    EventType.REJECTION_CANDLE,
+    EventType.INSIDE_BAR_BREAK,
+    EventType.CLASSICAL_BREAKOUT,
+    EventType.CLASSICAL_FAILED_BREAKOUT,
+}
+
+
 class TestPayloadRegistry:
-    """الخريطة: 15 نوعًا بنيويًا/سيوليًا (المرحلة 3) + 8 تدفقية (المرحلة 4)."""
+    """الخريطة: 15 بنيويًا/سيوليًا (المرحلة 3) + 8 تدفقية (المرحلة 4)
+    + 6 أنماطية (المرحلة 5a)."""
 
     def test_registry_covers_structural_types_exactly(self) -> None:
         assert set(EVENT_PAYLOAD_MODELS) >= STRUCTURAL_EVENT_TYPES
-        assert (set(EVENT_PAYLOAD_MODELS) - STRUCTURAL_EVENT_TYPES) == FLOW_EVENT_TYPES
-        assert len(EVENT_PAYLOAD_MODELS) == 23
+        assert (set(EVENT_PAYLOAD_MODELS) - STRUCTURAL_EVENT_TYPES) == (
+            FLOW_EVENT_TYPES | PATTERN_EVENT_TYPES
+        )
+        assert len(EVENT_PAYLOAD_MODELS) == 29
 
     def test_every_mapped_model_is_pydantic_base_model(self) -> None:
         for model in EVENT_PAYLOAD_MODELS.values():

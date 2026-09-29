@@ -28,6 +28,11 @@ from .orderflow import (
     FlowContinuationEventPayload,
     ImbalanceClusterEventPayload,
 )
+from .patterns import (
+    AnchorPoint,
+    CandlePatternEventPayload,
+    ClassicalPatternEventPayload,
+)
 from .scenario import (
     InvalidationRule,
     PriceZone,
@@ -71,6 +76,10 @@ ALL_MODELS: dict[str, type[BaseModel]] = {
     "FlowContinuationEventPayload": FlowContinuationEventPayload,
     "ExhaustionEventPayload": ExhaustionEventPayload,
     "ImbalanceClusterEventPayload": ImbalanceClusterEventPayload,
+    # الأنماط: كائن الإرساء وحمولتا الأحداث (§13 + §20)
+    "AnchorPoint": AnchorPoint,
+    "CandlePatternEventPayload": CandlePatternEventPayload,
+    "ClassicalPatternEventPayload": ClassicalPatternEventPayload,
     # الدليل (§19.1)
     "EvidenceRecord": EvidenceRecord,
     # السيناريو ومكوناته (§18/§10.5)
@@ -108,6 +117,9 @@ MODEL_PLAN_REFS: dict[str, str] = {
     "FlowContinuationEventPayload": "§12.2 + §20",
     "ExhaustionEventPayload": "§12.4 + §20",
     "ImbalanceClusterEventPayload": "§12.6 + §20",
+    "AnchorPoint": "§13.2 (anchor_points)",
+    "CandlePatternEventPayload": "§13.1 + §20",
+    "ClassicalPatternEventPayload": "§13.2 + §20",
     "EvidenceRecord": "§19.1",
     "PriceZone": "§18.1 (entry_zone)",
     "TriggerDefinition": "§18.1 + §18.4",

@@ -1,0 +1,174 @@
+{
+  "$defs": {
+    "AnchorPoint": {
+      "additionalProperties": false,
+      "description": "نقطة إرساء هندسية في نمط كلاسيكي (§13.2 ``anchor_points``).\n\n``role`` اسم الدور الحر الموثق (P1..Pn للقمم/القيعان المتعاقبة،\nNECKLINE لرقبة الرأس والكتفين، POLE/BREAKOUT...) — البُنى الثماني\nتتشارك شكل النقطة لا أدوارها، فالحقل نص موسوم يوثقه الكاشف في\nهندسته؛ الشموع المتطابقة زمنًا ممنوعة (إرساء واحد لكل لحظة).",
+      "properties": {
+        "price": {
+          "exclusiveMinimum": 0.0,
+          "title": "Price",
+          "type": "number"
+        },
+        "role": {
+          "title": "Role",
+          "type": "string"
+        },
+        "time": {
+          "format": "date-time",
+          "title": "Time",
+          "type": "string"
+        }
+      },
+      "required": [
+        "time",
+        "price",
+        "role"
+      ],
+      "title": "AnchorPoint",
+      "type": "object"
+    },
+    "BreakDirection": {
+      "description": "اتجاه الكسر أو الإزاحة — صعودًا أم هبوطًا (§11.2/§11.4).\n\nمستوى الكسر/الاندفاع ثنائي القطبية، لا LONG/SHORT — القرار الاتجاهي\nمسؤولية الدمج (§19) لا الكاشف.",
+      "enum": [
+        "UP",
+        "DOWN"
+      ],
+      "title": "BreakDirection",
+      "type": "string"
+    },
+    "ClassicalPatternType": {
+      "description": "عائلات البُنى الكلاسيكية الثماني (§13.2) بجهاتها المفصولة.\n\n§13.2 يسمي ثماني عائلات: double top/bottom وhead and shoulders /\ninverse تعدّها الخطة عائلة واحدة ثنائية الجهة — القرار الموثق:\nفصل الجهتين في قيمتين صريحتين (أوضح للدمج والتقارير)، فالقيم\nالفعلية: قمة/قاع مزدوجان (2) + رأس وكتفان ومعكوسه (2) + مثلث +\nإسفين + علم + قناة + كسر نطاق + كسر فاشل (6) = 10 قيم لثماني\nعائلات مفصولة الجهة.",
+      "enum": [
+        "DOUBLE_TOP",
+        "DOUBLE_BOTTOM",
+        "HEAD_AND_SHOULDERS",
+        "INVERSE_HEAD_AND_SHOULDERS",
+        "TRIANGLE",
+        "WEDGE",
+        "FLAG",
+        "CHANNEL",
+        "RANGE_BREAKOUT",
+        "FAILED_BREAKOUT"
+      ],
+      "title": "ClassicalPatternType",
+      "type": "string"
+    },
+    "PatternStatus": {
+      "description": "حالة النمط لحظة الحدث (§13.2 حرفيًا).\n\nالهندسة الغامضة تبقى ``CANDIDATE`` وتساهم قليلاً أو لا تساهم في\nالدمج (§13.2)؛ ``CONFIRMED`` للهندسة النظيفة المكتملة.",
+      "enum": [
+        "CANDIDATE",
+        "CONFIRMED"
+      ],
+      "title": "PatternStatus",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "description": "حمولة حدث البنية الكلاسيكية — تخدم CLASSICAL_BREAKOUT /\nCLASSICAL_FAILED_BREAKOUT (§13.2 + §20) بمخرجات §13.2 الثمانية\nحرفيًا بالأسماء نفسها.\n\n``geometry`` قياسات رقمية مسماة (قرار الوحدة الموثق في رأس الموديول)\nمثل ``height_atr`` و``width_bars`` و``slope_per_bar``. للكسر الفاشل\n(§20: \"Break + reclaim | Failure speed\") يُستوفى ``reclaim_level``\nو``failure_speed`` (سرعة الاسترجاع: كسر ثم استرجاع خلال مدى أشرطة\nأقل) ويبقيان None للكسر الناجح — عقد الحمولة المشتركة نفسه الذي\nتتبعه ``StructureBreakPayload`` لثلاثة أنواع.",
+  "properties": {
+    "anchor_points": {
+      "items": {
+        "$ref": "#/$defs/AnchorPoint"
+      },
+      "title": "Anchor Points",
+      "type": "array"
+    },
+    "bar_time": {
+      "format": "date-time",
+      "title": "Bar Time",
+      "type": "string"
+    },
+    "break_direction": {
+      "$ref": "#/$defs/BreakDirection"
+    },
+    "breakout_level": {
+      "exclusiveMinimum": 0.0,
+      "title": "Breakout Level",
+      "type": "number"
+    },
+    "completion_time": {
+      "format": "date-time",
+      "title": "Completion Time",
+      "type": "string"
+    },
+    "failure_speed": {
+      "anyOf": [
+        {
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Failure Speed"
+    },
+    "geometry": {
+      "additionalProperties": {
+        "type": "number"
+      },
+      "title": "Geometry",
+      "type": "object"
+    },
+    "instrument": {
+      "title": "Instrument",
+      "type": "string"
+    },
+    "invalidation_level": {
+      "exclusiveMinimum": 0.0,
+      "title": "Invalidation Level",
+      "type": "number"
+    },
+    "measured_move": {
+      "exclusiveMinimum": 0.0,
+      "title": "Measured Move",
+      "type": "number"
+    },
+    "pattern_type": {
+      "$ref": "#/$defs/ClassicalPatternType"
+    },
+    "quality": {
+      "maximum": 1.0,
+      "minimum": 0.0,
+      "title": "Quality",
+      "type": "number"
+    },
+    "reclaim_level": {
+      "anyOf": [
+        {
+          "exclusiveMinimum": 0.0,
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Reclaim Level"
+    },
+    "status": {
+      "$ref": "#/$defs/PatternStatus"
+    },
+    "timeframe": {
+      "title": "Timeframe",
+      "type": "string"
+    }
+  },
+  "required": [
+    "instrument",
+    "timeframe",
+    "bar_time",
+    "pattern_type",
+    "geometry",
+    "anchor_points",
+    "completion_time",
+    "breakout_level",
+    "invalidation_level",
+    "measured_move",
+    "quality",
+    "break_direction",
+    "status"
+  ],
+  "title": "ClassicalPatternEventPayload",
+  "type": "object"
+}

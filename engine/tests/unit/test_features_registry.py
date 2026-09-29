@@ -18,19 +18,25 @@ from features import (
     FeatureCategory,
     atr_pct_series,
     atr_series,
+    body_fraction_series,
+    close_location_series,
     compute_feature,
     directional_efficiency_series,
     expected_holding_vol_series,
     feature_names,
+    gap_relationship_series,
     gap_shock_series,
     get_feature_spec,
     list_features,
     normalized_range_series,
     range_expansion_series,
+    range_percentile_series,
     realized_vol_series,
     spread_to_range_series,
     vol_of_vol_series,
     volume_concentration_series,
+    volume_relationship_series,
+    wick_asymmetry_series,
 )
 from numpy.typing import NDArray
 from schemas import Candle, DataQuality
@@ -54,6 +60,13 @@ PINNED: dict[str, tuple[FeatureCategory, dict[str, int]]] = {
     "normalized_range_14": (FeatureCategory.RANGE, {"atr_period": 14}),
     "directional_efficiency_20": (FeatureCategory.EFFICIENCY, {"window": 20}),
     "volume_concentration_20": (FeatureCategory.VOLUME, {"window": 20}),
+    # سمات الشموع الست (§13.1) — المرحلة 5a
+    "body_fraction": (FeatureCategory.CANDLE, {}),
+    "wick_asymmetry": (FeatureCategory.CANDLE, {}),
+    "close_location": (FeatureCategory.CANDLE, {}),
+    "range_percentile_100": (FeatureCategory.CANDLE, {"window": 100}),
+    "gap_relationship_20": (FeatureCategory.CANDLE, {"window": 20}),
+    "volume_relationship_20": (FeatureCategory.CANDLE, {"window": 20}),
 }
 
 
@@ -148,12 +161,13 @@ def test_get_feature_spec_unknown_name_raises_with_options() -> None:
 
 
 def test_category_enum_values() -> None:
-    """الفئات الأربع بقيمها الحرفية — StrEnum قابل للتسلسل في التقارير."""
+    """الفئات الخمس بقيمها الحرفية — StrEnum قابل للتسلسل في التقارير."""
     assert FeatureCategory.VOLATILITY == "VOLATILITY"
     assert FeatureCategory.RANGE == "RANGE"
     assert FeatureCategory.EFFICIENCY == "EFFICIENCY"
     assert FeatureCategory.VOLUME == "VOLUME"
-    assert len(FeatureCategory) == 4
+    assert FeatureCategory.CANDLE == "CANDLE"
+    assert len(FeatureCategory) == 5
 
 
 def test_every_category_represented() -> None:
@@ -179,6 +193,12 @@ DIRECT_CALLS: dict[str, SeriesFactory] = {
     "normalized_range_14": lambda cs: normalized_range_series(cs, atr_period=14),
     "directional_efficiency_20": lambda cs: directional_efficiency_series(cs, window=20),
     "volume_concentration_20": lambda cs: volume_concentration_series(cs, window=20),
+    "body_fraction": lambda cs: body_fraction_series(cs),
+    "wick_asymmetry": lambda cs: wick_asymmetry_series(cs),
+    "close_location": lambda cs: close_location_series(cs),
+    "range_percentile_100": lambda cs: range_percentile_series(cs, window=100),
+    "gap_relationship_20": lambda cs: gap_relationship_series(cs, window=20),
+    "volume_relationship_20": lambda cs: volume_relationship_series(cs, window=20),
 }
 
 

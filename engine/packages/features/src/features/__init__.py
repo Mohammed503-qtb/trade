@@ -6,11 +6,21 @@
 
 - :mod:`features.windows` — استخراج المصفوفات بتحقق صارم (أداة/إطار/ترتيب).
 - :mod:`features.vol_features` — سمات التقلب (§16) والمدى والكفاءة والحجم (§9.3).
+- :mod:`features.candle_features` — سمات الشموع الست (§13.1) — عائلات
+  أنماط المرحلة 5a مستعارات لتركيباتها.
 - :mod:`features.registry` — السجل المركزي المغذي لمِحور الاستئصال (2-e).
 """
 
 from __future__ import annotations
 
+from .candle_features import (
+    body_fraction_series,
+    close_location_series,
+    gap_relationship_series,
+    range_percentile_series,
+    volume_relationship_series,
+    wick_asymmetry_series,
+)
 from .registry import (
     FeatureCategory,
     FeatureSpec,
@@ -55,11 +65,14 @@ __all__ = [
     "atr_pct_series",
     "atr_series",
     "bodies",
+    "body_fraction_series",
+    "close_location_series",
     "closes",
     "compute_feature",
     "directional_efficiency_series",
     "expected_holding_vol_series",
     "feature_names",
+    "gap_relationship_series",
     "gap_shock_series",
     "get_feature_spec",
     "highs",
@@ -69,10 +82,13 @@ __all__ = [
     "normalized_range_series",
     "opens",
     "range_expansion_series",
+    "range_percentile_series",
     "ranges",
     "realized_vol_series",
     "spread_to_range_series",
     "vol_of_vol_series",
     "volume_concentration_series",
+    "volume_relationship_series",
     "volumes",
+    "wick_asymmetry_series",
 ]

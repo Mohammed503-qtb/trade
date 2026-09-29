@@ -29,6 +29,14 @@ from types import MappingProxyType
 
 from schemas import Candle
 
+from .candle_features import (
+    body_fraction_series,
+    close_location_series,
+    gap_relationship_series,
+    range_percentile_series,
+    volume_relationship_series,
+    wick_asymmetry_series,
+)
 from .vol_features import (
     atr_pct_series,
     atr_series,
@@ -61,6 +69,7 @@ class FeatureCategory(StrEnum):
     RANGE = "RANGE"
     EFFICIENCY = "EFFICIENCY"
     VOLUME = "VOLUME"
+    CANDLE = "CANDLE"
 
 
 @dataclass(frozen=True)
@@ -143,6 +152,44 @@ _FEATURES: tuple[tuple[str, FeatureCategory, FeatureExtractor, dict[str, int]], 
         "volume_concentration_20",
         FeatureCategory.VOLUME,
         volume_concentration_series,
+        {"window": 20},
+    ),
+    # سمات الشموع الست (§13.1) — عائلات الأنماط مستعارات لتركيباتها
+    # (المرحلة 5a): الثلاث الفورية بلا معاملات والثلاث ذات النوافذ الخلفية.
+    (
+        "body_fraction",
+        FeatureCategory.CANDLE,
+        body_fraction_series,
+        {},
+    ),
+    (
+        "wick_asymmetry",
+        FeatureCategory.CANDLE,
+        wick_asymmetry_series,
+        {},
+    ),
+    (
+        "close_location",
+        FeatureCategory.CANDLE,
+        close_location_series,
+        {},
+    ),
+    (
+        "range_percentile_100",
+        FeatureCategory.CANDLE,
+        range_percentile_series,
+        {"window": 100},
+    ),
+    (
+        "gap_relationship_20",
+        FeatureCategory.CANDLE,
+        gap_relationship_series,
+        {"window": 20},
+    ),
+    (
+        "volume_relationship_20",
+        FeatureCategory.CANDLE,
+        volume_relationship_series,
         {"window": 20},
     ),
 )
