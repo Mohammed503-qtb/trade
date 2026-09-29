@@ -64,7 +64,8 @@ STRUCTURE_EVENT_TYPES: frozenset[EventType] = frozenset(
     }
 )
 
-#: أنواع §20 الموطنة في pattern_events في طور المرحلة 3 (§11.5-7).
+#: أنواع §20 الموطنة في pattern_events — طور المرحلة 3 (§11.5-7) وطور
+#: المرحلة 5a (§13: أربعة شموعية واثنان كلاسيكيان — توسعة مشروعة موثقة).
 PATTERN_EVENT_TYPES: frozenset[EventType] = frozenset(
     {
         EventType.FVG_BULLISH,
@@ -73,6 +74,12 @@ PATTERN_EVENT_TYPES: frozenset[EventType] = frozenset(
         EventType.ORDER_BLOCK_BEARISH,
         EventType.PREMIUM_LOCATION,
         EventType.DISCOUNT_LOCATION,
+        EventType.BULLISH_ENGULFING,
+        EventType.BEARISH_ENGULFING,
+        EventType.REJECTION_CANDLE,
+        EventType.INSIDE_BAR_BREAK,
+        EventType.CLASSICAL_BREAKOUT,
+        EventType.CLASSICAL_FAILED_BREAKOUT,
     }
 )
 

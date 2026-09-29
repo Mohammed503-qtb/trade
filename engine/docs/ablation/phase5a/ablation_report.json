@@ -1,0 +1,93 @@
+{
+  "created_at_utc": "2026-09-29T00:00:00+00:00",
+  "dataset_label": "phase2-BTCUSDT-1m",
+  "notes": [
+    "منهج §43: كل سمة تُختبر قيمتها التزايدية بُعزلها — base مقابل base+X (خارج القاعدة) أو base-X (داخلها)؛ لا بقاء لسمة إلا بعد قيمة تزايدية مستقرة (تكاليف واقعية، عينات خارجية، تقسيم أنظمة، اضطراب معاملات، ضوابط ارتباط).",
+    "التقييم الحالي placeholder (عدد السمات) — STUB موثق؛ المقاييس الحقيقية تُحقن عبر MetricEvaluator عند المرحلة 5a.3/9 (مِحور الإعادة §26).",
+    "التوصيل حقيقي: كل سمة في كل متغير حُسبت فعلًا عبر compute_feature على شموع البيانات قبل نداء المقيم (عقود الدافئ nan من quantmath محفوظة)."
+  ],
+  "spec_name": "base();ablate(body_fraction,wick_asymmetry,close_location,range_percentile_100,gap_relationship_20,volume_relationship_20)",
+  "variants": [
+    {
+      "elapsed_ms": 0.0,
+      "features_used": [],
+      "kind": "BASE",
+      "metrics": {},
+      "variant_label": "base"
+    },
+    {
+      "elapsed_ms": 0.0,
+      "features_used": [
+        "body_fraction"
+      ],
+      "kind": "PLUS",
+      "metrics": {
+        "oos_absolute_response_median": 0.0003715566791196594,
+        "oos_signal_count": 137.0
+      },
+      "variant_label": "plus_body_fraction"
+    },
+    {
+      "elapsed_ms": 0.0,
+      "features_used": [
+        "wick_asymmetry"
+      ],
+      "kind": "PLUS",
+      "metrics": {
+        "oos_absolute_response_median": 0.0003746241245430221,
+        "oos_directional_hit_rate_median": 0.4435483870967742,
+        "oos_signal_count": 125.0
+      },
+      "variant_label": "plus_wick_asymmetry"
+    },
+    {
+      "elapsed_ms": 0.0,
+      "features_used": [
+        "close_location"
+      ],
+      "kind": "PLUS",
+      "metrics": {
+        "oos_absolute_response_median": 0.0003921704189070744,
+        "oos_directional_hit_rate_median": 0.4110429447852761,
+        "oos_signal_count": 166.0
+      },
+      "variant_label": "plus_close_location"
+    },
+    {
+      "elapsed_ms": 0.0,
+      "features_used": [
+        "range_percentile_100"
+      ],
+      "kind": "PLUS",
+      "metrics": {
+        "oos_absolute_response_median": 0.0004152969785995134,
+        "oos_signal_count": 120.0
+      },
+      "variant_label": "plus_range_percentile_100"
+    },
+    {
+      "elapsed_ms": 0.0,
+      "features_used": [
+        "gap_relationship_20"
+      ],
+      "kind": "PLUS",
+      "metrics": {
+        "oos_absolute_response_median": 0.00033524498534354043,
+        "oos_signal_count": 180.0
+      },
+      "variant_label": "plus_gap_relationship_20"
+    },
+    {
+      "elapsed_ms": 0.0,
+      "features_used": [
+        "volume_relationship_20"
+      ],
+      "kind": "PLUS",
+      "metrics": {
+        "oos_absolute_response_median": 0.00037387598306691674,
+        "oos_signal_count": 121.0
+      },
+      "variant_label": "plus_volume_relationship_20"
+    }
+  ]
+}

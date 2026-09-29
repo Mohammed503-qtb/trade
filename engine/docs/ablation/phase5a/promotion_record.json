@@ -1,0 +1,112 @@
+{
+  "approval_timestamp": "2026-09-29T05:08:32.124329+00:00",
+  "artifact": "phase5a-candle-features-ablation",
+  "calibration_artifact": null,
+  "calibration_deferred_reason": "المعايرة بعد محرك الدمج §19 — مرحلة 6/9",
+  "code_commit": "eff4a5f9e2456c88713197a9b1e8febedab0b170",
+  "cost_model": null,
+  "cost_model_deferred_reason": "التكاليف الواقعية بعد التداول الورقي — مرحلة 9 (§43: قيمة تزايدية بعد التكاليف)",
+  "data_source_versions": {
+    "bars": 1440,
+    "fixture": "tests/fixtures/phase2",
+    "symbol": "BTCUSDT",
+    "timeframe": "1m",
+    "venue": "binance-usdm-futures"
+  },
+  "feature_schema": [
+    "body_fraction",
+    "wick_asymmetry",
+    "close_location",
+    "range_percentile_100",
+    "gap_relationship_20",
+    "volume_relationship_20"
+  ],
+  "gate": "§46-5 — جهاز الاستئصال قبل التقييم الحي",
+  "methodology": "§43 Base/±Feature — تقسيم زمني 70/30، عتبات إشارة كوانتيلية من التدريب حصرًا",
+  "model_artifact_hash": "6271977040a1de53d73b59dbd53b24875c30e3e518de2dc91c878031545d208f",
+  "oos_window": {
+    "bars": 433,
+    "first": "2026-09-25T16:47:00+00:00",
+    "last": "2026-09-25T23:59:00+00:00"
+  },
+  "parameter_set": {
+    "horizon": 5,
+    "signal_quantile": 0.9,
+    "train_ratio": 0.7
+  },
+  "training_window": {
+    "bars": 1007,
+    "first": "2026-09-25T00:00:00+00:00",
+    "last": "2026-09-25T16:46:00+00:00"
+  },
+  "validation_window": null,
+  "variants": [
+    {
+      "features": [],
+      "label": "base",
+      "metrics": {}
+    },
+    {
+      "features": [
+        "body_fraction"
+      ],
+      "label": "plus_body_fraction",
+      "metrics": {
+        "oos_absolute_response_median": 0.0003715566791196594,
+        "oos_signal_count": 137.0
+      }
+    },
+    {
+      "features": [
+        "wick_asymmetry"
+      ],
+      "label": "plus_wick_asymmetry",
+      "metrics": {
+        "oos_absolute_response_median": 0.0003746241245430221,
+        "oos_directional_hit_rate_median": 0.4435483870967742,
+        "oos_signal_count": 125.0
+      }
+    },
+    {
+      "features": [
+        "close_location"
+      ],
+      "label": "plus_close_location",
+      "metrics": {
+        "oos_absolute_response_median": 0.0003921704189070744,
+        "oos_directional_hit_rate_median": 0.4110429447852761,
+        "oos_signal_count": 166.0
+      }
+    },
+    {
+      "features": [
+        "range_percentile_100"
+      ],
+      "label": "plus_range_percentile_100",
+      "metrics": {
+        "oos_absolute_response_median": 0.0004152969785995134,
+        "oos_signal_count": 120.0
+      }
+    },
+    {
+      "features": [
+        "gap_relationship_20"
+      ],
+      "label": "plus_gap_relationship_20",
+      "metrics": {
+        "oos_absolute_response_median": 0.00033524498534354043,
+        "oos_signal_count": 180.0
+      }
+    },
+    {
+      "features": [
+        "volume_relationship_20"
+      ],
+      "label": "plus_volume_relationship_20",
+      "metrics": {
+        "oos_absolute_response_median": 0.00037387598306691674,
+        "oos_signal_count": 121.0
+      }
+    }
+  ]
+}

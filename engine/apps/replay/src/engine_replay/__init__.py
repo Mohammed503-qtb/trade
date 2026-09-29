@@ -12,17 +12,27 @@ from .ablation import (
     placeholder_evaluator,
     run_ablation,
 )
+from .ablation_evaluator import (
+    FEATURE_POLARITY,
+    AblationEvaluatorConfig,
+    DirectionalEvaluator,
+    evaluate_directional,
+)
 
 __all__ = [
+    "FEATURE_POLARITY",
+    "AblationEvaluatorConfig",
     "AblationReport",
     "AblationResult",
     "AblationSpec",
     "AblationVariant",
     "Dataset",
+    "DirectionalEvaluator",
     "FeatureSet",
     "MetricEvaluator",
     "VariantKind",
     "__version__",
+    "evaluate_directional",
     "placeholder_evaluator",
     "run_ablation",
 ]
