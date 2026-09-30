@@ -38,6 +38,7 @@ from schemas import (
     FlowContinuationEventPayload,
     FootprintBar,
     ImbalanceClusterEventPayload,
+    payload_digest,
 )
 
 from .events import EmittedEvent
@@ -90,14 +91,15 @@ def orderflow_instrument_uuid(instrument: str) -> uuid_module.UUID:
 
 
 def flow_event_id(
-    event_type: str, instrument: str, timeframe: str, event_time: object
+    event_type: str, instrument: str, timeframe: str, event_time: object, digest: str
 ) -> uuid_module.UUID:
-    """معرف حدث تدفق حتمي — ``uuid5(namespace, type|instrument|timeframe|time)``.
+    """معرف حدث تدفق حتمي — ``uuid5(namespace, type|instrument|timeframe|time|digest)``.
 
-    نفس عقد ``structure.store.deterministic_event_id`` (المعرّف محلي هنا لأن
-    عقود الطبقات تمنع الاستيراد من حزمة البنية — انظر وثائق الموديول).
+    نفس عقد ``structure.store.deterministic_event_id`` الموسع ببصمة الحمولة
+    (المعرّف محلي هنا لأن عقود الطبقات تمنع الاستيراد من حزمة البنية —
+    انظر وثائق الموديول؛ البصمة من ``schemas.payload_digest`` — ADR-024).
     """
-    key = f"{event_type}|{instrument}|{timeframe}|{event_time.isoformat()}"  # type: ignore[attr-defined]
+    key = f"{event_type}|{instrument}|{timeframe}|{event_time.isoformat()}|{digest}"  # type: ignore[attr-defined]
     return uuid_module.uuid5(_EVENT_NAMESPACE, key)
 
 
@@ -227,7 +229,13 @@ class FootprintStore:
         payload = event.payload
         instrument = payload.instrument
         timeframe = payload.timeframe
-        event_id = flow_event_id(event.event_type.value, instrument, timeframe, event.event_time)
+        event_id = flow_event_id(
+            event.event_type.value,
+            instrument,
+            timeframe,
+            event.event_time,
+            payload_digest(payload),
+        )
         try:
             await conn.execute(
                 """

@@ -39,6 +39,7 @@ from schemas import (
     EventType,
     EvidenceRecord,
     MarketStateSnapshot,
+    payload_digest,
 )
 
 from .compute import contribution
@@ -129,15 +130,20 @@ def evidence_id_for(scenario_id: str, event_key: str) -> str:
 
 
 def _source_event_id(
-    event_type: EventType, instrument: str, timeframe: str, event_time: datetime
+    event_type: EventType,
+    instrument: str,
+    timeframe: str,
+    event_time: datetime,
+    digest: str,
 ) -> str:
     """معرف الحدث المصدر الحتمي — نفس عقد structure/orderflow stores.
 
-    ``uuid5(namespace, type|instrument|timeframe|time)`` — المشتق محلي
-    لأن عقود الطبقات تمنع استيراد حزم الكواشف من الدمج (نمط 4-e الموثق
-    في رأس orderflow.store).
+    ``uuid5(namespace, type|instrument|timeframe|time|digest)`` — المشتق
+    محلي لأن عقود الطبقات تمنع استيراد حزم الكواشف من الدمج (نمط 4-e
+    الموثق في رأس orderflow.store)؛ البصمة الخامسة تميز الأحداث متعددة
+    المناطق عند الشمعة نفسها (ADR-024).
     """
-    key = f"{event_type.value}|{instrument}|{timeframe}|{event_time.isoformat()}"
+    key = f"{event_type.value}|{instrument}|{timeframe}|{event_time.isoformat()}|{digest}"
     return str(uuid_module.uuid5(_EVENT_NAMESPACE, key))
 
 
@@ -241,7 +247,10 @@ class EvidenceLedgerBuilder:
         polarity = extract_polarity(event_type, payload)
         direction_score = polarity * sign
         ttl = self._config.freshness_ttl_bars * _timeframe_seconds(timeframe)
-        event_key = f"{event_type.value}|{instrument}|{timeframe}|{event.event_time.isoformat()}"
+        event_key = (
+            f"{event_type.value}|{instrument}|{timeframe}"
+            f"|{event.event_time.isoformat()}|{payload_digest(payload)}"
+        )
         return EvidenceRecord(
             evidence_id=evidence_id_for(scenario_id, event_key),
             group=EVENT_EVIDENCE_GROUPS[event_type],
@@ -257,7 +266,9 @@ class EvidenceLedgerBuilder:
             source=f"analysis-event:{event_type.value}",
             correlation_group_id=f"{instrument}|{timeframe}|{event.event_time.isoformat()}",
             event_time=event.event_time,
-            event_id=_source_event_id(event_type, instrument, timeframe, event.event_time),
+            event_id=_source_event_id(
+                event_type, instrument, timeframe, event.event_time, payload_digest(payload)
+            ),
         )
 
     def _htf_record(

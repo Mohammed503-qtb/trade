@@ -331,13 +331,20 @@ class TestFusionStoreLive:
         by_source = {r["source"]: r["event_id"] for r in rows}
         assert by_source["market_state.htf_bias"] is None
         assert by_source["analysis-event:EXTERNAL_BOS"] is not None
-        # المشتق نفسه uuid5 فوق (type|instrument|timeframe|time) — روح D-07
-        namespace = uuid_module.uuid5(
-            uuid_module.NAMESPACE_URL, "ai-market-reasoning-engine/analysis-event"
-        )
-        expected = uuid_module.uuid5(
-            namespace,
-            f"EXTERNAL_BOS|{INSTRUMENT}|{TIMEFRAME}|{BASE_TIME.isoformat()}",
+        # المشتق نفسه uuid5 فوق (type|instrument|timeframe|time|digest) —
+        # البصمة الخامسة تميز الأحداث متعددة المناطق عند الشمعة نفسها (ADR-024)
+        from fusion.ledger import _source_event_id
+        from schemas import payload_digest
+
+        break_payload = _break(0)
+        expected = uuid_module.UUID(
+            _source_event_id(
+                EventType.EXTERNAL_BOS,
+                INSTRUMENT,
+                TIMEFRAME,
+                BASE_TIME,
+                payload_digest(break_payload),
+            )
         )
         assert by_source["analysis-event:EXTERNAL_BOS"] == expected
 

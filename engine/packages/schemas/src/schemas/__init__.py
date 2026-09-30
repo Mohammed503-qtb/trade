@@ -24,7 +24,7 @@ from .enums import (
     SignalState,
     SweepClassification,
 )
-from .envelope import EVENT_PAYLOAD_MODELS, EventEnvelope, payload_model_for
+from .envelope import EVENT_PAYLOAD_MODELS, EventEnvelope, payload_digest, payload_model_for
 from .evidence import (
     CALIBRATION_DEFERRAL_REASON,
     AvailabilitySignature,
@@ -171,6 +171,7 @@ __all__ = [
     "TriggerDefinition",
     "ZoneState",
     "__version__",
+    "payload_digest",
     "payload_model_for",
     "validate_explanation_completeness",
 ]

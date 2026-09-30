@@ -30,7 +30,7 @@ from typing import Protocol
 
 import schemas
 from pydantic import BaseModel
-from schemas import EventEnvelope, EventType
+from schemas import EventEnvelope, EventType, payload_digest
 from structure.store import deterministic_event_id
 
 from engine_worker.publisher import normalize_instrument
@@ -112,7 +112,11 @@ def build_envelope(
     payload = event.payload.model_dump()
     timeframe = str(payload["timeframe"])
     event_id = deterministic_event_id(
-        event.event_type.value, instrument, timeframe, event.event_time
+        event.event_type.value,
+        instrument,
+        timeframe,
+        event.event_time,
+        payload_digest(event.payload),
     )
     return EventEnvelope(
         event_id=event_id,

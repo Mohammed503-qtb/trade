@@ -6,6 +6,7 @@
 
 from __future__ import annotations
 
+import hashlib
 from typing import Any
 from uuid import UUID
 
@@ -97,6 +98,20 @@ EVENT_PAYLOAD_MODELS: dict[EventType, type[BaseModel]] = {
     EventType.CLASSICAL_BREAKOUT: ClassicalPatternEventPayload,
     EventType.CLASSICAL_FAILED_BREAKOUT: ClassicalPatternEventPayload,
 }
+
+
+def payload_digest(payload: BaseModel) -> str:
+    """بصمة الحمولة القانونية — sha256 للترميز القانوني (16 حرفًا).
+
+    مكون هوية الحدث الخامس (مع النوع والأداة والإطار والوقت): الأحداث
+    المتعددة المناطق عند الشمعة نفسها (اجتياح منطقتين بحركة واحدة، أو
+    كتلتا أوامر بمصدرين) أحداث **متميزة** بحمولاتها — البصمة تميزها
+    والترميز القانوني ``model_dump_json`` حتمي فإعادة الإرسال idempotent.
+
+    مكتشف بوابة المرحلة 6 (ADR-024): المعرف الرباعي السابق كان يصدم
+    الأحداث المتميزة عند الشمعة نفسها تصادم كتابة صامتة.
+    """
+    return hashlib.sha256(payload.model_dump_json().encode("utf-8")).hexdigest()[:16]
 
 
 def payload_model_for(event_type: EventType) -> type[BaseModel] | None:

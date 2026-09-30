@@ -1,9 +1,9 @@
 {
-  "approval_timestamp": "2026-09-29T05:14:17.949685+00:00",
+  "approval_timestamp": "2026-09-30T01:04:42.696877+00:00",
   "artifact": "phase5a-candle-features-ablation",
   "calibration_artifact": null,
   "calibration_deferred_reason": "المعايرة بعد محرك الدمج §19 — مرحلة 6/9",
-  "code_commit": "c3f17768d19a8cb24003d505ee958199a63c539a",
+  "code_commit": "e47c46b0ee51557c91fbae2eb59f7b372c1efb79",
   "cost_model": null,
   "cost_model_deferred_reason": "التكاليف الواقعية بعد التداول الورقي — مرحلة 9 (§43: قيمة تزايدية بعد التكاليف)",
   "data_source_versions": {

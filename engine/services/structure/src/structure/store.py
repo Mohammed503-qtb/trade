@@ -37,7 +37,14 @@ import json
 import uuid as uuid_module
 
 import asyncpg
-from schemas import SCHEMA_VERSION, EventEnvelope, EventType, Swing, payload_model_for
+from schemas import (
+    SCHEMA_VERSION,
+    EventEnvelope,
+    EventType,
+    Swing,
+    payload_digest,
+    payload_model_for,
+)
 
 __all__ = [
     "PATTERN_EVENT_TYPES",
@@ -110,14 +117,17 @@ def analysis_instrument_uuid(instrument: str) -> uuid_module.UUID:
 
 
 def deterministic_event_id(
-    event_type: str, instrument: str, timeframe: str, event_time: object
+    event_type: str, instrument: str, timeframe: str, event_time: object, digest: str
 ) -> uuid_module.UUID:
-    """معرف حدث حتمي — ``uuid5(namespace, type|instrument|timeframe|time)``.
+    """معرف حدث حتمي — ``uuid5(namespace, type|instrument|timeframe|time|digest)``.
 
     الحتمية تجعل إعادة الإرسال نفسها تحدّث صفها (idempotent) وتسمح
-    للمستهلكين اشتقاق المعرف نفسه من الحدث المكافئ (روح D-07).
+    للمستهلكين اشتقاق المعرف نفسه من الحدث المكافئ (روح D-07). المكوّن
+    الخامس بصمة الحمولة القانونية (``schemas.payload_digest``): الأحداث
+    المتعددة المناطق عند الشمعة نفسها متميزة بحمولاتها — مكتشف بوابة
+    المرحلة 6 (ADR-024)؛ الرباعي السابق كان يصدمها تصادم كتابة صامتة.
     """
-    key = f"{event_type}|{instrument}|{timeframe}|{event_time.isoformat()}"  # type: ignore[attr-defined]
+    key = f"{event_type}|{instrument}|{timeframe}|{event_time.isoformat()}|{digest}"  # type: ignore[attr-defined]
     return uuid_module.uuid5(_EVENT_NAMESPACE, key)
 
 
@@ -192,6 +202,7 @@ class AnalysisEventStore:
             instrument,
             swing.timeframe,
             swing.confirmation_time,
+            payload_digest(swing),
         )
         await conn.execute(
             """
