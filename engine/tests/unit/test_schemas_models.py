@@ -74,6 +74,9 @@ def make_evidence(**overrides: Any) -> EvidenceRecord:
         "opposition": False,
         "source": "liquidity.detector",
         "correlation_group_id": "corr-impulse-42",
+        # امتدادا سلسلة الجرد (المرحلة 6): مرساة الترتيب ووصلة الحدث
+        "event_time": datetime(2026, 1, 5, tzinfo=UTC),
+        "event_id": "0f8e2b6a-1c3d-5e4f-9a8b-7c6d5e4f3a2b",
     }
     kwargs.update(overrides)
     return EvidenceRecord(**kwargs)

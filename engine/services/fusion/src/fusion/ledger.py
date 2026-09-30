@@ -59,6 +59,13 @@ _EVIDENCE_NAMESPACE: uuid_module.UUID = uuid_module.uuid5(
     uuid_module.NAMESPACE_URL, "ai-market-reasoning-engine/fusion-evidence"
 )
 
+#: مساحة اسم معرف الحدث الحتمي — نفس ترميز structure/orderflow stores
+#: (uuid5 فوق NAMESPACE_URL بمفتاح نطاق معلن): معرفات الأحداث متسقة عبر
+#: الحزم فتصل وصلة السلسلة جداول الأحداث بالدليل.
+_EVENT_NAMESPACE: uuid_module.UUID = uuid_module.uuid5(
+    uuid_module.NAMESPACE_URL, "ai-market-reasoning-engine/analysis-event"
+)
+
 #: الأطر الستة المدعومة → طول الشمعة بالثواني — مرآة عقد الأطر في
 #: ingestion (D-05: 1H/15m/1m افتراضيًا و4H/5m بديلًا و1d) — الإطار
 #: خارجها يُرفض صاخبًا لا يُخمَّن.
@@ -119,6 +126,19 @@ def evidence_id_for(scenario_id: str, event_key: str) -> str:
     والإرسال المتكرر يحدّث صفه (روح D-07).
     """
     return str(uuid_module.uuid5(_EVIDENCE_NAMESPACE, f"evidence|{scenario_id}|{event_key}"))
+
+
+def _source_event_id(
+    event_type: EventType, instrument: str, timeframe: str, event_time: datetime
+) -> str:
+    """معرف الحدث المصدر الحتمي — نفس عقد structure/orderflow stores.
+
+    ``uuid5(namespace, type|instrument|timeframe|time)`` — المشتق محلي
+    لأن عقود الطبقات تمنع استيراد حزم الكواشف من الدمج (نمط 4-e الموثق
+    في رأس orderflow.store).
+    """
+    key = f"{event_type.value}|{instrument}|{timeframe}|{event_time.isoformat()}"
+    return str(uuid_module.uuid5(_EVENT_NAMESPACE, key))
 
 
 def _freshness(event_time: datetime, as_of: datetime, ttl_seconds: float) -> float:
@@ -236,6 +256,8 @@ class EvidenceLedgerBuilder:
             opposition=direction_score < 0.0,
             source=f"analysis-event:{event_type.value}",
             correlation_group_id=f"{instrument}|{timeframe}|{event.event_time.isoformat()}",
+            event_time=event.event_time,
+            event_id=_source_event_id(event_type, instrument, timeframe, event.event_time),
         )
 
     def _htf_record(
@@ -272,6 +294,8 @@ class EvidenceLedgerBuilder:
             opposition=direction_score < 0.0,
             source=_HTF_SOURCE,
             correlation_group_id=None,
+            event_time=market_state.event_time,
+            event_id=None,  # دليل مشتق من الحالة — لا حدث بث مصدرًا له
         )
 
     # ── مجموعات الارتباط وخصم الاستقلالية (§19.4) ──

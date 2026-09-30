@@ -56,10 +56,12 @@ def _record(
     prior_weight: float = 1.0,
     context_modifier: float = 1.0,
     opposition: bool = False,
+    event_time: datetime = T0,
 ) -> EvidenceRecord:
     """سجل دليل مباشر — معاملات مميزة القيم لحساب يدوي نظيف."""
     return EvidenceRecord(
         evidence_id=evidence_id,
+        event_time=event_time,
         group=group,
         event_type=event_type,
         direction_score=direction_score,

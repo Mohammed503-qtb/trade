@@ -92,6 +92,9 @@ def _evidence_kwargs(**overrides: Any) -> dict[str, Any]:
         "opposition": False,
         "source": "prop.test",
         "correlation_group_id": None,
+        # امتدادا سلسلة الجرد (المرحلة 6)
+        "event_time": datetime(2026, 1, 5, tzinfo=UTC),
+        "event_id": None,
     }
     kwargs.update(overrides)
     return kwargs

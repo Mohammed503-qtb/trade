@@ -117,6 +117,23 @@
           "title": "Direction Score",
           "type": "number"
         },
+        "event_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Event Id"
+        },
+        "event_time": {
+          "format": "date-time",
+          "title": "Event Time",
+          "type": "string"
+        },
         "event_type": {
           "$ref": "#/$defs/EventType"
         },
@@ -176,7 +193,8 @@
         "prior_weight",
         "context_modifier",
         "opposition",
-        "source"
+        "source",
+        "event_time"
       ],
       "title": "EvidenceRecord",
       "type": "object"

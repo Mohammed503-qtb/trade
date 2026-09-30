@@ -47,6 +47,14 @@ class EvidenceRecord(BaseModel):
     # مجموعة الارتباط (§19.4): الأحداث المنبثقة من الدفعة نفسها تُخصم
     # استقلاليتها فلا تُعد تأكيدات مستقلة (§2.3).
     correlation_group_id: str | None = None
+    #: وقت تأكيد المصدر (شمعة القرار — لا-نظرة §26.3): مرساة سلسلة الجرد
+    #: الزمنية في evidence_items (§31.3) — امتداد موثق بنمط
+    #: correlation_group_id نفسه؛ الطراوة تُشتق منه عند البناء.
+    event_time: UTCDatetime
+    #: معرف الحدث المصدر الحتمي (uuid5 فوق هوية كاملة — روح D-07):
+    #: وصلة السلسلة إلى جداول الأحداث (structure/orderflow/pattern_events)
+    #: — None للدليل المشتق من الحالة (انحياز §9.2 بلا حدث بث مصدر).
+    event_id: str | None = None
 
 
 class _FusionModel(BaseModel):

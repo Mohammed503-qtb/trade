@@ -302,8 +302,10 @@ class TestExportRegistration:
         ):
             assert model_name in index
 
-    def test_evidence_record_untouched(self) -> None:
-        """§19.1 لم يُمس — الحقول الأربعة عشر كما كانت في المرحلة 0."""
+    def test_evidence_record_contract_extensions(self) -> None:
+        """حقول §19.1 الأربعة عشر كما كانت + امتدادا المرحلة 6 الموثقان:
+        correlation_group_id (المرحلة 0) وevent_time/event_id (سلسلة
+        الجرد §31.3 — وصلة الجداول ومرساة الترتيب)."""
         record = EvidenceRecord(
             evidence_id="ev-x",
             group=EvidenceGroup.MACRO,
@@ -317,5 +319,8 @@ class TestExportRegistration:
             context_modifier=1.0,
             opposition=False,
             source="test",
+            event_time=T0,
         )
         assert record.correlation_group_id is None
+        assert record.event_id is None
+        assert record.event_time == T0
