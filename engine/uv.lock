@@ -614,14 +614,20 @@ source = { editable = "services/scenarios" }
 dependencies = [
     { name = "engine-common" },
     { name = "engine-features" },
+    { name = "engine-fusion" },
+    { name = "engine-liquidity" },
     { name = "engine-schemas" },
+    { name = "engine-structure" },
 ]
 
 [package.metadata]
 requires-dist = [
     { name = "engine-common", editable = "packages/common" },
     { name = "engine-features", editable = "packages/features" },
+    { name = "engine-fusion", editable = "services/fusion" },
+    { name = "engine-liquidity", editable = "services/liquidity" },
     { name = "engine-schemas", editable = "packages/schemas" },
+    { name = "engine-structure", editable = "services/structure" },
 ]
 
 [[package]]

@@ -4,7 +4,7 @@
 > حرس الجودة: `python -m schemas.export check` يجب أن يبقى أخضر في كل بوابة (لا رسالة بلا مخطط مُصدَّر).
 
 - إصدار المخططات: `1.0.0`
-- عدد النماذج الجذرية: 37
+- عدد النماذج الجذرية: 38
 
 | النموذج | الملف | الوحدة | فقرة الخطة |
 |---|---|---|---|
@@ -41,6 +41,7 @@
 | `InvalidationRule` | `InvalidationRule.schema.json` | `schemas.scenario` | §18.5 + §23.4 |
 | `TargetZone` | `TargetZone.schema.json` | `schemas.scenario` | §10.5 |
 | `Scenario` | `Scenario.schema.json` | `schemas.scenario` | §18.1 |
+| `ScenarioTransition` | `ScenarioTransition.schema.json` | `schemas.scenario` | §18.2 + §31.3 |
 | `OrderIntent` | `OrderIntent.schema.json` | `schemas.execution` | §24.1 |
 | `SlippageRecord` | `SlippageRecord.schema.json` | `schemas.execution` | §24.4 |
 | `LatencyRecord` | `LatencyRecord.schema.json` | `schemas.execution` | §24.5 |

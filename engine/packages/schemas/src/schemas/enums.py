@@ -261,6 +261,25 @@ class OrderPolicy(StrEnum):
     EMERGENCY_FLATTEN = "EMERGENCY_FLATTEN"  # تسطيح طارئ
 
 
+class ScenarioTemplate(StrEnum):
+    """قوالب السيناريو الثلاثة (§21.2 حرفيًا) — هوية مقترح D-04.
+
+    «These are scenario templates, not hard-coded universal truths» — القالب
+    سلسلة سببية موثقة تُستنسخ عند حدث مؤكد فوق موقع سيولة مرسوم، لا
+    قاعدة تحكم جامدة.
+    """
+
+    #: انعكاس: سيولة كبرى ← اجتياح ← امتصاص/إنهاك ← إزاحة ← استرجاع
+    #: بنية ← إعادة اختبار/مشغل (§21.2 Reversal candidate).
+    REVERSAL = "REVERSAL"
+    #: استمرار: بنية HTF مصطفة ← ارتداد لموقع موثق ← تدفق يعيد الاصطفاف
+    #: ← BOS/إزاحة داخلية ← مشغل استمرار (§21.2 Continuation candidate).
+    CONTINUATION = "CONTINUATION"
+    #: اختراق: انضغاط ← بناء سيولة ← توسع ← قبول خلف الحافة ← إعادة
+    #: اختبار/استمرار (§21.2 Breakout candidate).
+    BREAKOUT = "BREAKOUT"
+
+
 class SweepClassification(StrEnum):
     """تصنيف الاجتياح الخمسي (§10.4) — الاجتياح تسلسل لا فتيل واحد."""
 

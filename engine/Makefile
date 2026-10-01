@@ -9,7 +9,7 @@ ENGINE_DIR := $(shell dirname $(realpath $(firstword $(MAKEFILE_LIST))))
 .DEFAULT_GOAL := help
 .PHONY: help doctor gate lint format typecheck imports test schemas \
 	infra-provision infra-up infra-down infra-status infra-health \
-	migrate migrate-down verify-phase1 verify-phase2 verify-phase3 verify-phase4 verify-phase5 verify-phase6 ablation-dryrun db-test clean
+	migrate migrate-down verify-phase1 verify-phase2 verify-phase3 verify-phase4 verify-phase5 verify-phase6 verify-phase7 ablation-dryrun db-test clean
 
 help: ## عرض الأوامر المتاحة
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-18s\033[0m %s\n", $$1, $$2}'
@@ -98,6 +98,9 @@ verify-phase5: ## بوابة المرحلة 5a: الأنماط + الاستئص�
 
 verify-phase6: ## بوابة المرحلة 6: دمج الدليل §19 — سجل ولقطات وسلسلة باستعلام واحد (يتطلب بنية حية عند 0006)
 	$(UV) run --no-sync python scripts/verify_phase6.py
+
+verify-phase7: ## بوابة المرحلة 7: محرك السيناريوهات §18 — مقترحات D-04 ودورة حياة ومشغلات وإبطال وتنافس (يتطلب بنية حية عند 0007)
+	$(UV) run --no-sync python scripts/verify_phase7.py
 
 ablation-dryrun: ## تشغيل استئصال تجريبي على عينة المرحلة 1 (تقرير placeholder موثق)
 	$(UV) run --no-sync python scripts/run_ablation.py --dataset phase1

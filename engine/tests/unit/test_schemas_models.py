@@ -26,13 +26,21 @@ from schemas import (
     OrderIntent,
     PriceZone,
     Scenario,
+    ScenarioTemplate,
+    ScenarioTransition,
     SessionType,
     SlippageRecord,
     TargetZone,
     TradeEvent,
     TriggerDefinition,
 )
-from schemas.enums import DataQuality, Direction, EventType, EvidenceGroup, ScenarioState
+from schemas.enums import (
+    DataQuality,
+    Direction,
+    EventType,
+    EvidenceGroup,
+    ScenarioState,
+)
 
 UTC = UTC
 
@@ -120,6 +128,9 @@ def make_scenario(**overrides: Any) -> Scenario:
         "state": ScenarioState.DRAFT,
         "scenario_score": 0.62,  # درجة خام لا احتمال (§2.6)
         "calibrated_probability": None,
+        # امتدا المرحلة 7 (D-04): هوية القالب والحدث المرسي
+        "template": ScenarioTemplate.REVERSAL,
+        "proposed_from_event_id": "3f2a2c34-1111-4ddd-9a9e-000000000001",
     }
     kwargs.update(overrides)
     return Scenario(**kwargs)
@@ -498,6 +509,28 @@ class TestDerivedAssumptions:
     def test_scenario_defaults_before_calibration(self) -> None:
         scenario = make_scenario()
         assert scenario.calibrated_probability is None  # §19.6: تعدم قبل المعايرة
+
+    def test_scenario_transition_is_immutable_reasoned_record(self) -> None:
+        """سجل الانتقال (§31.3): ملحق-فقط موثق السبب — والفراغ مرفوض."""
+        from datetime import timedelta
+
+        record = ScenarioTransition(
+            scenario_id="sc-0001",
+            from_state=ScenarioState.DRAFT,
+            to_state=ScenarioState.ACTIVE,
+            transition_time=_dt() + timedelta(minutes=1),
+            reason="ترقية §18.4: مجموعتان داعمتان ولا حجب",
+        )
+        assert record.model_config["frozen"]  # التاريخ لا يُطفَّر
+        assert record.model_config["extra"] == "forbid"
+        with pytest.raises(ValidationError, match="reason"):
+            ScenarioTransition(
+                scenario_id="sc-0001",
+                from_state=ScenarioState.DRAFT,
+                to_state=ScenarioState.ACTIVE,
+                transition_time=_dt(),
+                reason="   ",  # سبب فارغ بعد التقليم — رفض صاخب
+            )
 
     def test_optional_feed_fields_default_to_none(self) -> None:
         trade = TradeEvent(

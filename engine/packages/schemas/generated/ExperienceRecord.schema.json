@@ -374,6 +374,10 @@
           "title": "Primary Targets",
           "type": "array"
         },
+        "proposed_from_event_id": {
+          "title": "Proposed From Event Id",
+          "type": "string"
+        },
         "regime": {
           "$ref": "#/$defs/MarketRegime"
         },
@@ -408,6 +412,9 @@
           "title": "Symbol",
           "type": "string"
         },
+        "template": {
+          "$ref": "#/$defs/ScenarioTemplate"
+        },
         "thesis": {
           "title": "Thesis",
           "type": "string"
@@ -433,7 +440,9 @@
         "secondary_targets",
         "expiry_time",
         "state",
-        "scenario_score"
+        "scenario_score",
+        "template",
+        "proposed_from_event_id"
       ],
       "title": "Scenario",
       "type": "object"
@@ -455,6 +464,16 @@
         "CANCELLED_BY_DATA_QUALITY"
       ],
       "title": "ScenarioState",
+      "type": "string"
+    },
+    "ScenarioTemplate": {
+      "description": "قوالب السيناريو الثلاثة (§21.2 حرفيًا) — هوية مقترح D-04.\n\n«These are scenario templates, not hard-coded universal truths» — القالب\nسلسلة سببية موثقة تُستنسخ عند حدث مؤكد فوق موقع سيولة مرسوم، لا\nقاعدة تحكم جامدة.",
+      "enum": [
+        "REVERSAL",
+        "CONTINUATION",
+        "BREAKOUT"
+      ],
+      "title": "ScenarioTemplate",
       "type": "string"
     },
     "SessionType": {

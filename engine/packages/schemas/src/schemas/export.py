@@ -44,6 +44,7 @@ from .scenario import (
     InvalidationRule,
     PriceZone,
     Scenario,
+    ScenarioTransition,
     TargetZone,
     TriggerDefinition,
 )
@@ -100,6 +101,7 @@ ALL_MODELS: dict[str, type[BaseModel]] = {
     "InvalidationRule": InvalidationRule,
     "TargetZone": TargetZone,
     "Scenario": Scenario,
+    "ScenarioTransition": ScenarioTransition,
     # التنفيذ (§24)
     "OrderIntent": OrderIntent,
     "SlippageRecord": SlippageRecord,
@@ -143,6 +145,7 @@ MODEL_PLAN_REFS: dict[str, str] = {
     "InvalidationRule": "§18.5 + §23.4",
     "TargetZone": "§10.5",
     "Scenario": "§18.1",
+    "ScenarioTransition": "§18.2 + §31.3",
     "OrderIntent": "§24.1",
     "SlippageRecord": "§24.4",
     "LatencyRecord": "§24.5",

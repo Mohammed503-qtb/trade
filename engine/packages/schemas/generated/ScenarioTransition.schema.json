@@ -1,0 +1,55 @@
+{
+  "$defs": {
+    "ScenarioState": {
+      "description": "دورة حياة السيناريو (§18.2) — السبعة الأساسية + النهايات الخمس البديلة.\n\nالدرب الأساسي: DRAFT → ACTIVE → TRIGGERED → AUTHORIZED → EXECUTING →\nIN_TRADE → COMPLETED. النهايات البديلة: INVALIDATED/EXPIRED/SUPPRESSED/\nREJECTED_BY_RISK/CANCELLED_BY_DATA_QUALITY (12 حالة إجمالًا).",
+      "enum": [
+        "DRAFT",
+        "ACTIVE",
+        "TRIGGERED",
+        "AUTHORIZED",
+        "EXECUTING",
+        "IN_TRADE",
+        "COMPLETED",
+        "INVALIDATED",
+        "EXPIRED",
+        "SUPPRESSED",
+        "REJECTED_BY_RISK",
+        "CANCELLED_BY_DATA_QUALITY"
+      ],
+      "title": "ScenarioState",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "description": "انتقال دورة حياة واحد (§31.3 scenario_transitions حرفيًا).\n\n«Immutable lifecycle transitions with timestamp and reason» — سجل\nملحق-فقط: كل تحوّل حالة يحرَّكه المحرك يوثَّق بوقته وسببه، فتصير\nدورة حياة السيناريو كاملة قابلة للتدقيق باستعلام واحد. مجمّد\nويمنع الحقول الغريبة — السجل التاريخي لا يُطفَّر.",
+  "properties": {
+    "from_state": {
+      "$ref": "#/$defs/ScenarioState"
+    },
+    "reason": {
+      "title": "Reason",
+      "type": "string"
+    },
+    "scenario_id": {
+      "title": "Scenario Id",
+      "type": "string"
+    },
+    "to_state": {
+      "$ref": "#/$defs/ScenarioState"
+    },
+    "transition_time": {
+      "format": "date-time",
+      "title": "Transition Time",
+      "type": "string"
+    }
+  },
+  "required": [
+    "scenario_id",
+    "from_state",
+    "to_state",
+    "transition_time",
+    "reason"
+  ],
+  "title": "ScenarioTransition",
+  "type": "object"
+}

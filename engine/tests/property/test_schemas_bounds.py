@@ -27,6 +27,7 @@ from schemas import (
     PriceZone,
     Scenario,
     ScenarioState,
+    ScenarioTemplate,
     TargetZone,
     TriggerDefinition,
 )
@@ -183,6 +184,9 @@ def _scenario_kwargs(**overrides: Any) -> dict[str, Any]:
         "expiry_time": datetime(2026, 9, 27, 10, 0, tzinfo=UTC),
         "state": ScenarioState.DRAFT,
         "scenario_score": 0.5,
+        # امتدا المرحلة 7 (D-04): هوية القالب والحدث المرسي
+        "template": ScenarioTemplate.REVERSAL,
+        "proposed_from_event_id": "3f2a2c34-1111-4ddd-9a9e-000000000001",
         "calibrated_probability": None,
     }
     kwargs.update(overrides)

@@ -6,12 +6,12 @@
 
 from __future__ import annotations
 
-from typing import Any
+from typing import Any, Self
 
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, model_validator
 
 from ._types import NonNegativeFloat, Price, UnitInterval, UTCDatetime
-from .enums import Direction, MarketRegime, ScenarioState
+from .enums import Direction, MarketRegime, ScenarioState, ScenarioTemplate
 from .market import MarketStateSnapshot
 
 
@@ -90,3 +90,42 @@ class Scenario(_ScenarioModel):
 
     scenario_score: UnitInterval
     calibrated_probability: UnitInterval | None = None
+
+    # ── امتدادا المرحلة 7 الموثقان (نمط EvidenceRecord نفسه — بنية
+    # §19.1 وُسعت بـevent_time/event_id بقرار موثق) ──
+    #: هوية القالب §21.2 الذي استُنسخ منه المقترح (D-04) — الاستنساخ
+    #: يحدث من حدث سيولة مؤكد فوق موقع مرسوم، والهوية تجعل كل سيناريو
+    #: موصوف القالب قابلًا للاستعلام والتصنيف.
+    template: ScenarioTemplate
+    #: معرف الحدث المرسي المؤكد الذي انطلق منه الاستنساخ (D-04) —
+    #: uuid5 الحتمي نفسه الذي تحمله جداول أحداث التحليل؛ وصلة الأثر
+    #: إلى مصدره (§35.3).
+    proposed_from_event_id: str
+
+
+class ScenarioTransition(_ScenarioModel):
+    """انتقال دورة حياة واحد (§31.3 scenario_transitions حرفيًا).
+
+    «Immutable lifecycle transitions with timestamp and reason» — سجل
+    ملحق-فقط: كل تحوّل حالة يحرَّكه المحرك يوثَّق بوقته وسببه، فتصير
+    دورة حياة السيناريو كاملة قابلة للتدقيق باستعلام واحد. مجمّد
+    ويمنع الحقول الغريبة — السجل التاريخي لا يُطفَّر.
+    """
+
+    scenario_id: str
+    from_state: ScenarioState
+    to_state: ScenarioState
+    transition_time: UTCDatetime
+    #: السبب المعلّل — نص صريح يفسر التحوّل (مشغل رُصد/إبطال/أسبقية
+    #: تنافس...)؛ لا انتقال بلا سبب موثق.
+    reason: str
+
+    @model_validator(mode="after")
+    def _reason_is_substantive(self) -> Self:
+        """السبب الجوهري إلزامي — الفراغ بعد التقليم رفض صاخب لا صمت."""
+        if not self.reason.strip():
+            raise ValueError(
+                "سبب الانتقال فارغ — «with timestamp and reason» (§31.3): "
+                "لا انتقال دورة حياة بلا توثيق سبب"
+            )
+        return self

@@ -119,6 +119,10 @@
     "file": "Scenario.schema.json",
     "schema_version": "1.0.0"
   },
+  "ScenarioTransition": {
+    "file": "ScenarioTransition.schema.json",
+    "schema_version": "1.0.0"
+  },
   "SlippageRecord": {
     "file": "SlippageRecord.schema.json",
     "schema_version": "1.0.0"

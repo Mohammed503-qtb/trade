@@ -67,3 +67,4 @@ engine/.ruff_cache/
 
 # tool session artifacts
 tool-results/
+.zscripts/dev.pid

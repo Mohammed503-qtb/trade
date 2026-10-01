@@ -3,7 +3,14 @@ name = "engine-scenarios"
 version = "0.1.0"
 description = "مقترحات + دورة حياة + مشغلات (§18)"
 requires-python = ">=3.12"
-dependencies = ["engine-schemas", "engine-common", "engine-features"]
+dependencies = [
+    "engine-schemas",
+    "engine-common",
+    "engine-features",
+    "engine-fusion",
+    "engine-liquidity",
+    "engine-structure",
+]
 
 [build-system]
 requires = ["hatchling"]
