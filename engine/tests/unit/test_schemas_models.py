@@ -15,21 +15,37 @@ import pytest
 from pydantic import BaseModel, ValidationError
 from schemas import (
     Candle,
+    CostBreakdown,
+    CostMode,
+    EvaluationContext,
     EventEnvelope,
     EvidenceRecord,
     ExperienceRecord,
+    ExplanationObject,
     FootprintBar,
+    HardBlockReason,
     InvalidationRule,
     LatencyRecord,
+    MacroEventWindow,
     MarketRegime,
     MarketStateSnapshot,
+    NoTradeExplanation,
+    NoTradeSeverity,
     OrderIntent,
     PriceZone,
+    RejectionBasis,
+    RewardRiskEstimate,
+    RiskDecision,
     Scenario,
     ScenarioTemplate,
     ScenarioTransition,
     SessionType,
+    SizingCapBasis,
+    SizingModifier,
+    SizingModifierName,
+    SizingResult,
     SlippageRecord,
+    StructuralStop,
     TargetZone,
     TradeEvent,
     TriggerDefinition,
@@ -265,25 +281,183 @@ def make_latency() -> LatencyRecord:
     )
 
 
+def make_macro_window(**overrides: Any) -> MacroEventWindow:
+    kwargs: dict[str, Any] = {
+        "event_time": _dt(minute=30),
+        "asset_scope": "*",
+        "importance": "HIGH",
+        "title": "بيان التضخم الأمريكي CPI",
+        "pre_event_window_s": 900.0,
+        "post_event_window_s": 600.0,
+    }
+    kwargs.update(overrides)
+    return MacroEventWindow(**kwargs)
+
+
+def make_no_trade_explanation(**overrides: Any) -> NoTradeExplanation:
+    kwargs: dict[str, Any] = {
+        "no_trade_code": HardBlockReason.KILL_SWITCH,
+        "severity": NoTradeSeverity.HARD,
+        "triggering_conditions": "مفتاح الإيقاف مفعّل — كل دخول جديد ممنوع",
+        "offsetting_evidence": ("ev-0001", "ev-0002"),
+        "whether_retry_is_allowed": False,
+        "retry_condition": None,
+    }
+    kwargs.update(overrides)
+    return NoTradeExplanation(**kwargs)
+
+
+def make_stop(**overrides: Any) -> StructuralStop:
+    kwargs: dict[str, Any] = {
+        "structural_level": 59_400.0,
+        "volatility_buffer": 120.0,
+        "execution_uncertainty": 18.0,
+        "stop_price": 59_262.0,  # 59400 − (120 + 18) — إبطال LONG تحت البنية
+        "entry_reference": 60_050.0,  # الحافة المحافظة (أبعد عن الوقف)
+        "stop_distance": 788.0,
+        "accept_through": True,
+        "atr": 240.0,
+        "stop_distance_atr": 788.0 / 240.0,
+    }
+    kwargs.update(overrides)
+    return StructuralStop(**kwargs)
+
+
+def make_sizing_modifier(
+    name: SizingModifierName = SizingModifierName.VOLATILITY,
+    multiplier: float = 0.85,
+) -> SizingModifier:
+    return SizingModifier(
+        name=name,
+        multiplier=multiplier,
+        rationale="تقلب داخل النطاق — تخفيض موثق §23.2",
+    )
+
+
+def make_sizing(**overrides: Any) -> SizingResult:
+    modifiers = (
+        make_sizing_modifier(SizingModifierName.VOLATILITY, 0.9),
+        make_sizing_modifier(SizingModifierName.LIQUIDITY, 1.0),
+        make_sizing_modifier(SizingModifierName.EXECUTION_QUALITY, 0.95),
+        make_sizing_modifier(SizingModifierName.CORRELATION, 1.0),
+        make_sizing_modifier(SizingModifierName.DAILY_DRAWDOWN, 0.8),
+        make_sizing_modifier(SizingModifierName.SCENARIO_QUALITY, 1.0),
+    )
+    final_multiplier = 1.0
+    for modifier in modifiers:
+        final_multiplier *= modifier.multiplier
+    kwargs: dict[str, Any] = {
+        "risk_budget": 100.0,
+        "stop_distance_value": 788.0,
+        "base_position_size": 100.0 / 788.0,
+        "modifiers": modifiers,
+        "final_multiplier": final_multiplier,
+        "instrument_cap": 2.0,
+        "portfolio_cap_remaining": 5.0,
+        "capped_by": SizingCapBasis.NONE,
+        "position_size": 100.0 / 788.0 * final_multiplier,
+        "resulting_risk_money": 100.0 * final_multiplier,
+    }
+    kwargs.update(overrides)
+    return SizingResult(**kwargs)
+
+
+def make_cost_breakdown(**overrides: Any) -> CostBreakdown:
+    kwargs: dict[str, Any] = {
+        "cost_mode": CostMode.REALISTIC,
+        "gross_price_edge": 850.0,
+        "spread": 12.0,
+        "commission": 9.6,
+        "slippage": 24.0,
+        "funding_financing": 3.2,
+        "other_execution_costs": 8.0,
+        "net_trading_edge": 850.0 - (12.0 + 9.6 + 24.0 + 3.2 + 8.0),
+    }
+    kwargs.update(overrides)
+    return CostBreakdown(**kwargs)
+
+
+def make_reward_risk(**overrides: Any) -> RewardRiskEstimate:
+    kwargs: dict[str, Any] = {
+        "cost_mode": CostMode.REALISTIC,
+        "target_level": 60_900.0,
+        "entry_reference": 60_050.0,
+        "stop_distance": 788.0,
+        "gross_target_distance": 850.0,
+        "expected_slippage": 24.0,
+        "commission_fee": 9.6,
+        "spread_cost": 12.0,
+        "expected_adverse_selection": 5.0,
+        "partial_fill_risk": 3.0,
+        "estimated_net_r": (850.0 - 56.8 - 788.0 * 0.0) / 788.0,
+        "gross_r": 850.0 / 788.0,
+        "breakdown": make_cost_breakdown(),
+    }
+    kwargs.update(overrides)
+    return RewardRiskEstimate(**kwargs)
+
+
+def make_risk_decision(**overrides: Any) -> RiskDecision:
+    """قرار مرفوض نموذجي (أبسط الأشكال القانونية — أساس موثق ونقص مقصود)."""
+    kwargs: dict[str, Any] = {
+        "decision_id": "rd-0001",
+        "scenario_id": "sc-0001",
+        "symbol": "BTCUSDT",
+        "direction": Direction.LONG,
+        "decided_at": _dt(),
+        "approved": False,
+        "rejection_basis": RejectionBasis.HARD_BLOCK,
+        "hard_blocks": (make_no_trade_explanation(),),
+        "soft_suppressions": (),
+        "soft_total": 0.0,
+        "stop": make_stop(),
+        "sizing": None,
+        "reward_risk": None,
+        "order_intent": None,
+        "explanation": make_explanation(rejected=True),
+        "parameter_fingerprint": "sha256:fixture",
+    }
+    kwargs.update(overrides)
+    return RiskDecision(**kwargs)
+
+
+def make_explanation(*, rejected: bool = False) -> ExplanationObject:
+    """كائن تفسير §2.8 مكتمل — سبب الرفض عند الرفض حصرًا."""
+    return ExplanationObject(
+        market_context="TREND_PULLBACK، تقلب مئينه 62.4، جودة HEALTHY",
+        liquidity_map="منطقة اجتياح بيعية مؤكدة أسفل الدخول (lz-001)",
+        structural_state="مجموعة البنية: حاضرة بدليل صافٍ +0.4100",
+        supporting_evidence=("LIQUIDITY_SWEEP_LOW [liquidity.detector] c_i=+0.7140",),
+        opposing_evidence=("HTF_BEARISH [market_state.htf_bias] c_i=-0.3200",),
+        trigger="ZONE_RECLAIM رُصد عند 2026-09-27T02:00:00Z",
+        invalidation="59400.0 بعازلة 120.0 بقبول إغلاق (§18.5)",
+        expected_path="نحو سيولة شرائية عند 60900.0 (§10.5)",
+        cost_estimate="REALISTIC: حافة صافية 793.2 للوحدة بعد تكاليف 56.8 (§25.2)",
+        rejection_reason="مفتاح الإيقاف مفعّل (§22.1 رقم 15)" if rejected else None,
+    )
+
+
 def make_experience(**overrides: Any) -> ExperienceRecord:
     kwargs: dict[str, Any] = {
         "market_state_snapshot": make_market_state(),
         "scenario_snapshot": make_scenario(),
         "evidence_snapshot": [make_evidence()],
-        "risk_snapshot": {"risk_budget": 100.0, "stop_distance_value": 720.0},
-        "execution_snapshot": {"order_policy": "LIMIT_AT_ZONE"},
-        "fill_sequence": [{"price": 60_008.5, "quantity": 0.138, "buyer_is_maker": False}],
-        "position_path": [
-            {"time": "2026-09-27T02:05:00Z", "quantity": 0.138, "avg_price": 60_008.5},
-        ],
-        "mfe": 1.21,  # بمضاعفات R من مسار الدخول الفعلي (§29.2)
-        "mae": 0.34,
-        "holding_time": 2_760.0,  # ثوانٍ
-        "exit_reason": "target_hit",
-        "gross_pnl": 121.0,
-        "costs": 8.5,
-        "net_pnl": 112.5,
-        "net_r": 1.125,
+        "risk_snapshot": make_risk_decision(),
+        "execution_snapshot": {
+            "basis": "scenario_level_mvp",
+            "order_policy": "LIMIT_AT_ZONE",
+            "measurement": "planned_entry_market_path",
+        },
+        "fill_sequence": [],  # لا تعبئات قبل مرحلة التنفيذ (§24 — موثق لا صمت)
+        "position_path": [],
+        "mfe": 0.0,
+        "mae": 0.0,
+        "holding_time": 0.0,
+        "exit_reason": "REJECTED_BY_RISK: مفتاح الإيقاف مفعّل (§22.1 رقم 15)",
+        "gross_pnl": 0.0,
+        "costs": 0.0,
+        "net_pnl": 0.0,
+        "net_r": 0.0,
         "regime": MarketRegime.TREND_PULLBACK,
         "session": SessionType.UTC_DAY,
     }
@@ -307,6 +481,15 @@ def _all_examples() -> list[tuple[str, BaseModel]]:
         ("OrderIntent", make_order_intent()),
         ("SlippageRecord", make_slippage()),
         ("LatencyRecord", make_latency()),
+        ("MacroEventWindow", make_macro_window()),
+        ("EvaluationContext", EvaluationContext()),
+        ("NoTradeExplanation", make_no_trade_explanation()),
+        ("StructuralStop", make_stop()),
+        ("SizingModifier", make_sizing_modifier()),
+        ("SizingResult", make_sizing()),
+        ("CostBreakdown", make_cost_breakdown()),
+        ("RewardRiskEstimate", make_reward_risk()),
+        ("RiskDecision", make_risk_decision()),
         ("ExperienceRecord", make_experience()),
     ]
 
@@ -554,3 +737,125 @@ class TestDerivedAssumptions:
         bar = FootprintBar.model_validate(data)
         assert bar.max_positive_delta_row is None
         assert bar.max_negative_delta_row is None
+
+
+# ─── عقود المخاطرة (§22/§23/§25.2 — المرحلة 8) ───
+
+
+class TestRiskContracts:
+    """عقود المرحلة 8: الحدود والمدققات والعقود المتبادلة."""
+
+    def test_evaluation_context_defaults_are_all_healthy(self) -> None:
+        """السياق الفارغ = سوق صالح تمامًا — أساس حقن الحواجب المستقل."""
+        context = EvaluationContext()
+        assert context.data_quality is DataQuality.HEALTHY
+        assert context.instrument_tradable
+        assert context.venue_healthy
+        assert context.kill_switch is False
+        assert context.embargo_windows == ()
+        assert context.conflicting_scenario_ids == ()
+        assert context.positions_open == 0
+        assert context.session is SessionType.UTC_DAY
+
+    def test_no_trade_explanation_retry_contract(self) -> None:
+        """§22.3: السماح بلا شرط مرفوض، والمنع مع شرط مرفوض."""
+        with pytest.raises(ValidationError, match="retry_condition"):
+            make_no_trade_explanation(
+                whether_retry_is_allowed=True,
+                retry_condition=None,
+            )
+        with pytest.raises(ValidationError, match="retry_condition"):
+            make_no_trade_explanation(
+                whether_retry_is_allowed=False,
+                retry_condition="عودة الجودة إلى HEALTHY",
+            )
+
+    def test_no_trade_explanation_requires_triggering_conditions(self) -> None:
+        with pytest.raises(ValidationError, match="triggering_conditions"):
+            make_no_trade_explanation(triggering_conditions="  ")
+
+    def test_sizing_modifier_never_raises_size(self) -> None:
+        """المعدل ∈ (0, 1] — لا رفع للتحجيم أبدًا (بوابة الخروج 8)."""
+        with pytest.raises(ValidationError, match="خارج"):
+            make_sizing_modifier(multiplier=1.2)
+        with pytest.raises(ValidationError, match="خارج"):
+            make_sizing_modifier(multiplier=0.0)
+
+    def test_sizing_result_risk_never_exceeds_budget(self) -> None:
+        """الخاصية المركزية 8.3: الخطر الناتج ≤ الميزانية — مرفوض بنيويًا."""
+        with pytest.raises(ValidationError, match="يتجاوز الميزانية"):
+            make_sizing(resulting_risk_money=150.0)
+
+    def test_sizing_result_position_within_caps(self) -> None:
+        with pytest.raises(ValidationError, match="سقف الأداة"):
+            make_sizing(position_size=3.0)
+        with pytest.raises(ValidationError, match="سعة المحفظة"):
+            make_sizing(position_size=6.0, instrument_cap=10.0)
+
+    def test_cost_breakdown_decomposition_identity(self) -> None:
+        """§25.2: الصافي = الإجمالي − المكونات الخمسة — محقاة إلزامية."""
+        with pytest.raises(ValidationError, match="غير متطابق"):
+            make_cost_breakdown(net_trading_edge=999.0)
+        breakdown = make_cost_breakdown()
+        total = (
+            breakdown.spread
+            + breakdown.commission
+            + breakdown.slippage
+            + breakdown.funding_financing
+            + breakdown.other_execution_costs
+        )
+        assert abs(breakdown.net_trading_edge - (breakdown.gross_price_edge - total)) < 1e-9
+
+    def test_reward_risk_components_match_breakdown(self) -> None:
+        """مكونات §23.5 = تحلل §25.2 — حساب واحد لا حسابان."""
+        mismatched = make_cost_breakdown(
+            spread=50.0,
+            net_trading_edge=850.0 - (50.0 + 9.6 + 24.0 + 3.2 + 8.0),
+        )
+        with pytest.raises(ValidationError, match="لا تطابق تحلل"):
+            make_reward_risk(breakdown=mismatched)
+
+    def test_risk_decision_approved_requires_completeness(self) -> None:
+        """الترخيص اكتمال: كل الأجزاء حاضرة ولا حواجب ولا أساس رفض."""
+        with pytest.raises(ValidationError, match="ناقص الأجزاء"):
+            make_risk_decision(
+                approved=True,
+                rejection_basis=None,
+                hard_blocks=(),
+                sizing=None,  # جزء غائب — الترخيص ناقص
+                reward_risk=make_reward_risk(),
+                order_intent=make_order_intent(),
+                explanation=make_explanation(rejected=False),
+            )
+        complete = make_risk_decision(
+            approved=True,
+            rejection_basis=None,
+            hard_blocks=(),
+            sizing=make_sizing(),
+            reward_risk=make_reward_risk(),
+            order_intent=make_order_intent(),
+            explanation=make_explanation(rejected=False),
+        )
+        assert complete.approved
+
+    def test_risk_decision_rejected_requires_basis_and_no_intent(self) -> None:
+        with pytest.raises(ValidationError, match="بلا أساس"):
+            make_risk_decision(rejection_basis=None)
+        with pytest.raises(ValidationError, match="نية أمر"):
+            make_risk_decision(order_intent=make_order_intent())
+
+    def test_macro_window_high_impact_and_blocks(self) -> None:
+        """§17.3: HIGH وحده عالي الأثر والنافذة مغلقة الطرفين."""
+        window = make_macro_window()
+        assert window.high_impact
+        assert window.blocks(_dt(minute=20))  # داخل نافذة ما قبل الحدث
+        assert not window.blocks(_dt(minute=50))  # بعد انقضاء النافذة
+        low = make_macro_window(importance="MEDIUM")
+        assert not low.high_impact
+        assert not low.blocks(_dt(minute=20))  # غير عالي الأثر لا يحجب أبدًا
+
+    def test_experience_record_risk_snapshot_is_typed(self) -> None:
+        """شد المرحلة 8: risk_snapshot قرار مخاطرة نموذجي لا dict خام."""
+        record = make_experience()
+        assert isinstance(record.risk_snapshot, RiskDecision)
+        assert not record.risk_snapshot.approved

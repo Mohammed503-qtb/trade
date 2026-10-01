@@ -1,0 +1,150 @@
+{
+  "$defs": {
+    "CostBreakdown": {
+      "additionalProperties": false,
+      "description": "تحلل التكلفة (§25.2 حرفيًا) — «Post-trade P&L must be decomposed\ninto» والتحلل هنا التقديري قبلها بوحدات السعر لكل وحدة أصل، ذهابًا\nوإيابًا، بنمط تكلفة معلن (§25.1).\n\nالمتطابقة محقاة في النموذج: net_trading_edge = gross − مجموع\nالمكونات الخمسة — أي انحراف رفض صاخب لا تقريب صامت.",
+      "properties": {
+        "commission": {
+          "minimum": 0.0,
+          "title": "Commission",
+          "type": "number"
+        },
+        "cost_mode": {
+          "$ref": "#/$defs/CostMode"
+        },
+        "funding_financing": {
+          "minimum": 0.0,
+          "title": "Funding Financing",
+          "type": "number"
+        },
+        "gross_price_edge": {
+          "minimum": 0.0,
+          "title": "Gross Price Edge",
+          "type": "number"
+        },
+        "net_trading_edge": {
+          "title": "Net Trading Edge",
+          "type": "number"
+        },
+        "other_execution_costs": {
+          "minimum": 0.0,
+          "title": "Other Execution Costs",
+          "type": "number"
+        },
+        "slippage": {
+          "minimum": 0.0,
+          "title": "Slippage",
+          "type": "number"
+        },
+        "spread": {
+          "minimum": 0.0,
+          "title": "Spread",
+          "type": "number"
+        }
+      },
+      "required": [
+        "cost_mode",
+        "gross_price_edge",
+        "spread",
+        "commission",
+        "slippage",
+        "funding_financing",
+        "other_execution_costs",
+        "net_trading_edge"
+      ],
+      "title": "CostBreakdown",
+      "type": "object"
+    },
+    "CostMode": {
+      "description": "أنماط التكلفة الثلاثة (§25.1 حرفيًا).\n\n«A strategy cannot pass production gates based only on optimistic\ncosts» — REALISTIC وحده نمط القبول؛ OPTIMISTIC تشخيصي وSTRESS\nلفحص المتانة.",
+      "enum": [
+        "OPTIMISTIC",
+        "REALISTIC",
+        "STRESS"
+      ],
+      "title": "CostMode",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "description": "تقدير المكافأة/المخاطرة (§23.5 حرفيًا) — المكونات السبعة وR الصافية.\n\n«The engine computes: gross target distance; expected slippage;\ncommission/fee; spread cost; expected adverse selection; partial-\nfill risk; estimated net R» — و«A setup can be rejected because the\ngross target is large but cost-adjusted edge is insufficient»:\nالرفض قرار كمي على estimated_net_r مقابل الحد الأدنى الإعدادي.",
+  "properties": {
+    "breakdown": {
+      "$ref": "#/$defs/CostBreakdown"
+    },
+    "commission_fee": {
+      "minimum": 0.0,
+      "title": "Commission Fee",
+      "type": "number"
+    },
+    "cost_mode": {
+      "$ref": "#/$defs/CostMode"
+    },
+    "entry_reference": {
+      "exclusiveMinimum": 0.0,
+      "title": "Entry Reference",
+      "type": "number"
+    },
+    "estimated_net_r": {
+      "title": "Estimated Net R",
+      "type": "number"
+    },
+    "expected_adverse_selection": {
+      "minimum": 0.0,
+      "title": "Expected Adverse Selection",
+      "type": "number"
+    },
+    "expected_slippage": {
+      "minimum": 0.0,
+      "title": "Expected Slippage",
+      "type": "number"
+    },
+    "gross_r": {
+      "minimum": 0.0,
+      "title": "Gross R",
+      "type": "number"
+    },
+    "gross_target_distance": {
+      "minimum": 0.0,
+      "title": "Gross Target Distance",
+      "type": "number"
+    },
+    "partial_fill_risk": {
+      "minimum": 0.0,
+      "title": "Partial Fill Risk",
+      "type": "number"
+    },
+    "spread_cost": {
+      "minimum": 0.0,
+      "title": "Spread Cost",
+      "type": "number"
+    },
+    "stop_distance": {
+      "exclusiveMinimum": 0.0,
+      "title": "Stop Distance",
+      "type": "number"
+    },
+    "target_level": {
+      "exclusiveMinimum": 0.0,
+      "title": "Target Level",
+      "type": "number"
+    }
+  },
+  "required": [
+    "cost_mode",
+    "target_level",
+    "entry_reference",
+    "stop_distance",
+    "gross_target_distance",
+    "expected_slippage",
+    "commission_fee",
+    "spread_cost",
+    "expected_adverse_selection",
+    "partial_fill_risk",
+    "estimated_net_r",
+    "gross_r",
+    "breakdown"
+  ],
+  "title": "RewardRiskEstimate",
+  "type": "object"
+}

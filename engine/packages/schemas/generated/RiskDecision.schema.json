@@ -65,22 +65,6 @@
       "title": "CostMode",
       "type": "string"
     },
-    "DataQuality": {
-      "description": "حالات جودة البيانات التسع لكل شريحة أداة/زمن (§7.4).\n\nفقط HEALTHY وDELAYED (بموافقة صريحة) يصلان معالجة القرار العادية.",
-      "enum": [
-        "HEALTHY",
-        "DELAYED",
-        "PARTIAL",
-        "DUPLICATED",
-        "OUT_OF_ORDER",
-        "STALE",
-        "GAP_DETECTED",
-        "UNAVAILABLE",
-        "QUARANTINED"
-      ],
-      "title": "DataQuality",
-      "type": "string"
-    },
     "Direction": {
       "description": "الاتجاه الاتجاهي المثالث — LONG/SHORT وFLAT للحياد الصريح.",
       "enum": [
@@ -90,179 +74,6 @@
       ],
       "title": "Direction",
       "type": "string"
-    },
-    "EventType": {
-      "description": "قاموس الأحداث الإنتاجي الأولي (§20 حرفيًا — 45 نوعًا).\n\nلا يُختلق نوع حدث خارج هذا القاموس؛ الأوزان الافتراضية المرافقة في\nDEFAULT_EVENT_WEIGHTS أدناه منقولة من عمود Weight في §20.\nالأنواع الأربعة الأخيرة (None) ليست دليلًا اتجاهيًا بل حجبًا صلبًا (§22).",
-      "enum": [
-        "HTF_BULLISH",
-        "HTF_BEARISH",
-        "INTERNAL_BOS",
-        "EXTERNAL_BOS",
-        "CHOCH",
-        "DISPLACEMENT_UP",
-        "DISPLACEMENT_DOWN",
-        "LIQUIDITY_SWEEP_HIGH",
-        "LIQUIDITY_SWEEP_LOW",
-        "BREAK_AND_ACCEPT_HIGH",
-        "BREAK_AND_ACCEPT_LOW",
-        "ABSORPTION_BUY",
-        "ABSORPTION_SELL",
-        "FLOW_CONTINUATION_UP",
-        "FLOW_CONTINUATION_DOWN",
-        "EXHAUSTION_UP",
-        "EXHAUSTION_DOWN",
-        "FVG_BULLISH",
-        "FVG_BEARISH",
-        "ORDER_BLOCK_BULLISH",
-        "ORDER_BLOCK_BEARISH",
-        "PREMIUM_LOCATION",
-        "DISCOUNT_LOCATION",
-        "POC_ACCEPTANCE",
-        "POC_REJECTION",
-        "VAH_REJECTION",
-        "VAL_REJECTION",
-        "BUY_IMBALANCE_CLUSTER",
-        "SELL_IMBALANCE_CLUSTER",
-        "BULLISH_ENGULFING",
-        "BEARISH_ENGULFING",
-        "REJECTION_CANDLE",
-        "INSIDE_BAR_BREAK",
-        "CLASSICAL_BREAKOUT",
-        "CLASSICAL_FAILED_BREAKOUT",
-        "HARMONIC_COMPLETION",
-        "RANGE_COMPRESSION",
-        "RANGE_EXPANSION",
-        "SESSION_OPENING_DRIVE",
-        "SESSION_REVERSAL",
-        "MACRO_HIGH_IMPACT_NEAR",
-        "DATA_STALE",
-        "SPREAD_EXTREME",
-        "LATENCY_EXTREME",
-        "RISK_LIMIT_REACHED"
-      ],
-      "title": "EventType",
-      "type": "string"
-    },
-    "EvidenceGroup": {
-      "description": "مجموعات الدليل الست (§19.3) — تجميع لتجنب العد المزدوج (§2.3).",
-      "enum": [
-        "STRUCTURE",
-        "LIQUIDITY_LOCATION",
-        "ORDER_FLOW",
-        "PRICE_ACTION",
-        "VOLATILITY_SESSION",
-        "MACRO"
-      ],
-      "title": "EvidenceGroup",
-      "type": "string"
-    },
-    "EvidenceRecord": {
-      "additionalProperties": false,
-      "description": "سجل دليل واحد — مجمّد ويمنع الحقول الغريبة (عقد §19.1).",
-      "properties": {
-        "context_modifier": {
-          "title": "Context Modifier",
-          "type": "number"
-        },
-        "correlation_group_id": {
-          "anyOf": [
-            {
-              "type": "string"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "default": null,
-          "title": "Correlation Group Id"
-        },
-        "direction_score": {
-          "maximum": 1.0,
-          "minimum": -1.0,
-          "title": "Direction Score",
-          "type": "number"
-        },
-        "event_id": {
-          "anyOf": [
-            {
-              "type": "string"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "default": null,
-          "title": "Event Id"
-        },
-        "event_time": {
-          "format": "date-time",
-          "title": "Event Time",
-          "type": "string"
-        },
-        "event_type": {
-          "$ref": "#/$defs/EventType"
-        },
-        "evidence_id": {
-          "title": "Evidence Id",
-          "type": "string"
-        },
-        "freshness": {
-          "maximum": 1.0,
-          "minimum": 0.0,
-          "title": "Freshness",
-          "type": "number"
-        },
-        "group": {
-          "$ref": "#/$defs/EvidenceGroup"
-        },
-        "independence_discount": {
-          "maximum": 1.0,
-          "minimum": 0.0,
-          "title": "Independence Discount",
-          "type": "number"
-        },
-        "opposition": {
-          "title": "Opposition",
-          "type": "boolean"
-        },
-        "prior_weight": {
-          "title": "Prior Weight",
-          "type": "number"
-        },
-        "quality": {
-          "maximum": 1.0,
-          "minimum": 0.0,
-          "title": "Quality",
-          "type": "number"
-        },
-        "raw_strength": {
-          "maximum": 1.0,
-          "minimum": 0.0,
-          "title": "Raw Strength",
-          "type": "number"
-        },
-        "source": {
-          "title": "Source",
-          "type": "string"
-        }
-      },
-      "required": [
-        "evidence_id",
-        "group",
-        "event_type",
-        "direction_score",
-        "raw_strength",
-        "quality",
-        "freshness",
-        "independence_discount",
-        "prior_weight",
-        "context_modifier",
-        "opposition",
-        "source",
-        "event_time"
-      ],
-      "title": "EvidenceRecord",
-      "type": "object"
     },
     "ExplanationObject": {
       "additionalProperties": false,
@@ -337,18 +148,6 @@
       "title": "ExplanationObject",
       "type": "object"
     },
-    "HTFBias": {
-      "description": "انحياز الإطار الأعلى كحالة موضعية (§9.2) — دليل سياقي لا مشغّل تداول.",
-      "enum": [
-        "BULLISH",
-        "BEARISH",
-        "NEUTRAL",
-        "TRANSITION",
-        "UNKNOWN"
-      ],
-      "title": "HTFBias",
-      "type": "string"
-    },
     "HardBlockReason": {
       "description": "أسباب الحجب الصلب الخمسة عشر (§22.1 حرفيًا — بترقيم الخطة).\n\nأي سبب منها يمنع دخولًا جديدًا مهما بدت الدرجة الاتجاهية جذابة (§2.4).\nالنص الإنجليزي الأصلي مثبت كتعليق فوق كل عضو.",
       "enum": [
@@ -370,93 +169,6 @@
       ],
       "title": "HardBlockReason",
       "type": "string"
-    },
-    "InvalidationRule": {
-      "additionalProperties": false,
-      "description": "قاعدة الإبطال (§18.5 و§23.4): مستوى بنية + عازلة تقلب + شرط القبول.\n\naccept_through=True يعني أن الإبطال يتطلب قبولًا عبر المستوى (إغلاقًا)\nلا مجرد اختراق بفتيل؛ العازلة من بنية التقلب لا من رقم نقاط كوني (§23.4).",
-      "properties": {
-        "accept_through": {
-          "title": "Accept Through",
-          "type": "boolean"
-        },
-        "structural_level": {
-          "exclusiveMinimum": 0.0,
-          "title": "Structural Level",
-          "type": "number"
-        },
-        "volatility_buffer": {
-          "minimum": 0.0,
-          "title": "Volatility Buffer",
-          "type": "number"
-        }
-      },
-      "required": [
-        "structural_level",
-        "volatility_buffer",
-        "accept_through"
-      ],
-      "title": "InvalidationRule",
-      "type": "object"
-    },
-    "MarketRegime": {
-      "description": "تصنيف نظام السوق (§9.3) — القيم الثماني حرفيًا.",
-      "enum": [
-        "TREND_EXPANSION",
-        "TREND_PULLBACK",
-        "RANGE_BALANCE",
-        "RANGE_EXPANSION",
-        "COMPRESSION",
-        "VOLATILITY_SHOCK",
-        "TRANSITION",
-        "UNKNOWN"
-      ],
-      "title": "MarketRegime",
-      "type": "string"
-    },
-    "MarketStateSnapshot": {
-      "additionalProperties": false,
-      "description": "لقطة حالة السوق المبثوثة (مثال §32 حرفيًا).\n\nسياق للقرار لا إشارة بذاتها: النظام والانحياز والتقلب والجودة عند لحظة.",
-      "properties": {
-        "data_quality": {
-          "$ref": "#/$defs/DataQuality"
-        },
-        "event_time": {
-          "format": "date-time",
-          "title": "Event Time",
-          "type": "string"
-        },
-        "htf_bias": {
-          "$ref": "#/$defs/HTFBias"
-        },
-        "instrument": {
-          "title": "Instrument",
-          "type": "string"
-        },
-        "regime": {
-          "$ref": "#/$defs/MarketRegime"
-        },
-        "timeframe": {
-          "title": "Timeframe",
-          "type": "string"
-        },
-        "volatility_percentile": {
-          "maximum": 100.0,
-          "minimum": 0.0,
-          "title": "Volatility Percentile",
-          "type": "number"
-        }
-      },
-      "required": [
-        "instrument",
-        "timeframe",
-        "event_time",
-        "regime",
-        "htf_bias",
-        "volatility_percentile",
-        "data_quality"
-      ],
-      "title": "MarketStateSnapshot",
-      "type": "object"
     },
     "NoTradeExplanation": {
       "additionalProperties": false,
@@ -730,300 +442,6 @@
       "title": "RewardRiskEstimate",
       "type": "object"
     },
-    "RiskDecision": {
-      "additionalProperties": false,
-      "description": "القرار النهائي وكل بواباته (§31.3 «Final decision object and all\ngates») — مخرج وحدة المخاطرة الوحيد لكل سيناريو TRIGGERED.\n\nالقرار إما ترخيص (مع نية أمر §24.1 كاملة) وإما رفض موثق الأساس\nبتفسير §22.3 لكل سبب — لا حالة بين بين. التفسير §2.8 مرافق إلزامي\nبتقدير تكاليف مسدد (وعد المرحلة 6) وسبب رفض عند الرفض حصرًا.",
-      "properties": {
-        "approved": {
-          "title": "Approved",
-          "type": "boolean"
-        },
-        "decided_at": {
-          "format": "date-time",
-          "title": "Decided At",
-          "type": "string"
-        },
-        "decision_id": {
-          "title": "Decision Id",
-          "type": "string"
-        },
-        "direction": {
-          "$ref": "#/$defs/Direction"
-        },
-        "explanation": {
-          "$ref": "#/$defs/ExplanationObject"
-        },
-        "hard_blocks": {
-          "items": {
-            "$ref": "#/$defs/NoTradeExplanation"
-          },
-          "title": "Hard Blocks",
-          "type": "array"
-        },
-        "order_intent": {
-          "anyOf": [
-            {
-              "$ref": "#/$defs/OrderIntent"
-            },
-            {
-              "type": "null"
-            }
-          ]
-        },
-        "parameter_fingerprint": {
-          "title": "Parameter Fingerprint",
-          "type": "string"
-        },
-        "rejection_basis": {
-          "anyOf": [
-            {
-              "$ref": "#/$defs/RejectionBasis"
-            },
-            {
-              "type": "null"
-            }
-          ]
-        },
-        "reward_risk": {
-          "anyOf": [
-            {
-              "$ref": "#/$defs/RewardRiskEstimate"
-            },
-            {
-              "type": "null"
-            }
-          ]
-        },
-        "scenario_id": {
-          "title": "Scenario Id",
-          "type": "string"
-        },
-        "sizing": {
-          "anyOf": [
-            {
-              "$ref": "#/$defs/SizingResult"
-            },
-            {
-              "type": "null"
-            }
-          ]
-        },
-        "soft_suppressions": {
-          "items": {
-            "$ref": "#/$defs/NoTradeExplanation"
-          },
-          "title": "Soft Suppressions",
-          "type": "array"
-        },
-        "soft_total": {
-          "minimum": 0.0,
-          "title": "Soft Total",
-          "type": "number"
-        },
-        "stop": {
-          "anyOf": [
-            {
-              "$ref": "#/$defs/StructuralStop"
-            },
-            {
-              "type": "null"
-            }
-          ]
-        },
-        "symbol": {
-          "title": "Symbol",
-          "type": "string"
-        }
-      },
-      "required": [
-        "decision_id",
-        "scenario_id",
-        "symbol",
-        "direction",
-        "decided_at",
-        "approved",
-        "rejection_basis",
-        "hard_blocks",
-        "soft_suppressions",
-        "soft_total",
-        "stop",
-        "sizing",
-        "reward_risk",
-        "order_intent",
-        "explanation",
-        "parameter_fingerprint"
-      ],
-      "title": "RiskDecision",
-      "type": "object"
-    },
-    "Scenario": {
-      "additionalProperties": false,
-      "description": "السيناريو (§18.1 حرفيًا) — تفسير منافس لحالة السوق لا اتجاهًا مفروضًا.\n\nscenario_score درجة دليل خام بنطاق [0, 1] وليست احتمالًا (§2.6)؛\ncalibrated_probability لا تظهر إلا بعد معاير صريح على بيانات خارج\nالعينة (§19.6) وتتبَّع بالنظام.",
-      "properties": {
-        "calibrated_probability": {
-          "anyOf": [
-            {
-              "maximum": 1.0,
-              "minimum": 0.0,
-              "type": "number"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "default": null,
-          "title": "Calibrated Probability"
-        },
-        "context_snapshot": {
-          "$ref": "#/$defs/MarketStateSnapshot"
-        },
-        "direction": {
-          "$ref": "#/$defs/Direction"
-        },
-        "entry_zone": {
-          "$ref": "#/$defs/PriceZone"
-        },
-        "expiry_time": {
-          "format": "date-time",
-          "title": "Expiry Time",
-          "type": "string"
-        },
-        "invalidation": {
-          "$ref": "#/$defs/InvalidationRule"
-        },
-        "location_snapshot": {
-          "additionalProperties": true,
-          "title": "Location Snapshot",
-          "type": "object"
-        },
-        "opposing_evidence": {
-          "items": {
-            "type": "string"
-          },
-          "title": "Opposing Evidence",
-          "type": "array"
-        },
-        "primary_targets": {
-          "items": {
-            "$ref": "#/$defs/TargetZone"
-          },
-          "title": "Primary Targets",
-          "type": "array"
-        },
-        "proposed_from_event_id": {
-          "title": "Proposed From Event Id",
-          "type": "string"
-        },
-        "regime": {
-          "$ref": "#/$defs/MarketRegime"
-        },
-        "scenario_id": {
-          "title": "Scenario Id",
-          "type": "string"
-        },
-        "scenario_score": {
-          "maximum": 1.0,
-          "minimum": 0.0,
-          "title": "Scenario Score",
-          "type": "number"
-        },
-        "secondary_targets": {
-          "items": {
-            "$ref": "#/$defs/TargetZone"
-          },
-          "title": "Secondary Targets",
-          "type": "array"
-        },
-        "state": {
-          "$ref": "#/$defs/ScenarioState"
-        },
-        "supporting_evidence": {
-          "items": {
-            "type": "string"
-          },
-          "title": "Supporting Evidence",
-          "type": "array"
-        },
-        "symbol": {
-          "title": "Symbol",
-          "type": "string"
-        },
-        "template": {
-          "$ref": "#/$defs/ScenarioTemplate"
-        },
-        "thesis": {
-          "title": "Thesis",
-          "type": "string"
-        },
-        "trigger_definition": {
-          "$ref": "#/$defs/TriggerDefinition"
-        }
-      },
-      "required": [
-        "scenario_id",
-        "symbol",
-        "direction",
-        "regime",
-        "context_snapshot",
-        "location_snapshot",
-        "thesis",
-        "supporting_evidence",
-        "opposing_evidence",
-        "trigger_definition",
-        "entry_zone",
-        "invalidation",
-        "primary_targets",
-        "secondary_targets",
-        "expiry_time",
-        "state",
-        "scenario_score",
-        "template",
-        "proposed_from_event_id"
-      ],
-      "title": "Scenario",
-      "type": "object"
-    },
-    "ScenarioState": {
-      "description": "دورة حياة السيناريو (§18.2) — السبعة الأساسية + النهايات الخمس البديلة.\n\nالدرب الأساسي: DRAFT → ACTIVE → TRIGGERED → AUTHORIZED → EXECUTING →\nIN_TRADE → COMPLETED. النهايات البديلة: INVALIDATED/EXPIRED/SUPPRESSED/\nREJECTED_BY_RISK/CANCELLED_BY_DATA_QUALITY (12 حالة إجمالًا).",
-      "enum": [
-        "DRAFT",
-        "ACTIVE",
-        "TRIGGERED",
-        "AUTHORIZED",
-        "EXECUTING",
-        "IN_TRADE",
-        "COMPLETED",
-        "INVALIDATED",
-        "EXPIRED",
-        "SUPPRESSED",
-        "REJECTED_BY_RISK",
-        "CANCELLED_BY_DATA_QUALITY"
-      ],
-      "title": "ScenarioState",
-      "type": "string"
-    },
-    "ScenarioTemplate": {
-      "description": "قوالب السيناريو الثلاثة (§21.2 حرفيًا) — هوية مقترح D-04.\n\n«These are scenario templates, not hard-coded universal truths» — القالب\nسلسلة سببية موثقة تُستنسخ عند حدث مؤكد فوق موقع سيولة مرسوم، لا\nقاعدة تحكم جامدة.",
-      "enum": [
-        "REVERSAL",
-        "CONTINUATION",
-        "BREAKOUT"
-      ],
-      "title": "ScenarioTemplate",
-      "type": "string"
-    },
-    "SessionType": {
-      "description": "أنواع الجلسات (§9.4 + قرار A-03 في plan_review).\n\n§9.4 لا يعطي قيمًا حرفية؛ A-03 يحسم: الجلسة = حدود يوم UTC (UTC_DAY)\n+ ساعات سياق سلوكي اختيارية (آسيا/أوروبا/أمريكا) + نوافذ صيانة المنصة.\nالجلسة بيانات سياقية لا إشارة اتجاه بذاتها.",
-      "enum": [
-        "UTC_DAY",
-        "ASIA",
-        "EUROPE",
-        "AMERICA",
-        "MAINTENANCE"
-      ],
-      "title": "SessionType",
-      "type": "string"
-    },
     "SizingCapBasis": {
       "description": "أي السقوف المطلقة قيّدت الحجم (§23.2 «capped by absolute\nportfolio and instrument limits»).\n\nNONE: لم يقيّد سقف الحجم — المعدلات وحدها خفضته أو تركته.",
       "enum": [
@@ -1240,129 +658,130 @@
       ],
       "title": "TargetZone",
       "type": "object"
-    },
-    "TriggerDefinition": {
-      "additionalProperties": false,
-      "description": "مشغل قابل للرصد — وصف هيكلي (condition_type + params) يفحصه المحرك.\n\nمثال: condition_type=\"ZONE_RECLAIM\"، params={\"zone_id\": ..., \"timeframe\": \"1m\"}.\nالسيناريو لا يصبح TRIGGERED إلا برصد هذا المشغل فعليًا (§18.4).",
-      "properties": {
-        "condition_type": {
-          "title": "Condition Type",
-          "type": "string"
-        },
-        "params": {
-          "additionalProperties": true,
-          "title": "Params",
-          "type": "object"
-        }
-      },
-      "required": [
-        "condition_type",
-        "params"
-      ],
-      "title": "TriggerDefinition",
-      "type": "object"
     }
   },
   "additionalProperties": false,
-  "description": "سجل تجربة واحدة بعد إغلاق الصفقة (§29.1 حرفيًا — 17 حقلًا).\n\nاللقطات الأربع الأولى تلتقط الحالة وقت القرار: حالة السوق والسيناريو\nوالدليل مكتوبة النموذج؛ ``risk_snapshot`` شُدّد إلى ``RiskDecision``\nفي المرحلة 8 (الوعد الموثق أعلاه — لا فجوة)، فيما تبقى\n``execution_snapshot`` و``fill_sequence`` و``position_path`` حقول\nJSONB حتى مرحلة التنفيذ (§24 — المرحلة 11) عمدًا موثقًا.\n``mfe/mae`` بمضاعفات R من مسار الدخول الفعلي (§23.1، §29.2)؛ في سجلات\nالسيناريو (MVP — صف-لكل-سيناريو §31.5) تُقاس من الدخول المخطط عبر\nمسار السوق بعد الاشتعال بأساس موثق داخل ``execution_snapshot``.\n``holding_time`` بالثواني.",
+  "description": "القرار النهائي وكل بواباته (§31.3 «Final decision object and all\ngates») — مخرج وحدة المخاطرة الوحيد لكل سيناريو TRIGGERED.\n\nالقرار إما ترخيص (مع نية أمر §24.1 كاملة) وإما رفض موثق الأساس\nبتفسير §22.3 لكل سبب — لا حالة بين بين. التفسير §2.8 مرافق إلزامي\nبتقدير تكاليف مسدد (وعد المرحلة 6) وسبب رفض عند الرفض حصرًا.",
   "properties": {
-    "costs": {
-      "minimum": 0.0,
-      "title": "Costs",
-      "type": "number"
+    "approved": {
+      "title": "Approved",
+      "type": "boolean"
     },
-    "evidence_snapshot": {
-      "items": {
-        "$ref": "#/$defs/EvidenceRecord"
-      },
-      "title": "Evidence Snapshot",
-      "type": "array"
-    },
-    "execution_snapshot": {
-      "additionalProperties": true,
-      "title": "Execution Snapshot",
-      "type": "object"
-    },
-    "exit_reason": {
-      "title": "Exit Reason",
+    "decided_at": {
+      "format": "date-time",
+      "title": "Decided At",
       "type": "string"
     },
-    "fill_sequence": {
+    "decision_id": {
+      "title": "Decision Id",
+      "type": "string"
+    },
+    "direction": {
+      "$ref": "#/$defs/Direction"
+    },
+    "explanation": {
+      "$ref": "#/$defs/ExplanationObject"
+    },
+    "hard_blocks": {
       "items": {
-        "additionalProperties": true,
-        "type": "object"
+        "$ref": "#/$defs/NoTradeExplanation"
       },
-      "title": "Fill Sequence",
+      "title": "Hard Blocks",
       "type": "array"
     },
-    "gross_pnl": {
-      "title": "Gross Pnl",
-      "type": "number"
+    "order_intent": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/OrderIntent"
+        },
+        {
+          "type": "null"
+        }
+      ]
     },
-    "holding_time": {
+    "parameter_fingerprint": {
+      "title": "Parameter Fingerprint",
+      "type": "string"
+    },
+    "rejection_basis": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/RejectionBasis"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "reward_risk": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/RewardRiskEstimate"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "scenario_id": {
+      "title": "Scenario Id",
+      "type": "string"
+    },
+    "sizing": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/SizingResult"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "soft_suppressions": {
+      "items": {
+        "$ref": "#/$defs/NoTradeExplanation"
+      },
+      "title": "Soft Suppressions",
+      "type": "array"
+    },
+    "soft_total": {
       "minimum": 0.0,
-      "title": "Holding Time",
+      "title": "Soft Total",
       "type": "number"
     },
-    "mae": {
-      "title": "Mae",
-      "type": "number"
+    "stop": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/StructuralStop"
+        },
+        {
+          "type": "null"
+        }
+      ]
     },
-    "market_state_snapshot": {
-      "$ref": "#/$defs/MarketStateSnapshot"
-    },
-    "mfe": {
-      "title": "Mfe",
-      "type": "number"
-    },
-    "net_pnl": {
-      "title": "Net Pnl",
-      "type": "number"
-    },
-    "net_r": {
-      "title": "Net R",
-      "type": "number"
-    },
-    "position_path": {
-      "items": {
-        "additionalProperties": true,
-        "type": "object"
-      },
-      "title": "Position Path",
-      "type": "array"
-    },
-    "regime": {
-      "$ref": "#/$defs/MarketRegime"
-    },
-    "risk_snapshot": {
-      "$ref": "#/$defs/RiskDecision"
-    },
-    "scenario_snapshot": {
-      "$ref": "#/$defs/Scenario"
-    },
-    "session": {
-      "$ref": "#/$defs/SessionType"
+    "symbol": {
+      "title": "Symbol",
+      "type": "string"
     }
   },
   "required": [
-    "market_state_snapshot",
-    "scenario_snapshot",
-    "evidence_snapshot",
-    "risk_snapshot",
-    "execution_snapshot",
-    "fill_sequence",
-    "position_path",
-    "mfe",
-    "mae",
-    "holding_time",
-    "exit_reason",
-    "gross_pnl",
-    "costs",
-    "net_pnl",
-    "net_r",
-    "regime",
-    "session"
+    "decision_id",
+    "scenario_id",
+    "symbol",
+    "direction",
+    "decided_at",
+    "approved",
+    "rejection_basis",
+    "hard_blocks",
+    "soft_suppressions",
+    "soft_total",
+    "stop",
+    "sizing",
+    "reward_risk",
+    "order_intent",
+    "explanation",
+    "parameter_fingerprint"
   ],
-  "title": "ExperienceRecord",
+  "title": "RiskDecision",
   "type": "object"
 }

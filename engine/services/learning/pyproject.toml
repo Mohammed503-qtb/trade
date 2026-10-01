@@ -3,7 +3,7 @@ name = "engine-learning"
 version = "0.1.0"
 description = "دفتر التجارب (كتابة §29.1) — التحليلات مؤجلة بعد MVP"
 requires-python = ">=3.12"
-dependencies = ["engine-schemas", "engine-common"]
+dependencies = ["engine-schemas", "engine-common", "asyncpg>=0.29"]
 
 [build-system]
 requires = ["hatchling"]

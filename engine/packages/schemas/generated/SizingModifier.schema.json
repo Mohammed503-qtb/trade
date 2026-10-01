@@ -1,0 +1,39 @@
+{
+  "$defs": {
+    "SizingModifierName": {
+      "description": "معدلات التحجيم الستة (§23.2 حرفيًا بترتيب الخطة).\n\n«Then apply: volatility modifier; liquidity modifier; execution-\nquality modifier; correlation modifier; daily drawdown modifier;\nscenario quality modifier after calibration» — كل معدل يضرب الحجم\nالأساسي، ولا معدل يرفع الأحجام أبدًا (خاصية «الخطر الناتج ≤\nالسقف دائمًا» — بوابة الخروج 8).",
+      "enum": [
+        "VOLATILITY",
+        "LIQUIDITY",
+        "EXECUTION_QUALITY",
+        "CORRELATION",
+        "DAILY_DRAWDOWN",
+        "SCENARIO_QUALITY"
+      ],
+      "title": "SizingModifierName",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "description": "معدل تحجيم واحد — اسمه وقيمته وتوثيق سببه.\n\nالمعدل ∈ (0, 1]: لا معدل يرفع الحجم أبدًا — «الخطر الناتج ≤\nالسقف دائمًا» (بوابة الخروج 8) تُبنى على هذا الحصر.",
+  "properties": {
+    "multiplier": {
+      "title": "Multiplier",
+      "type": "number"
+    },
+    "name": {
+      "$ref": "#/$defs/SizingModifierName"
+    },
+    "rationale": {
+      "title": "Rationale",
+      "type": "string"
+    }
+  },
+  "required": [
+    "name",
+    "multiplier",
+    "rationale"
+  ],
+  "title": "SizingModifier",
+  "type": "object"
+}

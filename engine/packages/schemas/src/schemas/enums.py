@@ -9,6 +9,9 @@
 - EventType — قاموس الأحداث كاملًا (§20) حرفيًا
 - ScenarioState (§18.2) وOrderPolicy (§24.2)
 - HardBlockReason الخمسة عشر (§22.1) وSweepClassification (§10.4)
+- SoftSuppressionReason العشرة وNoTradeSeverity (§22.2/§22.3)
+- CostMode الثلاثة (§25.1) وRejectionBasis وSizingModifierName الستة (§23.2)
+- SizingCapBasis (§23.2 «capped by absolute portfolio and instrument limits»)
 
 الثوابت الرقمية (حصص المجموعات §19.3 وأوزان الأحداث §20) منقولة حرفيًا مع
 تعليق الفقرة — لا قيمة مختلقة هنا أبدًا.
@@ -335,3 +338,102 @@ class HardBlockReason(StrEnum):
     SCENARIO_ALREADY_CONSUMED = "SCENARIO_ALREADY_CONSUMED"
     # 15. The system is in emergency/kill-switch state.
     KILL_SWITCH = "KILL_SWITCH"
+
+
+class SoftSuppressionReason(StrEnum):
+    """الكتمات اللينة العشر (§22.2 حرفيًا — بنص الخطة).
+
+    «The system may also decline when: ...» — ليست رفضًا صلبًا بل كتمًا
+    موزونًا (§8.2 بأوزان إعدادية): تُجمع أوزان المشتعلة منها وتُقارن
+    بعتبة؛ تجاوزها يمنع الدخول بأسباب موثقة كالصلب (§22.3) لكن مع
+    قابلية إعادة المحاولة دائمًا — الظرف يزول بزوال سببه.
+    """
+
+    # 1. price is mid-range with poor location
+    POOR_LOCATION = "POOR_LOCATION"
+    # 2. evidence is weak or highly correlated
+    WEAK_OR_CORRELATED_EVIDENCE = "WEAK_OR_CORRELATED_EVIDENCE"
+    # 3. volatility is too low for the target movement
+    VOLATILITY_TOO_LOW = "VOLATILITY_TOO_LOW"
+    # 4. volatility is too extreme for safe stop placement
+    VOLATILITY_TOO_EXTREME = "VOLATILITY_TOO_EXTREME"
+    # 5. the market is transitioning between regimes
+    REGIME_TRANSITION = "REGIME_TRANSITION"
+    # 6. the target is too close
+    TARGET_TOO_CLOSE = "TARGET_TOO_CLOSE"
+    # 7. the stop is too wide
+    STOP_TOO_WIDE = "STOP_TOO_WIDE"
+    # 8. the setup conflicts with session behavior
+    SESSION_CONFLICT = "SESSION_CONFLICT"
+    # 9. the signal requires chasing an already-expanded move
+    CHASING_EXPANDED_MOVE = "CHASING_EXPANDED_MOVE"
+    # 10. expected holding time exceeds the scalp horizon
+    HORIZON_EXCEEDED = "HORIZON_EXCEEDED"
+
+
+class NoTradeSeverity(StrEnum):
+    """شدة سبب عدم التداول (§22.3 «severity») — صلب أو لين.
+
+    الصلب (§22.1): أي حاجب يمنع الدخول منعًا قاطعًا مهما بدت الدرجة
+    جذابة. اللين (§22.2): كتم موزون يُجمع مع نظائره قبل الحسم.
+    """
+
+    HARD = "HARD"
+    SOFT = "SOFT"
+
+
+class CostMode(StrEnum):
+    """أنماط التكلفة الثلاثة (§25.1 حرفيًا).
+
+    «A strategy cannot pass production gates based only on optimistic
+    costs» — REALISTIC وحده نمط القبول؛ OPTIMISTIC تشخيصي وSTRESS
+    لفحص المتانة.
+    """
+
+    OPTIMISTIC = "OPTIMISTIC"  # تشخيصي فقط — لا قبول إنتاجي به أبدًا
+    REALISTIC = "REALISTIC"  # نمط القبول (acceptance mode)
+    STRESS = "STRESS"  # نمط المتانة (robustness mode)
+
+
+class RejectionBasis(StrEnum):
+    """أسس رفض القرار الثلاثة — تصنيف سبب الرفض في كائن القرار.
+
+    §22.1 و§22.2 يبقيان حرفيين في أكوادهما؛ رفض «الحافة الصافية
+    غير كافية» (§23.5: «A setup can be rejected because the gross
+    target is large but cost-adjusted edge is insufficient») أساس
+    ثالث مستقل لأنه قرار كمي بعد التحجيم والتكاليف لا حاجب حالة.
+    """
+
+    HARD_BLOCK = "HARD_BLOCK"  # حاجب صلب §22.1 (واحد فأكثر)
+    SOFT_SUPPRESSED = "SOFT_SUPPRESSED"  # كتم لين موزون تجاوز العتبة §22.2
+    NET_EDGE_INSUFFICIENT = "NET_EDGE_INSUFFICIENT"  # حافة صافية غير كافية §23.5
+
+
+class SizingModifierName(StrEnum):
+    """معدلات التحجيم الستة (§23.2 حرفيًا بترتيب الخطة).
+
+    «Then apply: volatility modifier; liquidity modifier; execution-
+    quality modifier; correlation modifier; daily drawdown modifier;
+    scenario quality modifier after calibration» — كل معدل يضرب الحجم
+    الأساسي، ولا معدل يرفع الأحجام أبدًا (خاصية «الخطر الناتج ≤
+    السقف دائمًا» — بوابة الخروج 8).
+    """
+
+    VOLATILITY = "VOLATILITY"
+    LIQUIDITY = "LIQUIDITY"
+    EXECUTION_QUALITY = "EXECUTION_QUALITY"
+    CORRELATION = "CORRELATION"
+    DAILY_DRAWDOWN = "DAILY_DRAWDOWN"
+    SCENARIO_QUALITY = "SCENARIO_QUALITY"
+
+
+class SizingCapBasis(StrEnum):
+    """أي السقوف المطلقة قيّدت الحجم (§23.2 «capped by absolute
+    portfolio and instrument limits»).
+
+    NONE: لم يقيّد سقف الحجم — المعدلات وحدها خفضته أو تركته.
+    """
+
+    NONE = "NONE"
+    INSTRUMENT = "INSTRUMENT"
+    PORTFOLIO = "PORTFOLIO"

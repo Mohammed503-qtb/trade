@@ -1,0 +1,106 @@
+{
+  "$defs": {
+    "HardBlockReason": {
+      "description": "أسباب الحجب الصلب الخمسة عشر (§22.1 حرفيًا — بترقيم الخطة).\n\nأي سبب منها يمنع دخولًا جديدًا مهما بدت الدرجة الاتجاهية جذابة (§2.4).\nالنص الإنجليزي الأصلي مثبت كتعليق فوق كل عضو.",
+      "enum": [
+        "DATA_UNRELIABLE",
+        "INSTRUMENT_UNAVAILABLE",
+        "VENUE_CONNECTION_UNHEALTHY",
+        "SPREAD_EXCEEDS_BUDGET",
+        "SLIPPAGE_EXCEEDS_BUDGET",
+        "LATENCY_EXCEEDS_BUDGET",
+        "RISK_LIMITS_REACHED",
+        "STOP_NOT_RELIABLE",
+        "BROKER_REJECTS_ORDER",
+        "MACRO_EMBARGO_WINDOW",
+        "SCENARIO_INVALIDATED",
+        "ENTRY_TOO_LATE",
+        "CONFLICTING_SCENARIO",
+        "SCENARIO_ALREADY_CONSUMED",
+        "KILL_SWITCH"
+      ],
+      "title": "HardBlockReason",
+      "type": "string"
+    },
+    "NoTradeSeverity": {
+      "description": "شدة سبب عدم التداول (§22.3 «severity») — صلب أو لين.\n\nالصلب (§22.1): أي حاجب يمنع الدخول منعًا قاطعًا مهما بدت الدرجة\nجذابة. اللين (§22.2): كتم موزون يُجمع مع نظائره قبل الحسم.",
+      "enum": [
+        "HARD",
+        "SOFT"
+      ],
+      "title": "NoTradeSeverity",
+      "type": "string"
+    },
+    "SoftSuppressionReason": {
+      "description": "الكتمات اللينة العشر (§22.2 حرفيًا — بنص الخطة).\n\n«The system may also decline when: ...» — ليست رفضًا صلبًا بل كتمًا\nموزونًا (§8.2 بأوزان إعدادية): تُجمع أوزان المشتعلة منها وتُقارن\nبعتبة؛ تجاوزها يمنع الدخول بأسباب موثقة كالصلب (§22.3) لكن مع\nقابلية إعادة المحاولة دائمًا — الظرف يزول بزوال سببه.",
+      "enum": [
+        "POOR_LOCATION",
+        "WEAK_OR_CORRELATED_EVIDENCE",
+        "VOLATILITY_TOO_LOW",
+        "VOLATILITY_TOO_EXTREME",
+        "REGIME_TRANSITION",
+        "TARGET_TOO_CLOSE",
+        "STOP_TOO_WIDE",
+        "SESSION_CONFLICT",
+        "CHASING_EXPANDED_MOVE",
+        "HORIZON_EXCEEDED"
+      ],
+      "title": "SoftSuppressionReason",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "description": "تفسير عدم التداول (§22.3 حرفيًا — الحقول الستة بأسماء الخطة).\n\n«Every rejection has: no_trade_code, severity, triggering_conditions,\noffsetting_evidence, whether_retry_is_allowed, retry_condition» —\nرفض بلا تفسير مكتمل مستحيل معماريًا: الشرط يفحص آليًا في البوابة.",
+  "properties": {
+    "no_trade_code": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/HardBlockReason"
+        },
+        {
+          "$ref": "#/$defs/SoftSuppressionReason"
+        }
+      ],
+      "title": "No Trade Code"
+    },
+    "offsetting_evidence": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Offsetting Evidence",
+      "type": "array"
+    },
+    "retry_condition": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Retry Condition"
+    },
+    "severity": {
+      "$ref": "#/$defs/NoTradeSeverity"
+    },
+    "triggering_conditions": {
+      "title": "Triggering Conditions",
+      "type": "string"
+    },
+    "whether_retry_is_allowed": {
+      "title": "Whether Retry Is Allowed",
+      "type": "boolean"
+    }
+  },
+  "required": [
+    "no_trade_code",
+    "severity",
+    "triggering_conditions",
+    "offsetting_evidence",
+    "whether_retry_is_allowed",
+    "retry_condition"
+  ],
+  "title": "NoTradeExplanation",
+  "type": "object"
+}

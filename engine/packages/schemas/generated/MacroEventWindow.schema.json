@@ -1,0 +1,43 @@
+{
+  "additionalProperties": false,
+  "description": "نافذة حدث كلي مجدول (§17.3) — مدخل حاجب الحظر (§22.1 رقم 10).\n\n«A high-impact event near a scalp entry can cause a hard block even\nwhen technical evidence is strong» — النافذة تحمل الحدث وأثره\nالزمني (قبل/بعد) ونطاق أصوله؛ محرك الكلي مطوي في market_state\n(انحراف موثق في build_plan §B) فالمصدر سياق القرار لا جدول كلي.",
+  "properties": {
+    "asset_scope": {
+      "title": "Asset Scope",
+      "type": "string"
+    },
+    "event_time": {
+      "format": "date-time",
+      "title": "Event Time",
+      "type": "string"
+    },
+    "importance": {
+      "title": "Importance",
+      "type": "string"
+    },
+    "post_event_window_s": {
+      "minimum": 0.0,
+      "title": "Post Event Window S",
+      "type": "number"
+    },
+    "pre_event_window_s": {
+      "minimum": 0.0,
+      "title": "Pre Event Window S",
+      "type": "number"
+    },
+    "title": {
+      "title": "Title",
+      "type": "string"
+    }
+  },
+  "required": [
+    "event_time",
+    "asset_scope",
+    "importance",
+    "title",
+    "pre_event_window_s",
+    "post_event_window_s"
+  ],
+  "title": "MacroEventWindow",
+  "type": "object"
+}

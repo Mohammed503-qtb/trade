@@ -243,6 +243,9 @@ class ScenarioRun:
         self.anchors: list[tuple[EventType, Any]] = []  # (نوع، حمولة)
         self.anchor_outcomes: list[ProposalOutcome] = []
         self.bar_transitions: list[list[ScenarioTransition]] = []
+        # سياق كل شريط (شمعة، ATR المستخدم، لقطة الحالة) — تستهلكه بوابة
+        # المرحلة 8 (قرار المخاطرة عند المشتعلين) — سجل حتمي من نفس المسار.
+        self.bar_contexts: list[tuple[Any, float, MarketStateSnapshot]] = []
         self._run(klines_by_tf)
 
     # ── الخصائص المشتقة ──
@@ -391,12 +394,14 @@ class ScenarioRun:
                 self.anchors.append((event.event_type, event.payload))
                 self.anchor_outcomes.append(outcome)
 
+            effective_atr = atr if atr is not None and atr > 0.0 else 1.0  # عقود المحرك
             produced = self.engine.on_bar(
                 candle,
                 analysis_events=struct_events + liq_events,
                 state=state,
-                atr=atr if atr is not None and atr > 0.0 else 1.0,  # عقود المحرك: موجب
+                atr=effective_atr,
             )
+            self.bar_contexts.append((candle, effective_atr, state))
             self.bar_transitions.append(list(produced))
 
     def _snapshot(

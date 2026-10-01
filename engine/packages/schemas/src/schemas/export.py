@@ -40,6 +40,17 @@ from .patterns import (
     CandlePatternEventPayload,
     ClassicalPatternEventPayload,
 )
+from .risk import (
+    CostBreakdown,
+    EvaluationContext,
+    MacroEventWindow,
+    NoTradeExplanation,
+    RewardRiskEstimate,
+    RiskDecision,
+    SizingModifier,
+    SizingResult,
+    StructuralStop,
+)
 from .scenario import (
     InvalidationRule,
     PriceZone,
@@ -106,6 +117,16 @@ ALL_MODELS: dict[str, type[BaseModel]] = {
     "OrderIntent": OrderIntent,
     "SlippageRecord": SlippageRecord,
     "LatencyRecord": LatencyRecord,
+    # المخاطرة (§22/§23/§25.2 + §17.3 + §31.3)
+    "MacroEventWindow": MacroEventWindow,
+    "EvaluationContext": EvaluationContext,
+    "NoTradeExplanation": NoTradeExplanation,
+    "StructuralStop": StructuralStop,
+    "SizingModifier": SizingModifier,
+    "SizingResult": SizingResult,
+    "CostBreakdown": CostBreakdown,
+    "RewardRiskEstimate": RewardRiskEstimate,
+    "RiskDecision": RiskDecision,
     # التعلم (§29.1)
     "ExperienceRecord": ExperienceRecord,
 }
@@ -149,6 +170,15 @@ MODEL_PLAN_REFS: dict[str, str] = {
     "OrderIntent": "§24.1",
     "SlippageRecord": "§24.4",
     "LatencyRecord": "§24.5",
+    "MacroEventWindow": "§17.3 + §22.1-10",
+    "EvaluationContext": "§22.1 + §22.2",
+    "NoTradeExplanation": "§22.3",
+    "StructuralStop": "§23.4",
+    "SizingModifier": "§23.2",
+    "SizingResult": "§23.2",
+    "CostBreakdown": "§25.2",
+    "RewardRiskEstimate": "§23.5",
+    "RiskDecision": "§31.3 (decisions)",
     "ExperienceRecord": "§29.1",
 }
 

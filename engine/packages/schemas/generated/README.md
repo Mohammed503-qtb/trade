@@ -4,7 +4,7 @@
 > حرس الجودة: `python -m schemas.export check` يجب أن يبقى أخضر في كل بوابة (لا رسالة بلا مخطط مُصدَّر).
 
 - إصدار المخططات: `1.0.0`
-- عدد النماذج الجذرية: 38
+- عدد النماذج الجذرية: 47
 
 | النموذج | الملف | الوحدة | فقرة الخطة |
 |---|---|---|---|
@@ -45,4 +45,13 @@
 | `OrderIntent` | `OrderIntent.schema.json` | `schemas.execution` | §24.1 |
 | `SlippageRecord` | `SlippageRecord.schema.json` | `schemas.execution` | §24.4 |
 | `LatencyRecord` | `LatencyRecord.schema.json` | `schemas.execution` | §24.5 |
+| `MacroEventWindow` | `MacroEventWindow.schema.json` | `schemas.risk` | §17.3 + §22.1-10 |
+| `EvaluationContext` | `EvaluationContext.schema.json` | `schemas.risk` | §22.1 + §22.2 |
+| `NoTradeExplanation` | `NoTradeExplanation.schema.json` | `schemas.risk` | §22.3 |
+| `StructuralStop` | `StructuralStop.schema.json` | `schemas.risk` | §23.4 |
+| `SizingModifier` | `SizingModifier.schema.json` | `schemas.risk` | §23.2 |
+| `SizingResult` | `SizingResult.schema.json` | `schemas.risk` | §23.2 |
+| `CostBreakdown` | `CostBreakdown.schema.json` | `schemas.risk` | §25.2 |
+| `RewardRiskEstimate` | `RewardRiskEstimate.schema.json` | `schemas.risk` | §23.5 |
+| `RiskDecision` | `RiskDecision.schema.json` | `schemas.risk` | §31.3 (decisions) |
 | `ExperienceRecord` | `ExperienceRecord.schema.json` | `schemas.learning` | §29.1 |

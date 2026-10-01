@@ -35,8 +35,16 @@
     "file": "ClassicalPatternEventPayload.schema.json",
     "schema_version": "1.0.0"
   },
+  "CostBreakdown": {
+    "file": "CostBreakdown.schema.json",
+    "schema_version": "1.0.0"
+  },
   "DisplacementEventPayload": {
     "file": "DisplacementEventPayload.schema.json",
+    "schema_version": "1.0.0"
+  },
+  "EvaluationContext": {
+    "file": "EvaluationContext.schema.json",
     "schema_version": "1.0.0"
   },
   "EventEnvelope": {
@@ -95,8 +103,16 @@
     "file": "LiquidityZone.schema.json",
     "schema_version": "1.0.0"
   },
+  "MacroEventWindow": {
+    "file": "MacroEventWindow.schema.json",
+    "schema_version": "1.0.0"
+  },
   "MarketStateSnapshot": {
     "file": "MarketStateSnapshot.schema.json",
+    "schema_version": "1.0.0"
+  },
+  "NoTradeExplanation": {
+    "file": "NoTradeExplanation.schema.json",
     "schema_version": "1.0.0"
   },
   "OrderBlockEventPayload": {
@@ -115,6 +131,14 @@
     "file": "PriceZone.schema.json",
     "schema_version": "1.0.0"
   },
+  "RewardRiskEstimate": {
+    "file": "RewardRiskEstimate.schema.json",
+    "schema_version": "1.0.0"
+  },
+  "RiskDecision": {
+    "file": "RiskDecision.schema.json",
+    "schema_version": "1.0.0"
+  },
   "Scenario": {
     "file": "Scenario.schema.json",
     "schema_version": "1.0.0"
@@ -123,8 +147,20 @@
     "file": "ScenarioTransition.schema.json",
     "schema_version": "1.0.0"
   },
+  "SizingModifier": {
+    "file": "SizingModifier.schema.json",
+    "schema_version": "1.0.0"
+  },
+  "SizingResult": {
+    "file": "SizingResult.schema.json",
+    "schema_version": "1.0.0"
+  },
   "SlippageRecord": {
     "file": "SlippageRecord.schema.json",
+    "schema_version": "1.0.0"
+  },
+  "StructuralStop": {
+    "file": "StructuralStop.schema.json",
     "schema_version": "1.0.0"
   },
   "StructureBreakPayload": {

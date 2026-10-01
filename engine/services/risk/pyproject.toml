@@ -3,7 +3,12 @@ name = "engine-risk"
 version = "0.1.0"
 description = "لا-تداول (§22)، R، تحجيم، قيود (§23)"
 requires-python = ">=3.12"
-dependencies = ["engine-schemas", "engine-common", "engine-features"]
+dependencies = [
+    "engine-schemas",
+    "engine-common",
+    "engine-features",
+    "engine-fusion",
+]
 
 [build-system]
 requires = ["hatchling"]

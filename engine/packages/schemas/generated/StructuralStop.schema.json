@@ -1,0 +1,63 @@
+{
+  "additionalProperties": false,
+  "description": "حساب الوقف البنيوي (§23.4 حرفيًا) — «بنية + عازلة تقلب + عدم\nيقين تنفيذ» لا رقم نقاط كوني.\n\nمرجع الدخول المخطط (ADR-026): الحافة المحافظة لمنطقة الدخول — أبعد\nحافة عن الوقف — فتكون 1R المحسوبة أسوأ حالة للتعبئة (التحجيم لا\nيتفاءل بتعبة أفضل).",
+  "properties": {
+    "accept_through": {
+      "title": "Accept Through",
+      "type": "boolean"
+    },
+    "atr": {
+      "exclusiveMinimum": 0.0,
+      "title": "Atr",
+      "type": "number"
+    },
+    "entry_reference": {
+      "exclusiveMinimum": 0.0,
+      "title": "Entry Reference",
+      "type": "number"
+    },
+    "execution_uncertainty": {
+      "minimum": 0.0,
+      "title": "Execution Uncertainty",
+      "type": "number"
+    },
+    "stop_distance": {
+      "exclusiveMinimum": 0.0,
+      "title": "Stop Distance",
+      "type": "number"
+    },
+    "stop_distance_atr": {
+      "exclusiveMinimum": 0.0,
+      "title": "Stop Distance Atr",
+      "type": "number"
+    },
+    "stop_price": {
+      "exclusiveMinimum": 0.0,
+      "title": "Stop Price",
+      "type": "number"
+    },
+    "structural_level": {
+      "exclusiveMinimum": 0.0,
+      "title": "Structural Level",
+      "type": "number"
+    },
+    "volatility_buffer": {
+      "minimum": 0.0,
+      "title": "Volatility Buffer",
+      "type": "number"
+    }
+  },
+  "required": [
+    "structural_level",
+    "volatility_buffer",
+    "execution_uncertainty",
+    "stop_price",
+    "entry_reference",
+    "stop_distance",
+    "accept_through",
+    "atr",
+    "stop_distance_atr"
+  ],
+  "title": "StructuralStop",
+  "type": "object"
+}

@@ -1,0 +1,191 @@
+{
+  "$defs": {
+    "DataQuality": {
+      "description": "حالات جودة البيانات التسع لكل شريحة أداة/زمن (§7.4).\n\nفقط HEALTHY وDELAYED (بموافقة صريحة) يصلان معالجة القرار العادية.",
+      "enum": [
+        "HEALTHY",
+        "DELAYED",
+        "PARTIAL",
+        "DUPLICATED",
+        "OUT_OF_ORDER",
+        "STALE",
+        "GAP_DETECTED",
+        "UNAVAILABLE",
+        "QUARANTINED"
+      ],
+      "title": "DataQuality",
+      "type": "string"
+    },
+    "MacroEventWindow": {
+      "additionalProperties": false,
+      "description": "نافذة حدث كلي مجدول (§17.3) — مدخل حاجب الحظر (§22.1 رقم 10).\n\n«A high-impact event near a scalp entry can cause a hard block even\nwhen technical evidence is strong» — النافذة تحمل الحدث وأثره\nالزمني (قبل/بعد) ونطاق أصوله؛ محرك الكلي مطوي في market_state\n(انحراف موثق في build_plan §B) فالمصدر سياق القرار لا جدول كلي.",
+      "properties": {
+        "asset_scope": {
+          "title": "Asset Scope",
+          "type": "string"
+        },
+        "event_time": {
+          "format": "date-time",
+          "title": "Event Time",
+          "type": "string"
+        },
+        "importance": {
+          "title": "Importance",
+          "type": "string"
+        },
+        "post_event_window_s": {
+          "minimum": 0.0,
+          "title": "Post Event Window S",
+          "type": "number"
+        },
+        "pre_event_window_s": {
+          "minimum": 0.0,
+          "title": "Pre Event Window S",
+          "type": "number"
+        },
+        "title": {
+          "title": "Title",
+          "type": "string"
+        }
+      },
+      "required": [
+        "event_time",
+        "asset_scope",
+        "importance",
+        "title",
+        "pre_event_window_s",
+        "post_event_window_s"
+      ],
+      "title": "MacroEventWindow",
+      "type": "object"
+    },
+    "SessionType": {
+      "description": "أنواع الجلسات (§9.4 + قرار A-03 في plan_review).\n\n§9.4 لا يعطي قيمًا حرفية؛ A-03 يحسم: الجلسة = حدود يوم UTC (UTC_DAY)\n+ ساعات سياق سلوكي اختيارية (آسيا/أوروبا/أمريكا) + نوافذ صيانة المنصة.\nالجلسة بيانات سياقية لا إشارة اتجاه بذاتها.",
+      "enum": [
+        "UTC_DAY",
+        "ASIA",
+        "EUROPE",
+        "AMERICA",
+        "MAINTENANCE"
+      ],
+      "title": "SessionType",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "description": "وقائع التشغيل لحظة القرار — الحقائق التي تحكم الحواجب والكتمات.\n\nمبدأ التصميم (ADR-026): كل حقل افتراضيه «سليم» — فبناء السياق\nالفارغ يعني سوقًا صالحًا تمامًا للتقييم، وكل اختبار حقن فشل مستقل\n(بوابة الخروج 8: «كلٌّ باختبار حقن فشل مستقل») يطفئ حقيقة واحدة\nفيشتعل حاجبها وحده — لا سبيل آخر لاشتعال حاجب من غير حقنه.\n\nالحقول الزمنية أعمار وقيم مقاسة لحظة القرار (لا طوابع — الزمن\nيمرر للمحرك من شمعة القرار نفسها: لا ساعة داخلية §26.2).",
+  "properties": {
+    "broker_accepts_order": {
+      "default": true,
+      "title": "Broker Accepts Order",
+      "type": "boolean"
+    },
+    "conflicting_scenario_ids": {
+      "default": [],
+      "items": {
+        "type": "string"
+      },
+      "title": "Conflicting Scenario Ids",
+      "type": "array"
+    },
+    "consumed_anchor_event_ids": {
+      "default": [],
+      "items": {
+        "type": "string"
+      },
+      "title": "Consumed Anchor Event Ids",
+      "type": "array"
+    },
+    "correlated_exposure": {
+      "default": 0,
+      "minimum": 0,
+      "title": "Correlated Exposure",
+      "type": "integer"
+    },
+    "data_age_seconds": {
+      "default": 0.0,
+      "minimum": 0.0,
+      "title": "Data Age Seconds",
+      "type": "number"
+    },
+    "data_quality": {
+      "$ref": "#/$defs/DataQuality",
+      "default": "HEALTHY"
+    },
+    "embargo_windows": {
+      "default": [],
+      "items": {
+        "$ref": "#/$defs/MacroEventWindow"
+      },
+      "title": "Embargo Windows",
+      "type": "array"
+    },
+    "instrument_status_note": {
+      "default": "",
+      "title": "Instrument Status Note",
+      "type": "string"
+    },
+    "instrument_tradable": {
+      "default": true,
+      "title": "Instrument Tradable",
+      "type": "boolean"
+    },
+    "kill_switch": {
+      "default": false,
+      "title": "Kill Switch",
+      "type": "boolean"
+    },
+    "latency_ms": {
+      "default": 0.0,
+      "minimum": 0.0,
+      "title": "Latency Ms",
+      "type": "number"
+    },
+    "positions_open": {
+      "default": 0,
+      "minimum": 0,
+      "title": "Positions Open",
+      "type": "integer"
+    },
+    "risk_used_rolling": {
+      "default": 0.0,
+      "minimum": 0.0,
+      "title": "Risk Used Rolling",
+      "type": "number"
+    },
+    "risk_used_today": {
+      "default": 0.0,
+      "minimum": 0.0,
+      "title": "Risk Used Today",
+      "type": "number"
+    },
+    "session": {
+      "$ref": "#/$defs/SessionType",
+      "default": "UTC_DAY"
+    },
+    "slippage_estimate": {
+      "default": 0.0,
+      "minimum": 0.0,
+      "title": "Slippage Estimate",
+      "type": "number"
+    },
+    "spread_estimate": {
+      "default": 0.0,
+      "minimum": 0.0,
+      "title": "Spread Estimate",
+      "type": "number"
+    },
+    "stop_reliable": {
+      "default": true,
+      "title": "Stop Reliable",
+      "type": "boolean"
+    },
+    "venue_healthy": {
+      "default": true,
+      "title": "Venue Healthy",
+      "type": "boolean"
+    }
+  },
+  "title": "EvaluationContext",
+  "type": "object"
+}

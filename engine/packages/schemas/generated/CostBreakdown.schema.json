@@ -1,0 +1,67 @@
+{
+  "$defs": {
+    "CostMode": {
+      "description": "أنماط التكلفة الثلاثة (§25.1 حرفيًا).\n\n«A strategy cannot pass production gates based only on optimistic\ncosts» — REALISTIC وحده نمط القبول؛ OPTIMISTIC تشخيصي وSTRESS\nلفحص المتانة.",
+      "enum": [
+        "OPTIMISTIC",
+        "REALISTIC",
+        "STRESS"
+      ],
+      "title": "CostMode",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "description": "تحلل التكلفة (§25.2 حرفيًا) — «Post-trade P&L must be decomposed\ninto» والتحلل هنا التقديري قبلها بوحدات السعر لكل وحدة أصل، ذهابًا\nوإيابًا، بنمط تكلفة معلن (§25.1).\n\nالمتطابقة محقاة في النموذج: net_trading_edge = gross − مجموع\nالمكونات الخمسة — أي انحراف رفض صاخب لا تقريب صامت.",
+  "properties": {
+    "commission": {
+      "minimum": 0.0,
+      "title": "Commission",
+      "type": "number"
+    },
+    "cost_mode": {
+      "$ref": "#/$defs/CostMode"
+    },
+    "funding_financing": {
+      "minimum": 0.0,
+      "title": "Funding Financing",
+      "type": "number"
+    },
+    "gross_price_edge": {
+      "minimum": 0.0,
+      "title": "Gross Price Edge",
+      "type": "number"
+    },
+    "net_trading_edge": {
+      "title": "Net Trading Edge",
+      "type": "number"
+    },
+    "other_execution_costs": {
+      "minimum": 0.0,
+      "title": "Other Execution Costs",
+      "type": "number"
+    },
+    "slippage": {
+      "minimum": 0.0,
+      "title": "Slippage",
+      "type": "number"
+    },
+    "spread": {
+      "minimum": 0.0,
+      "title": "Spread",
+      "type": "number"
+    }
+  },
+  "required": [
+    "cost_mode",
+    "gross_price_edge",
+    "spread",
+    "commission",
+    "slippage",
+    "funding_financing",
+    "other_execution_costs",
+    "net_trading_edge"
+  ],
+  "title": "CostBreakdown",
+  "type": "object"
+}

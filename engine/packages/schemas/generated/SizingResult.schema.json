@@ -1,0 +1,118 @@
+{
+  "$defs": {
+    "SizingCapBasis": {
+      "description": "أي السقوف المطلقة قيّدت الحجم (§23.2 «capped by absolute\nportfolio and instrument limits»).\n\nNONE: لم يقيّد سقف الحجم — المعدلات وحدها خفضته أو تركته.",
+      "enum": [
+        "NONE",
+        "INSTRUMENT",
+        "PORTFOLIO"
+      ],
+      "title": "SizingCapBasis",
+      "type": "string"
+    },
+    "SizingModifier": {
+      "additionalProperties": false,
+      "description": "معدل تحجيم واحد — اسمه وقيمته وتوثيق سببه.\n\nالمعدل ∈ (0, 1]: لا معدل يرفع الحجم أبدًا — «الخطر الناتج ≤\nالسقف دائمًا» (بوابة الخروج 8) تُبنى على هذا الحصر.",
+      "properties": {
+        "multiplier": {
+          "title": "Multiplier",
+          "type": "number"
+        },
+        "name": {
+          "$ref": "#/$defs/SizingModifierName"
+        },
+        "rationale": {
+          "title": "Rationale",
+          "type": "string"
+        }
+      },
+      "required": [
+        "name",
+        "multiplier",
+        "rationale"
+      ],
+      "title": "SizingModifier",
+      "type": "object"
+    },
+    "SizingModifierName": {
+      "description": "معدلات التحجيم الستة (§23.2 حرفيًا بترتيب الخطة).\n\n«Then apply: volatility modifier; liquidity modifier; execution-\nquality modifier; correlation modifier; daily drawdown modifier;\nscenario quality modifier after calibration» — كل معدل يضرب الحجم\nالأساسي، ولا معدل يرفع الأحجام أبدًا (خاصية «الخطر الناتج ≤\nالسقف دائمًا» — بوابة الخروج 8).",
+      "enum": [
+        "VOLATILITY",
+        "LIQUIDITY",
+        "EXECUTION_QUALITY",
+        "CORRELATION",
+        "DAILY_DRAWDOWN",
+        "SCENARIO_QUALITY"
+      ],
+      "title": "SizingModifierName",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "description": "نتيجة التحجيم الكاملة (§23.2) — الشفافية الرقمية لكل خطوة.\n\nالحساب الحرفي: ``position_size = allowed_risk_money /\nstop_distance_value`` ثم المعدلات الستة مضاعفةً ثم السقوف المطلقة\n(أداة ومحفظة) — و«resulting_risk_money = position_size ×\nstop_distance_value ≤ risk_budget دائمًا» شرط يُحقق في النموذج ذاته.",
+  "properties": {
+    "base_position_size": {
+      "exclusiveMinimum": 0.0,
+      "title": "Base Position Size",
+      "type": "number"
+    },
+    "capped_by": {
+      "$ref": "#/$defs/SizingCapBasis"
+    },
+    "final_multiplier": {
+      "title": "Final Multiplier",
+      "type": "number"
+    },
+    "instrument_cap": {
+      "exclusiveMinimum": 0.0,
+      "title": "Instrument Cap",
+      "type": "number"
+    },
+    "modifiers": {
+      "items": {
+        "$ref": "#/$defs/SizingModifier"
+      },
+      "title": "Modifiers",
+      "type": "array"
+    },
+    "portfolio_cap_remaining": {
+      "exclusiveMinimum": 0.0,
+      "title": "Portfolio Cap Remaining",
+      "type": "number"
+    },
+    "position_size": {
+      "exclusiveMinimum": 0.0,
+      "title": "Position Size",
+      "type": "number"
+    },
+    "resulting_risk_money": {
+      "minimum": 0.0,
+      "title": "Resulting Risk Money",
+      "type": "number"
+    },
+    "risk_budget": {
+      "exclusiveMinimum": 0.0,
+      "title": "Risk Budget",
+      "type": "number"
+    },
+    "stop_distance_value": {
+      "exclusiveMinimum": 0.0,
+      "title": "Stop Distance Value",
+      "type": "number"
+    }
+  },
+  "required": [
+    "risk_budget",
+    "stop_distance_value",
+    "base_position_size",
+    "modifiers",
+    "final_multiplier",
+    "instrument_cap",
+    "portfolio_cap_remaining",
+    "capped_by",
+    "position_size",
+    "resulting_risk_money"
+  ],
+  "title": "SizingResult",
+  "type": "object"
+}
