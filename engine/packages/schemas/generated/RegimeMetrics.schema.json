@@ -1,0 +1,51 @@
+{
+  "additionalProperties": false,
+  "description": "مقاييس نظام سوق واحد — «حسب النظام» (تقسيم أنظمة §43).",
+  "properties": {
+    "net_expectancy_r": {
+      "title": "Net Expectancy R",
+      "type": "number"
+    },
+    "profit_factor": {
+      "anyOf": [
+        {
+          "minimum": 0.0,
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Profit Factor"
+    },
+    "regime": {
+      "title": "Regime",
+      "type": "string"
+    },
+    "total_net_r": {
+      "title": "Total Net R",
+      "type": "number"
+    },
+    "trades_count": {
+      "minimum": 1,
+      "title": "Trades Count",
+      "type": "integer"
+    },
+    "win_rate": {
+      "maximum": 1.0,
+      "minimum": 0.0,
+      "title": "Win Rate",
+      "type": "number"
+    }
+  },
+  "required": [
+    "regime",
+    "trades_count",
+    "net_expectancy_r",
+    "profit_factor",
+    "win_rate",
+    "total_net_r"
+  ],
+  "title": "RegimeMetrics",
+  "type": "object"
+}

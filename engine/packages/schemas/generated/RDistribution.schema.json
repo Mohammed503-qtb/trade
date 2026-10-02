@@ -1,0 +1,46 @@
+{
+  "additionalProperties": false,
+  "description": "توزيع R الصافية — إحصاءات رتبية حتمية (استيفاء خطي).",
+  "properties": {
+    "max_r": {
+      "title": "Max R",
+      "type": "number"
+    },
+    "mean_r": {
+      "title": "Mean R",
+      "type": "number"
+    },
+    "min_r": {
+      "title": "Min R",
+      "type": "number"
+    },
+    "p05_r": {
+      "title": "P05 R",
+      "type": "number"
+    },
+    "p50_r": {
+      "title": "P50 R",
+      "type": "number"
+    },
+    "p95_r": {
+      "title": "P95 R",
+      "type": "number"
+    },
+    "std_r": {
+      "minimum": 0.0,
+      "title": "Std R",
+      "type": "number"
+    }
+  },
+  "required": [
+    "mean_r",
+    "std_r",
+    "min_r",
+    "p05_r",
+    "p50_r",
+    "p95_r",
+    "max_r"
+  ],
+  "title": "RDistribution",
+  "type": "object"
+}

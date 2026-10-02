@@ -1,0 +1,66 @@
+{
+  "$defs": {
+    "CostMode": {
+      "description": "أنماط التكلفة الثلاثة (§25.1 حرفيًا).\n\n«A strategy cannot pass production gates based only on optimistic\ncosts» — REALISTIC وحده نمط القبول؛ OPTIMISTIC تشخيصي وSTRESS\nلفحص المتانة.",
+      "enum": [
+        "OPTIMISTIC",
+        "REALISTIC",
+        "STRESS"
+      ],
+      "title": "CostMode",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "description": "التحلل المحقق §25.2 على تعبئات وقعت — بوحدات السعر لكل وحدة أصل.\n\nالمكونات الخمسة كما في التقديري (risk.CostBreakdown) لكن هنا من\nالتعبئات الفعلية ذهابًا وإيابًا، والمتطابقة محقاة: الصافي المحقق =\nالحافة الإجمالية المحققة − مجموع المكونات.\n\n``funding_financing`` صفر موثق في MVP (سبوت بلا تمويل) و\n``other_execution_costs`` صفر موثق (الاختيار السلبي المحقق قياسه\nبعد MVP؛ التقديري يعيش في §23.5) — لا اختلاق قياس لم يقع.",
+  "properties": {
+    "commission": {
+      "minimum": 0.0,
+      "title": "Commission",
+      "type": "number"
+    },
+    "cost_mode": {
+      "$ref": "#/$defs/CostMode"
+    },
+    "funding_financing": {
+      "minimum": 0.0,
+      "title": "Funding Financing",
+      "type": "number"
+    },
+    "gross_realized_edge": {
+      "title": "Gross Realized Edge",
+      "type": "number"
+    },
+    "net_realized_edge": {
+      "title": "Net Realized Edge",
+      "type": "number"
+    },
+    "other_execution_costs": {
+      "minimum": 0.0,
+      "title": "Other Execution Costs",
+      "type": "number"
+    },
+    "slippage": {
+      "minimum": 0.0,
+      "title": "Slippage",
+      "type": "number"
+    },
+    "spread": {
+      "minimum": 0.0,
+      "title": "Spread",
+      "type": "number"
+    }
+  },
+  "required": [
+    "cost_mode",
+    "gross_realized_edge",
+    "spread",
+    "commission",
+    "slippage",
+    "funding_financing",
+    "other_execution_costs",
+    "net_realized_edge"
+  ],
+  "title": "RealizedCosts",
+  "type": "object"
+}

@@ -1,4 +1,4 @@
-"""مشغل الإعادة/الاختبارات CLI (§26)"""
+"""مشغل الإعادة/الاختبارات CLI (§26)."""
 
 from .ablation import (
     AblationReport,
@@ -18,6 +18,7 @@ from .ablation_evaluator import (
     DirectionalEvaluator,
     evaluate_directional,
 )
+from .backtest import run_backtest, sort_specs
 
 __all__ = [
     "FEATURE_POLARITY",
@@ -35,6 +36,8 @@ __all__ = [
     "evaluate_directional",
     "placeholder_evaluator",
     "run_ablation",
+    "run_backtest",
+    "sort_specs",
 ]
 
 __version__ = "0.1.0"

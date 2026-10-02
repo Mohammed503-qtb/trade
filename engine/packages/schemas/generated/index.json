@@ -15,6 +15,18 @@
     "file": "AvailabilitySignature.schema.json",
     "schema_version": "1.0.0"
   },
+  "BacktestIdentity": {
+    "file": "BacktestIdentity.schema.json",
+    "schema_version": "1.0.0"
+  },
+  "BacktestMetrics": {
+    "file": "BacktestMetrics.schema.json",
+    "schema_version": "1.0.0"
+  },
+  "BacktestReport": {
+    "file": "BacktestReport.schema.json",
+    "schema_version": "1.0.0"
+  },
   "BreakAcceptEventPayload": {
     "file": "BreakAcceptEventPayload.schema.json",
     "schema_version": "1.0.0"
@@ -41,6 +53,10 @@
   },
   "DisplacementEventPayload": {
     "file": "DisplacementEventPayload.schema.json",
+    "schema_version": "1.0.0"
+  },
+  "EntrySpec": {
+    "file": "EntrySpec.schema.json",
     "schema_version": "1.0.0"
   },
   "EvaluationContext": {
@@ -131,6 +147,18 @@
     "file": "PriceZone.schema.json",
     "schema_version": "1.0.0"
   },
+  "RDistribution": {
+    "file": "RDistribution.schema.json",
+    "schema_version": "1.0.0"
+  },
+  "RealizedCosts": {
+    "file": "RealizedCosts.schema.json",
+    "schema_version": "1.0.0"
+  },
+  "RegimeMetrics": {
+    "file": "RegimeMetrics.schema.json",
+    "schema_version": "1.0.0"
+  },
   "RewardRiskEstimate": {
     "file": "RewardRiskEstimate.schema.json",
     "schema_version": "1.0.0"
@@ -145,6 +173,14 @@
   },
   "ScenarioTransition": {
     "file": "ScenarioTransition.schema.json",
+    "schema_version": "1.0.0"
+  },
+  "SimulatedFill": {
+    "file": "SimulatedFill.schema.json",
+    "schema_version": "1.0.0"
+  },
+  "SimulatedTrade": {
+    "file": "SimulatedTrade.schema.json",
     "schema_version": "1.0.0"
   },
   "SizingModifier": {
@@ -185,6 +221,22 @@
   },
   "TriggerDefinition": {
     "file": "TriggerDefinition.schema.json",
+    "schema_version": "1.0.0"
+  },
+  "WFOProtocolConfig": {
+    "file": "WFOProtocolConfig.schema.json",
+    "schema_version": "1.0.0"
+  },
+  "WFOReport": {
+    "file": "WFOReport.schema.json",
+    "schema_version": "1.0.0"
+  },
+  "WFOSegment": {
+    "file": "WFOSegment.schema.json",
+    "schema_version": "1.0.0"
+  },
+  "WFOWindow": {
+    "file": "WFOWindow.schema.json",
     "schema_version": "1.0.0"
   }
 }

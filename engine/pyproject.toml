@@ -105,6 +105,8 @@ ignore = [
 
 [tool.ruff.lint.per-file-ignores]
 "tests/**" = ["S105", "S106"]
+# typer: استدعاء Option في القيم الافتراضية هو لغة الإطار الموثقة نفسها
+"**/engine_replay/__main__.py" = ["B008"]
 "migrations/**" = ["E501", "I001", "UP"]
 
 # ═════════════════════════ mypy (strict) ═════════════════════════

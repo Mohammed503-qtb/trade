@@ -1,0 +1,2375 @@
+{
+  "config_fingerprint": "b38e36ab78813b38fd4c9e74c6b0d4d376fc258d92087a6362a196d98ba2feb7",
+  "cost_mode": "REALISTIC",
+  "created_at_utc": "2030-01-01T00:00:00Z",
+  "identity": {
+    "backtest_id": "9016d126-d31f-57a6-88b2-9ddb677db481",
+    "code_version": "workspace-phase9",
+    "cost_model_version": "backtest-b38e36ab7881",
+    "data_snapshot_id": "phase2-triple-tf-v1",
+    "end_time": "2026-09-26T00:00:00Z",
+    "instrument_set": [
+      "BINANCE_USDM:BTCUSDT"
+    ],
+    "model_version": "none-mvp",
+    "parameter_set_version": "risk-70885a8908be",
+    "random_seed": 0,
+    "start_time": "2026-09-25T00:00:00Z"
+  },
+  "intrabar_policy": "CONSERVATIVE",
+  "metrics": {
+    "by_regime": [
+      {
+        "net_expectancy_r": -0.9640959220436857,
+        "profit_factor": 0.40169158079729184,
+        "regime": "COMPRESSION",
+        "total_net_r": -13.4973429086116,
+        "trades_count": 14,
+        "win_rate": 0.2857142857142857
+      },
+      {
+        "net_expectancy_r": -1.1557273192373456,
+        "profit_factor": 0.2534514632305189,
+        "regime": "RANGE_BALANCE",
+        "total_net_r": -19.647364427034876,
+        "trades_count": 17,
+        "win_rate": 0.17647058823529413
+      },
+      {
+        "net_expectancy_r": 0.5538138045478379,
+        "profit_factor": 1.6272201242343467,
+        "regime": "RANGE_EXPANSION",
+        "total_net_r": 1.1076276090956758,
+        "trades_count": 2,
+        "win_rate": 0.5
+      },
+      {
+        "net_expectancy_r": -2.0712959647113807,
+        "profit_factor": 0.0,
+        "regime": "TREND_EXPANSION",
+        "total_net_r": -4.142591929422761,
+        "trades_count": 2,
+        "win_rate": 0.0
+      },
+      {
+        "net_expectancy_r": -0.23145929267770404,
+        "profit_factor": 0.780533021175637,
+        "regime": "UNKNOWN",
+        "total_net_r": -0.4629185853554081,
+        "trades_count": 2,
+        "win_rate": 0.5
+      },
+      {
+        "net_expectancy_r": -0.9020335195569431,
+        "profit_factor": 0.3727574252467501,
+        "regime": "VOLATILITY_SHOCK",
+        "total_net_r": -11.72643575424026,
+        "trades_count": 13,
+        "win_rate": 0.15384615384615385
+      }
+    ],
+    "label_counts": {
+      "INVALIDATION_FIRST": 38,
+      "NOT_EXECUTABLE": 8,
+      "TARGET_FIRST": 9,
+      "TIMEOUT_WITH_LOSS": 1,
+      "TIMEOUT_WITH_PROFIT": 2
+    },
+    "labeled_trades": 58,
+    "mae_mean_r": 1.3088296823584662,
+    "mfe_mean_r": 1.5078622125670105,
+    "net_expectancy_r": -0.9673805199113846,
+    "not_executable": 8,
+    "open_at_data_end": 0,
+    "profit_factor": 0.36011170367163287,
+    "r_distribution": {
+      "max_r": 5.57601217488296,
+      "mean_r": -0.9673805199113846,
+      "min_r": -4.274277282829606,
+      "p05_r": -2.302002826598491,
+      "p50_r": -1.8033567553778211,
+      "p95_r": 2.857549696224667,
+      "std_r": 1.98717392798386
+    },
+    "total_gross_r": 0.42701345560914916,
+    "total_net_r": -48.36902599556923,
+    "win_rate": 0.22
+  },
+  "notes": [
+    "الترتيب داخل الشمعة متحفظ (§30): الوقف قبل الهدف عند لمسهما معًا، والدخول ثم الوقف عند اقترانهما — لا مخرج محابٍ أبدًا.",
+    "التعبئة عند الحافة المعاكسة للمنطقة (أسوأ تعبئة قانونية) بنسبة إعدادية لكل شمعة لمس — تعبئة جزئية §26.1.",
+    "التكاليف تحلل محقق واحد §25.2 (لا انزلاق مضاعف داخل أسعار التعبئة) وREALISTIC نمط القبول حصرًا (§25.1).",
+    "الباقيات مفتوحات حتى نهاية البيانات لا وسم لهن (§30: الوسم بعد انقضاء الأفق) — يُحصين في المقاييس عدًّا لا يُختلق لهن حكم.",
+    "8 نية لم تعبأ أصلًا (NOT_EXECUTABLE) — عدّ مستقل لا يدخل إحصاءات R."
+  ],
+  "trades": [
+    {
+      "ambiguity_resolved_conservatively": false,
+      "costs": {
+        "commission": 33.83777835308133,
+        "cost_mode": "REALISTIC",
+        "funding_financing": 0.0,
+        "gross_realized_edge": -31.946481118851807,
+        "net_realized_edge": -67.38425947193315,
+        "other_execution_costs": 0.0,
+        "slippage": 0.6,
+        "spread": 1.0
+      },
+      "decision_id": "892935b9-27c7-5e47-a636-7e2e225e0808",
+      "entry_fills": [
+        {
+          "fill_time": "2026-09-25T01:22:00Z",
+          "latency_ms": 250.0,
+          "price": 84610.41912326276,
+          "quantity": 1.5651176044705187e-06
+        }
+      ],
+      "exit_fill": {
+        "fill_time": "2026-09-25T01:23:00Z",
+        "latency_ms": 250.0,
+        "price": 84578.47264214391,
+        "quantity": 1.5651176044705187e-06
+      },
+      "exit_reason": "STOP",
+      "filled_quantity": 1.5651176044705187e-06,
+      "label": "INVALIDATION_FIRST",
+      "mae_r": 1.3935532710830687,
+      "mfe_r": 0.5190204415800875,
+      "planned_quantity": 1.5651176044705187e-06,
+      "regime": "UNKNOWN",
+      "scenario_id": "6d84dd80-3c98-5146-9bbc-64df10effe4f",
+      "side": "LONG",
+      "stop_distance": 31.946481118851807,
+      "stop_price": 84578.47264214391,
+      "symbol": "BINANCE_USDM:BTCUSDT",
+      "target_price": 84689.2,
+      "trade_intent_id": "2098a58a-06db-5d80-abea-62a80d53c173"
+    },
+    {
+      "ambiguity_resolved_conservatively": false,
+      "costs": {
+        "commission": 33.798067134215984,
+        "cost_mode": "REALISTIC",
+        "funding_financing": 0.0,
+        "gross_realized_edge": 98.46432892006123,
+        "net_realized_edge": 63.06626178584525,
+        "other_execution_costs": 0.0,
+        "slippage": 0.6,
+        "spread": 1.0
+      },
+      "decision_id": "cc35ed01-d40c-5455-acda-141184d880ba",
+      "entry_fills": [
+        {
+          "fill_time": "2026-09-25T01:46:00Z",
+          "latency_ms": 250.0,
+          "price": 84445.93567107993,
+          "quantity": 0.07510988167182521
+        }
+      ],
+      "exit_fill": {
+        "fill_time": "2026-09-25T01:51:00Z",
+        "latency_ms": 250.0,
+        "price": 84544.4,
+        "quantity": 0.07510988167182521
+      },
+      "exit_reason": "TARGET",
+      "filled_quantity": 0.07510988167182521,
+      "label": "TARGET_FIRST",
+      "mae_r": 0.335079765973333,
+      "mfe_r": 3.212638145479455,
+      "planned_quantity": 0.07510988167182521,
+      "regime": "UNKNOWN",
+      "scenario_id": "612c02d8-66da-50fe-8ce9-a0ec984af2cb",
+      "side": "LONG",
+      "stop_distance": 38.30631504305347,
+      "stop_price": 84407.62935603688,
+      "symbol": "BINANCE_USDM:BTCUSDT",
+      "target_price": 84544.4,
+      "trade_intent_id": "7265472b-a45a-5b22-9144-2f1c2c6c227e"
+    },
+    {
+      "ambiguity_resolved_conservatively": false,
+      "costs": {
+        "commission": 33.83781515472352,
+        "cost_mode": "REALISTIC",
+        "funding_financing": 0.0,
+        "gross_realized_edge": -37.3830401882733,
+        "net_realized_edge": -72.82085534299682,
+        "other_execution_costs": 0.0,
+        "slippage": 0.6,
+        "spread": 1.0
+      },
+      "decision_id": "6db85813-f4d8-5235-a0f8-51200a05e3ac",
+      "entry_fills": [
+        {
+          "fill_time": "2026-09-25T02:35:00Z",
+          "latency_ms": 250.0,
+          "price": 84613.22940690293,
+          "quantity": 0.045934512242008
+        }
+      ],
+      "exit_fill": {
+        "fill_time": "2026-09-25T02:36:00Z",
+        "latency_ms": 250.0,
+        "price": 84575.84636671466,
+        "quantity": 0.045934512242008
+      },
+      "exit_reason": "STOP",
+      "filled_quantity": 0.045934512242008,
+      "label": "INVALIDATION_FIRST",
+      "mae_r": 1.0039153240058276,
+      "mfe_r": 0.0,
+      "planned_quantity": 0.045934512242008,
+      "regime": "RANGE_BALANCE",
+      "scenario_id": "409d1301-cd46-5c04-8e42-5f725a16bd41",
+      "side": "LONG",
+      "stop_distance": 37.3830401882733,
+      "stop_price": 84575.84636671466,
+      "symbol": "BINANCE_USDM:BTCUSDT",
+      "target_price": 84763.7,
+      "trade_intent_id": "1336ca1e-8728-5d53-bf08-eea525016aa2"
+    },
+    {
+      "ambiguity_resolved_conservatively": false,
+      "costs": {
+        "commission": 33.77574797225569,
+        "cost_mode": "REALISTIC",
+        "funding_financing": 0.0,
+        "gross_realized_edge": -38.00900761576486,
+        "net_realized_edge": -73.38475558802054,
+        "other_execution_costs": 0.0,
+        "slippage": 0.6,
+        "spread": 1.0
+      },
+      "decision_id": "3830fc23-7a04-57ad-b3ed-48e4ea8a1b15",
+      "entry_fills": [
+        {
+          "fill_time": "2026-09-25T02:41:00Z",
+          "latency_ms": 250.0,
+          "price": 84420.36542683133,
+          "quantity": 0.06820995219873281
+        }
+      ],
+      "exit_fill": {
+        "fill_time": "2026-09-25T02:44:00Z",
+        "latency_ms": 250.0,
+        "price": 84458.37443444709,
+        "quantity": 0.06820995219873281
+      },
+      "exit_reason": "STOP",
+      "filled_quantity": 0.06820995219873281,
+      "label": "INVALIDATION_FIRST",
+      "mae_r": 1.5610660969759536,
+      "mfe_r": 1.5802945301421056,
+      "planned_quantity": 0.06820995219873281,
+      "regime": "TREND_EXPANSION",
+      "scenario_id": "c516da7b-fe20-5554-a215-9340b009a796",
+      "side": "SHORT",
+      "stop_distance": 38.00900761576486,
+      "stop_price": 84458.37443444709,
+      "symbol": "BINANCE_USDM:BTCUSDT",
+      "target_price": 84306.1,
+      "trade_intent_id": "c967e40f-0efa-5d25-b21f-5002416ee6c3"
+    },
+    {
+      "ambiguity_resolved_conservatively": false,
+      "costs": {
+        "commission": 33.71193295503872,
+        "cost_mode": "REALISTIC",
+        "funding_financing": 0.0,
+        "gross_realized_edge": -40.86477519359323,
+        "net_realized_edge": -76.17670814863195,
+        "other_execution_costs": 0.0,
+        "slippage": 0.6,
+        "spread": 1.0
+      },
+      "decision_id": "5a1ffaa2-bcfe-5bea-86c4-854a5be477ac",
+      "entry_fills": [
+        {
+          "fill_time": "2026-09-25T03:38:00Z",
+          "latency_ms": 250.0,
+          "price": 84259.4,
+          "quantity": 0.031066389790692782
+        }
+      ],
+      "exit_fill": {
+        "fill_time": "2026-09-25T03:40:00Z",
+        "latency_ms": 250.0,
+        "price": 84300.26477519359,
+        "quantity": 0.031066389790692782
+      },
+      "exit_reason": "STOP",
+      "filled_quantity": 0.031066389790692782,
+      "label": "INVALIDATION_FIRST",
+      "mae_r": 1.3605849961637075,
+      "mfe_r": 0.23002695978290635,
+      "planned_quantity": 0.031066389790692782,
+      "regime": "COMPRESSION",
+      "scenario_id": "f023d9ef-7870-5f36-a0ae-e1001100da97",
+      "side": "SHORT",
+      "stop_distance": 40.86477519359323,
+      "stop_price": 84300.26477519359,
+      "symbol": "BINANCE_USDM:BTCUSDT",
+      "target_price": 84149.9,
+      "trade_intent_id": "f934f0a8-dc98-5606-96b2-93df385e8a8d"
+    },
+    {
+      "ambiguity_resolved_conservatively": false,
+      "costs": {
+        "commission": 33.675627808342796,
+        "cost_mode": "REALISTIC",
+        "funding_financing": 0.0,
+        "gross_realized_edge": -29.066746534677804,
+        "net_realized_edge": -64.3423743430206,
+        "other_execution_costs": 0.0,
+        "slippage": 0.6,
+        "spread": 1.0
+      },
+      "decision_id": "2c300eef-f940-5433-9d9a-31723b622937",
+      "entry_fills": [
+        {
+          "fill_time": "2026-09-25T03:50:00Z",
+          "latency_ms": 250.0,
+          "price": 84174.53614758965,
+          "quantity": 1.7201787596127409e-06
+        }
+      ],
+      "exit_fill": {
+        "fill_time": "2026-09-25T04:00:00Z",
+        "latency_ms": 250.0,
+        "price": 84203.60289412433,
+        "quantity": 1.7201787596127409e-06
+      },
+      "exit_reason": "STOP",
+      "filled_quantity": 1.7201787596127409e-06,
+      "label": "INVALIDATION_FIRST",
+      "mae_r": 1.1512761626220016,
+      "mfe_r": 2.264998853969002,
+      "planned_quantity": 1.7201787596127409e-06,
+      "regime": "COMPRESSION",
+      "scenario_id": "fc4978f2-46c6-55ad-bd5c-4e37e0dc2fe7",
+      "side": "SHORT",
+      "stop_distance": 29.066746534677804,
+      "stop_price": 84203.60289412433,
+      "symbol": "BINANCE_USDM:BTCUSDT",
+      "target_price": 84026.0,
+      "trade_intent_id": "7dbb3faf-f35d-5c70-8959-4278fb656104"
+    },
+    {
+      "ambiguity_resolved_conservatively": false,
+      "costs": {
+        "commission": 33.70002143728197,
+        "cost_mode": "REALISTIC",
+        "funding_financing": 0.0,
+        "gross_realized_edge": -28.91822897552629,
+        "net_realized_edge": -64.21825041280826,
+        "other_execution_costs": 0.0,
+        "slippage": 0.6,
+        "spread": 1.0
+      },
+      "decision_id": "04522ea4-363e-5b4e-8164-f64e9a4960fb",
+      "entry_fills": [
+        {
+          "fill_time": "2026-09-25T05:42:00Z",
+          "latency_ms": 250.0,
+          "price": 84264.51270769269,
+          "quantity": 0.11526754754429663
+        }
+      ],
+      "exit_fill": {
+        "fill_time": "2026-09-25T05:43:00Z",
+        "latency_ms": 250.0,
+        "price": 84235.59447871716,
+        "quantity": 0.11526754754429663
+      },
+      "exit_reason": "STOP",
+      "filled_quantity": 0.11526754754429663,
+      "label": "INVALIDATION_FIRST",
+      "mae_r": 1.8608576527363554,
+      "mfe_r": 0.0,
+      "planned_quantity": 0.11526754754429663,
+      "regime": "RANGE_BALANCE",
+      "scenario_id": "c15cfc9b-e329-5ec4-ba94-649b979069e9",
+      "side": "LONG",
+      "stop_distance": 28.91822897552629,
+      "stop_price": 84235.59447871716,
+      "symbol": "BINANCE_USDM:BTCUSDT",
+      "target_price": 84355.6,
+      "trade_intent_id": "b8b3c807-32c6-5d94-b723-88145caac73b"
+    },
+    {
+      "ambiguity_resolved_conservatively": false,
+      "costs": {
+        "commission": 33.65923306566036,
+        "cost_mode": "REALISTIC",
+        "funding_financing": 0.0,
+        "gross_realized_edge": -32.21032027436013,
+        "net_realized_edge": -67.4695533400205,
+        "other_execution_costs": 0.0,
+        "slippage": 0.6,
+        "spread": 1.0
+      },
+      "decision_id": "d888ce8e-fc6a-58e6-8bae-b27eb01aa749",
+      "entry_fills": [
+        {
+          "fill_time": "2026-09-25T05:59:00Z",
+          "latency_ms": 250.0,
+          "price": 84164.18782428808,
+          "quantity": 0.005045698462735606
+        }
+      ],
+      "exit_fill": {
+        "fill_time": "2026-09-25T06:01:00Z",
+        "latency_ms": 250.0,
+        "price": 84131.97750401372,
+        "quantity": 0.005045698462735606
+      },
+      "exit_reason": "STOP",
+      "filled_quantity": 0.005045698462735606,
+      "label": "INVALIDATION_FIRST",
+      "mae_r": 1.3966897536219591,
+      "mfe_r": 0.0,
+      "planned_quantity": 0.005045698462735606,
+      "regime": "COMPRESSION",
+      "scenario_id": "85a82a3e-3fe3-5fd0-8e3b-106a2814f079",
+      "side": "LONG",
+      "stop_distance": 32.21032027436013,
+      "stop_price": 84131.97750401372,
+      "symbol": "BINANCE_USDM:BTCUSDT",
+      "target_price": 84233.6,
+      "trade_intent_id": "bf3233fe-4fe1-514d-9c62-baad8f66298a"
+    },
+    {
+      "ambiguity_resolved_conservatively": false,
+      "costs": {
+        "commission": 33.659338790954315,
+        "cost_mode": "REALISTIC",
+        "funding_financing": 0.0,
+        "gross_realized_edge": 136.2939547715505,
+        "net_realized_edge": 101.03461598059617,
+        "other_execution_costs": 0.0,
+        "slippage": 0.6,
+        "spread": 1.0
+      },
+      "decision_id": "b5ea880a-542e-5a6b-8371-8c1a06aff8f4",
+      "entry_fills": [
+        {
+          "fill_time": "2026-09-25T06:22:00Z",
+          "latency_ms": 250.0,
+          "price": 84216.49395477155,
+          "quantity": 0.18396375409769924
+        }
+      ],
+      "exit_fill": {
+        "fill_time": "2026-09-25T06:28:00Z",
+        "latency_ms": 250.0,
+        "price": 84080.2,
+        "quantity": 0.18396375409769924
+      },
+      "exit_reason": "TARGET",
+      "filled_quantity": 0.18396375409769924,
+      "label": "TARGET_FIRST",
+      "mae_r": 0.8171326990700909,
+      "mfe_r": 9.690876934990971,
+      "planned_quantity": 0.18396375409769924,
+      "regime": "VOLATILITY_SHOCK",
+      "scenario_id": "bbcdd1ce-ddfa-5e5a-83ce-df43637241a2",
+      "side": "SHORT",
+      "stop_distance": 18.119511366152437,
+      "stop_price": 84234.6134661377,
+      "symbol": "BINANCE_USDM:BTCUSDT",
+      "target_price": 84080.2,
+      "trade_intent_id": "032d942c-f291-50d5-befc-40e63c36c439"
+    },
+    {
+      "ambiguity_resolved_conservatively": false,
+      "costs": null,
+      "decision_id": "65ee8aae-ff62-5d03-aed0-ed8bf1eda1b8",
+      "entry_fills": [],
+      "exit_fill": null,
+      "exit_reason": "UNFILLED",
+      "filled_quantity": 0.0,
+      "label": "NOT_EXECUTABLE",
+      "mae_r": 0.0,
+      "mfe_r": 0.0,
+      "planned_quantity": 0.18099159726970673,
+      "regime": "VOLATILITY_SHOCK",
+      "scenario_id": "3b41d34e-c817-57ca-914e-6b1940248a94",
+      "side": "SHORT",
+      "stop_distance": 18.23103033201187,
+      "stop_price": 84222.28773873847,
+      "symbol": "BINANCE_USDM:BTCUSDT",
+      "target_price": 84080.2,
+      "trade_intent_id": "80ff727b-3a3e-5777-ab85-ef90b89e6599"
+    },
+    {
+      "ambiguity_resolved_conservatively": false,
+      "costs": {
+        "commission": 33.60761231949784,
+        "cost_mode": "REALISTIC",
+        "funding_financing": 0.0,
+        "gross_realized_edge": -31.808567715721438,
+        "net_realized_edge": -67.01618003521928,
+        "other_execution_costs": 0.0,
+        "slippage": 0.6,
+        "spread": 1.0
+      },
+      "decision_id": "2df21d85-a142-530b-b83e-8256139f9b27",
+      "entry_fills": [
+        {
+          "fill_time": "2026-09-25T06:46:00Z",
+          "latency_ms": 250.0,
+          "price": 84003.12651488674,
+          "quantity": 0.08574019275708439
+        }
+      ],
+      "exit_fill": {
+        "fill_time": "2026-09-25T06:47:00Z",
+        "latency_ms": 250.0,
+        "price": 84034.93508260246,
+        "quantity": 0.08574019275708439
+      },
+      "exit_reason": "STOP",
+      "filled_quantity": 0.08574019275708439,
+      "label": "INVALIDATION_FIRST",
+      "mae_r": 1.0963550897648557,
+      "mfe_r": 0.1643115444069913,
+      "planned_quantity": 0.08574019275708439,
+      "regime": "RANGE_BALANCE",
+      "scenario_id": "ad27ef0e-2951-5fc9-bde8-ff6af5f9fcea",
+      "side": "SHORT",
+      "stop_distance": 31.808567715721438,
+      "stop_price": 84034.93508260246,
+      "symbol": "BINANCE_USDM:BTCUSDT",
+      "target_price": 83890.5,
+      "trade_intent_id": "c489ad32-cf8a-575b-9db9-3c47507f7985"
+    },
+    {
+      "ambiguity_resolved_conservatively": false,
+      "costs": {
+        "commission": 33.58128530297735,
+        "cost_mode": "REALISTIC",
+        "funding_financing": 0.0,
+        "gross_realized_edge": 125.42651488674164,
+        "net_realized_edge": 90.24522958376429,
+        "other_execution_costs": 0.0,
+        "slippage": 0.6,
+        "spread": 1.0
+      },
+      "decision_id": "3d5ffc71-3c24-5341-b6e6-7a4a63853c2c",
+      "entry_fills": [
+        {
+          "fill_time": "2026-09-25T06:55:00Z",
+          "latency_ms": 250.0,
+          "price": 84015.92651488674,
+          "quantity": 0.07305974812744713
+        }
+      ],
+      "exit_fill": {
+        "fill_time": "2026-09-25T07:09:00Z",
+        "latency_ms": 250.0,
+        "price": 83890.5,
+        "quantity": 0.07305974812744713
+      },
+      "exit_reason": "TARGET",
+      "filled_quantity": 0.07305974812744713,
+      "label": "TARGET_FIRST",
+      "mae_r": 0.1941404064213865,
+      "mfe_r": 9.36903120727493,
+      "planned_quantity": 0.07305974812744713,
+      "regime": "RANGE_BALANCE",
+      "scenario_id": "3b99f63d-0e83-5d50-b9e0-93be62d20188",
+      "side": "SHORT",
+      "stop_distance": 31.79907380983059,
+      "stop_price": 84047.72558869657,
+      "symbol": "BINANCE_USDM:BTCUSDT",
+      "target_price": 83890.5,
+      "trade_intent_id": "2bb64055-1f9d-5779-834c-602f5fbe6c0a"
+    },
+    {
+      "ambiguity_resolved_conservatively": false,
+      "costs": {
+        "commission": 33.55760465199289,
+        "cost_mode": "REALISTIC",
+        "funding_financing": 0.0,
+        "gross_realized_edge": -40.073761987529,
+        "net_realized_edge": -75.2313666395219,
+        "other_execution_costs": 0.0,
+        "slippage": 0.6,
+        "spread": 1.0
+      },
+      "decision_id": "8926629c-064e-5cb9-a033-4393d5efdd5a",
+      "entry_fills": [
+        {
+          "fill_time": "2026-09-25T07:19:00Z",
+          "latency_ms": 250.0,
+          "price": 83873.97474898846,
+          "quantity": 0.07729853510152324
+        }
+      ],
+      "exit_fill": {
+        "fill_time": "2026-09-25T07:21:00Z",
+        "latency_ms": 250.0,
+        "price": 83914.04851097599,
+        "quantity": 0.07729853510152324
+      },
+      "exit_reason": "STOP",
+      "filled_quantity": 0.07729853510152324,
+      "label": "INVALIDATION_FIRST",
+      "mae_r": 1.8646926893160283,
+      "mfe_r": 0.0,
+      "planned_quantity": 0.07729853510152324,
+      "regime": "VOLATILITY_SHOCK",
+      "scenario_id": "14bfed7b-4c67-5002-b6ef-58a33882da97",
+      "side": "SHORT",
+      "stop_distance": 40.073761987529,
+      "stop_price": 83914.04851097599,
+      "symbol": "BINANCE_USDM:BTCUSDT",
+      "target_price": 83683.7,
+      "trade_intent_id": "bbaf21a8-99f5-5144-9ae2-3bca430249ea"
+    },
+    {
+      "ambiguity_resolved_conservatively": false,
+      "costs": {
+        "commission": 33.55664465199289,
+        "cost_mode": "REALISTIC",
+        "funding_financing": 0.0,
+        "gross_realized_edge": -35.273761987526086,
+        "net_realized_edge": -70.43040663951898,
+        "other_execution_costs": 0.0,
+        "slippage": 0.6,
+        "spread": 1.0
+      },
+      "decision_id": "e25bdb39-c299-5960-b7c4-fb8ddd442783",
+      "entry_fills": [
+        {
+          "fill_time": "2026-09-25T07:19:00Z",
+          "latency_ms": 250.0,
+          "price": 83873.97474898846,
+          "quantity": 0.08781720245032333
+        }
+      ],
+      "exit_fill": {
+        "fill_time": "2026-09-25T07:20:00Z",
+        "latency_ms": 250.0,
+        "price": 83909.24851097599,
+        "quantity": 0.08781720245032333
+      },
+      "exit_reason": "STOP",
+      "filled_quantity": 0.08781720245032333,
+      "label": "INVALIDATION_FIRST",
+      "mae_r": 1.0213044762358618,
+      "mfe_r": 0.0,
+      "planned_quantity": 0.08781720245032333,
+      "regime": "VOLATILITY_SHOCK",
+      "scenario_id": "c77110dc-6572-5f00-8f33-349cf573f690",
+      "side": "SHORT",
+      "stop_distance": 35.273761987526086,
+      "stop_price": 83909.24851097599,
+      "symbol": "BINANCE_USDM:BTCUSDT",
+      "target_price": 83683.7,
+      "trade_intent_id": "95482beb-3b4d-54f2-b2b8-cd7439b2e538"
+    },
+    {
+      "ambiguity_resolved_conservatively": false,
+      "costs": {
+        "commission": 33.573033567881645,
+        "cost_mode": "REALISTIC",
+        "funding_financing": 0.0,
+        "gross_realized_edge": -30.932148978303303,
+        "net_realized_edge": -66.10518254618495,
+        "other_execution_costs": 0.0,
+        "slippage": 0.6,
+        "spread": 1.0
+      },
+      "decision_id": "0a15693b-dc54-5d7d-b04f-f9ec1a76e9f0",
+      "entry_fills": [
+        {
+          "fill_time": "2026-09-25T07:47:00Z",
+          "latency_ms": 250.0,
+          "price": 83917.11784521496,
+          "quantity": 0.07293034368464356
+        }
+      ],
+      "exit_fill": {
+        "fill_time": "2026-09-25T07:49:00Z",
+        "latency_ms": 250.0,
+        "price": 83948.04999419326,
+        "quantity": 0.07293034368464356
+      },
+      "exit_reason": "STOP",
+      "filled_quantity": 0.07293034368464356,
+      "label": "INVALIDATION_FIRST",
+      "mae_r": 1.0630413945084425,
+      "mfe_r": 0.06200168039762463,
+      "planned_quantity": 0.07293034368464356,
+      "regime": "RANGE_BALANCE",
+      "scenario_id": "fb87f1a9-40f7-570a-a427-811d026dd15e",
+      "side": "SHORT",
+      "stop_distance": 30.932148978303303,
+      "stop_price": 83948.04999419326,
+      "symbol": "BINANCE_USDM:BTCUSDT",
+      "target_price": 83722.0,
+      "trade_intent_id": "cb69ac09-1f31-5304-857b-83741a3675d1"
+    },
+    {
+      "ambiguity_resolved_conservatively": false,
+      "costs": {
+        "commission": 33.57867238519654,
+        "cost_mode": "REALISTIC",
+        "funding_financing": 0.0,
+        "gross_realized_edge": -30.926235552775324,
+        "net_realized_edge": -66.10490793797186,
+        "other_execution_costs": 0.0,
+        "slippage": 0.6,
+        "spread": 1.0
+      },
+      "decision_id": "691d1e25-67b5-583c-8601-fb16bcc6ff21",
+      "entry_fills": [
+        {
+          "fill_time": "2026-09-25T07:49:00Z",
+          "latency_ms": 250.0,
+          "price": 83931.21784521497,
+          "quantity": 0.05443603637529062
+        }
+      ],
+      "exit_fill": {
+        "fill_time": "2026-09-25T07:51:00Z",
+        "latency_ms": 250.0,
+        "price": 83962.14408076774,
+        "quantity": 0.05443603637529062
+      },
+      "exit_reason": "STOP",
+      "filled_quantity": 0.05443603637529062,
+      "label": "INVALIDATION_FIRST",
+      "mae_r": 1.473899230549739,
+      "mfe_r": 0.32069358063446696,
+      "planned_quantity": 0.05443603637529062,
+      "regime": "RANGE_BALANCE",
+      "scenario_id": "855d9918-6c7f-5fc6-829e-9851322695c4",
+      "side": "SHORT",
+      "stop_distance": 30.926235552775324,
+      "stop_price": 83962.14408076774,
+      "symbol": "BINANCE_USDM:BTCUSDT",
+      "target_price": 83722.0,
+      "trade_intent_id": "c3e91263-57d8-5b2e-8428-e16d0c37945e"
+    },
+    {
+      "ambiguity_resolved_conservatively": false,
+      "costs": {
+        "commission": 33.63073951207611,
+        "cost_mode": "REALISTIC",
+        "funding_financing": 0.0,
+        "gross_realized_edge": -26.560171095989062,
+        "net_realized_edge": -61.790910608065175,
+        "other_execution_costs": 0.0,
+        "slippage": 0.6,
+        "spread": 1.0
+      },
+      "decision_id": "d1d98acf-9841-55f5-bfa5-fd64d9ee65c2",
+      "entry_fills": [
+        {
+          "fill_time": "2026-09-25T08:05:00Z",
+          "latency_ms": 250.0,
+          "price": 84090.12886573828,
+          "quantity": 0.03422759988275052
+        }
+      ],
+      "exit_fill": {
+        "fill_time": "2026-09-25T08:08:00Z",
+        "latency_ms": 250.0,
+        "price": 84063.5686946423,
+        "quantity": 0.03422759988275052
+      },
+      "exit_reason": "STOP",
+      "filled_quantity": 0.03422759988275052,
+      "label": "INVALIDATION_FIRST",
+      "mae_r": 4.391118766395877,
+      "mfe_r": 0.19846010188192195,
+      "planned_quantity": 0.03422759988275052,
+      "regime": "RANGE_BALANCE",
+      "scenario_id": "28732c1c-076d-5e27-b30b-5eea36fd2a1f",
+      "side": "LONG",
+      "stop_distance": 26.560171095989062,
+      "stop_price": 84063.5686946423,
+      "symbol": "BINANCE_USDM:BTCUSDT",
+      "target_price": 84246.6,
+      "trade_intent_id": "86c4374b-fdb2-511f-accc-8894bbe35d39"
+    },
+    {
+      "ambiguity_resolved_conservatively": false,
+      "costs": null,
+      "decision_id": "ee8eb23a-0894-52aa-a7c2-f6fbb39b158f",
+      "entry_fills": [],
+      "exit_fill": null,
+      "exit_reason": "UNFILLED",
+      "filled_quantity": 0.0,
+      "label": "NOT_EXECUTABLE",
+      "mae_r": 0.0,
+      "mfe_r": 0.0,
+      "planned_quantity": 0.11326302717163785,
+      "regime": "RANGE_BALANCE",
+      "scenario_id": "aa5322f6-3f7a-58be-aaa4-7cb463cf0178",
+      "side": "LONG",
+      "stop_distance": 33.01734776937519,
+      "stop_price": 84107.95794788803,
+      "symbol": "BINANCE_USDM:BTCUSDT",
+      "target_price": 84246.6,
+      "trade_intent_id": "e60d08dd-7cd9-5aeb-92a2-d3860a76d4ea"
+    },
+    {
+      "ambiguity_resolved_conservatively": false,
+      "costs": {
+        "commission": 33.74014656760122,
+        "cost_mode": "REALISTIC",
+        "funding_financing": 0.0,
+        "gross_realized_edge": -31.228475039679324,
+        "net_realized_edge": -66.56862160728055,
+        "other_execution_costs": 0.0,
+        "slippage": 0.6,
+        "spread": 1.0
+      },
+      "decision_id": "7b65ff55-f9d7-5f63-80e4-417fd044ce07",
+      "entry_fills": [
+        {
+          "fill_time": "2026-09-25T08:31:00Z",
+          "latency_ms": 250.0,
+          "price": 84365.9806565229,
+          "quantity": 0.09345774692813097
+        }
+      ],
+      "exit_fill": {
+        "fill_time": "2026-09-25T08:32:00Z",
+        "latency_ms": 250.0,
+        "price": 84334.75218148321,
+        "quantity": 0.09345774692813097
+      },
+      "exit_reason": "STOP",
+      "filled_quantity": 0.09345774692813097,
+      "label": "INVALIDATION_FIRST",
+      "mae_r": 1.2034099159548786,
+      "mfe_r": 0.5289833543301939,
+      "planned_quantity": 0.09345774692813097,
+      "regime": "RANGE_BALANCE",
+      "scenario_id": "3c15a5b8-ac90-5946-b0e9-d0c7cc90cbb7",
+      "side": "LONG",
+      "stop_distance": 31.228475039679324,
+      "stop_price": 84334.75218148321,
+      "symbol": "BINANCE_USDM:BTCUSDT",
+      "target_price": 84479.7,
+      "trade_intent_id": "a691c168-45c8-5bde-aaa0-a24ff178adf9"
+    },
+    {
+      "ambiguity_resolved_conservatively": false,
+      "costs": {
+        "commission": 33.723287135394116,
+        "cost_mode": "REALISTIC",
+        "funding_financing": 0.0,
+        "gross_realized_edge": 94.76432302944886,
+        "net_realized_edge": 59.44103589405474,
+        "other_execution_costs": 0.0,
+        "slippage": 0.6,
+        "spread": 1.0
+      },
+      "decision_id": "8dd38ec1-647a-5293-802d-eb35ceb1d167",
+      "entry_fills": [
+        {
+          "fill_time": "2026-09-25T08:47:00Z",
+          "latency_ms": 250.0,
+          "price": 84260.83567697056,
+          "quantity": 0.0018724638269965062
+        }
+      ],
+      "exit_fill": {
+        "fill_time": "2026-09-25T08:56:00Z",
+        "latency_ms": 250.0,
+        "price": 84355.6,
+        "quantity": 0.0018724638269965062
+      },
+      "exit_reason": "TARGET",
+      "filled_quantity": 0.0018724638269965062,
+      "label": "TARGET_FIRST",
+      "mae_r": 0.443108833488289,
+      "mfe_r": 2.7573718758482455,
+      "planned_quantity": 0.0018724638269965062,
+      "regime": "COMPRESSION",
+      "scenario_id": "2a1b5863-11c9-514d-aa66-9c720b2ef9f5",
+      "side": "LONG",
+      "stop_distance": 35.96334752596158,
+      "stop_price": 84224.8723294446,
+      "symbol": "BINANCE_USDM:BTCUSDT",
+      "target_price": 84355.6,
+      "trade_intent_id": "d51b6117-7604-5d08-9b67-51c15428ac92"
+    },
+    {
+      "ambiguity_resolved_conservatively": false,
+      "costs": {
+        "commission": 33.73679075215749,
+        "cost_mode": "REALISTIC",
+        "funding_financing": 0.0,
+        "gross_realized_edge": 81.04623921254824,
+        "net_realized_edge": 45.70944846039075,
+        "other_execution_costs": 0.0,
+        "slippage": 0.6,
+        "spread": 1.0
+      },
+      "decision_id": "d02d1db9-4c45-564d-a234-ec48e3268d76",
+      "entry_fills": [
+        {
+          "fill_time": "2026-09-25T08:54:00Z",
+          "latency_ms": 250.0,
+          "price": 84301.45376078745,
+          "quantity": 0.003468444315858723
+        }
+      ],
+      "exit_fill": {
+        "fill_time": "2026-09-25T08:57:00Z",
+        "latency_ms": 250.0,
+        "price": 84382.5,
+        "quantity": 0.003468444315858723
+      },
+      "exit_reason": "TARGET",
+      "filled_quantity": 0.003468444315858723,
+      "label": "TARGET_FIRST",
+      "mae_r": 0.07487798184685188,
+      "mfe_r": 6.363421779465903,
+      "planned_quantity": 0.003468444315858723,
+      "regime": "COMPRESSION",
+      "scenario_id": "442693d1-06ff-5207-95f7-0b7f60558063",
+      "side": "LONG",
+      "stop_distance": 19.415063702239422,
+      "stop_price": 84282.03869708521,
+      "symbol": "BINANCE_USDM:BTCUSDT",
+      "target_price": 84382.5,
+      "trade_intent_id": "fbcef63e-0b94-5951-8459-1acf7eb08f5e"
+    },
+    {
+      "ambiguity_resolved_conservatively": false,
+      "costs": null,
+      "decision_id": "4a1cbe1f-3c2c-5b46-bb85-e2af4b729744",
+      "entry_fills": [],
+      "exit_fill": null,
+      "exit_reason": "UNFILLED",
+      "filled_quantity": 0.0,
+      "label": "NOT_EXECUTABLE",
+      "mae_r": 0.0,
+      "mfe_r": 0.0,
+      "planned_quantity": 0.01776086119906265,
+      "regime": "COMPRESSION",
+      "scenario_id": "12395eec-c56d-5aea-aa4d-f26e2d38fe96",
+      "side": "LONG",
+      "stop_distance": 22.748919633566402,
+      "stop_price": 84367.31449949175,
+      "symbol": "BINANCE_USDM:BTCUSDT",
+      "target_price": 84470.5,
+      "trade_intent_id": "c57b2034-6bd1-5823-b25f-e32f765fad09"
+    },
+    {
+      "ambiguity_resolved_conservatively": false,
+      "costs": {
+        "commission": 33.838278984027205,
+        "cost_mode": "REALISTIC",
+        "funding_financing": 0.0,
+        "gross_realized_edge": -29.24259693782369,
+        "net_realized_edge": -64.6808759218509,
+        "other_execution_costs": 0.0,
+        "slippage": 0.6,
+        "spread": 1.0
+      },
+      "decision_id": "1b130bb3-b358-5eaa-8d8c-0c0887580b34",
+      "entry_fills": [
+        {
+          "fill_time": "2026-09-25T09:11:00Z",
+          "latency_ms": 250.0,
+          "price": 84610.31875853692,
+          "quantity": 0.09096089056619261
+        }
+      ],
+      "exit_fill": {
+        "fill_time": "2026-09-25T09:11:00Z",
+        "latency_ms": 250.0,
+        "price": 84581.07616159909,
+        "quantity": 0.09096089056619261
+      },
+      "exit_reason": "STOP",
+      "filled_quantity": 0.09096089056619261,
+      "label": "INVALIDATION_FIRST",
+      "mae_r": 2.1037378680052163,
+      "mfe_r": 0.0,
+      "planned_quantity": 0.09096089056619261,
+      "regime": "TREND_EXPANSION",
+      "scenario_id": "663fe9c9-d5ce-5e20-8184-9748b06e18c6",
+      "side": "LONG",
+      "stop_distance": 29.24259693782369,
+      "stop_price": 84581.07616159909,
+      "symbol": "BINANCE_USDM:BTCUSDT",
+      "target_price": 84690.3,
+      "trade_intent_id": "e053ce68-c182-59f5-8e6a-291b8a7c9499"
+    },
+    {
+      "ambiguity_resolved_conservatively": false,
+      "costs": {
+        "commission": 33.8726322349874,
+        "cost_mode": "REALISTIC",
+        "funding_financing": 0.0,
+        "gross_realized_edge": -40.300223715486936,
+        "net_realized_edge": -75.77285595047434,
+        "other_execution_costs": 0.0,
+        "slippage": 0.6,
+        "spread": 1.0
+      },
+      "decision_id": "c50a1d2f-70aa-5f31-9adc-34fa258201f6",
+      "entry_fills": [
+        {
+          "fill_time": "2026-09-25T09:33:00Z",
+          "latency_ms": 250.0,
+          "price": 84701.73069932625,
+          "quantity": 0.08271252678064836
+        }
+      ],
+      "exit_fill": {
+        "fill_time": "2026-09-25T09:36:00Z",
+        "latency_ms": 250.0,
+        "price": 84661.43047561076,
+        "quantity": 0.08271252678064836
+      },
+      "exit_reason": "STOP",
+      "filled_quantity": 0.08271252678064836,
+      "label": "INVALIDATION_FIRST",
+      "mae_r": 1.1918221512946994,
+      "mfe_r": 0.056309877825356534,
+      "planned_quantity": 0.08271252678064836,
+      "regime": "VOLATILITY_SHOCK",
+      "scenario_id": "11fdc441-92c5-579d-9fe9-8ec67733ca89",
+      "side": "LONG",
+      "stop_distance": 40.300223715486936,
+      "stop_price": 84661.43047561076,
+      "symbol": "BINANCE_USDM:BTCUSDT",
+      "target_price": 84831.2,
+      "trade_intent_id": "9be4b3bf-d38e-51dd-bec2-aebdf8adf55c"
+    },
+    {
+      "ambiguity_resolved_conservatively": false,
+      "costs": {
+        "commission": 33.81365319511936,
+        "cost_mode": "REALISTIC",
+        "funding_financing": 0.0,
+        "gross_realized_edge": -31.05964620197483,
+        "net_realized_edge": -66.4732993970942,
+        "other_execution_costs": 0.0,
+        "slippage": 0.6,
+        "spread": 1.0
+      },
+      "decision_id": "14088865-eae0-5e92-81b6-1091a3e89634",
+      "entry_fills": [
+        {
+          "fill_time": "2026-09-25T10:26:00Z",
+          "latency_ms": 250.0,
+          "price": 84518.6031646974,
+          "quantity": 0.028244538625439478
+        }
+      ],
+      "exit_fill": {
+        "fill_time": "2026-09-25T10:27:00Z",
+        "latency_ms": 250.0,
+        "price": 84549.66281089938,
+        "quantity": 0.028244538625439478
+      },
+      "exit_reason": "STOP",
+      "filled_quantity": 0.028244538625439478,
+      "label": "INVALIDATION_FIRST",
+      "mae_r": 1.2426682213831008,
+      "mfe_r": 0.14820402870873545,
+      "planned_quantity": 0.028244538625439478,
+      "regime": "RANGE_BALANCE",
+      "scenario_id": "bd678d31-304d-5d21-8b13-76e4849138cf",
+      "side": "SHORT",
+      "stop_distance": 31.05964620197483,
+      "stop_price": 84549.66281089938,
+      "symbol": "BINANCE_USDM:BTCUSDT",
+      "target_price": 84362.4,
+      "trade_intent_id": "18bab86c-aece-5bf4-848a-37dac8a1b7d1"
+    },
+    {
+      "ambiguity_resolved_conservatively": false,
+      "costs": null,
+      "decision_id": "666d951e-f171-54d3-a09c-2898656b966b",
+      "entry_fills": [],
+      "exit_fill": null,
+      "exit_reason": "UNFILLED",
+      "filled_quantity": 0.0,
+      "label": "NOT_EXECUTABLE",
+      "mae_r": 0.0,
+      "mfe_r": 0.0,
+      "planned_quantity": 0.10701051797644749,
+      "regime": "TREND_EXPANSION",
+      "scenario_id": "f2f0d490-747f-5918-9400-70f0b670c95e",
+      "side": "LONG",
+      "stop_distance": 30.52030144094897,
+      "stop_price": 84581.51801143755,
+      "symbol": "BINANCE_USDM:BTCUSDT",
+      "target_price": 84822.2,
+      "trade_intent_id": "c3b95fc8-d8ba-5687-878e-2de7a3273a2c"
+    },
+    {
+      "ambiguity_resolved_conservatively": false,
+      "costs": {
+        "commission": 33.93706942959961,
+        "cost_mode": "REALISTIC",
+        "funding_financing": 0.0,
+        "gross_realized_edge": -52.093667940600426,
+        "net_realized_edge": -87.63073737020004,
+        "other_execution_costs": 0.0,
+        "slippage": 0.6,
+        "spread": 1.0
+      },
+      "decision_id": "da09adeb-0d40-55b0-972d-299123bea53c",
+      "entry_fills": [
+        {
+          "fill_time": "2026-09-25T11:25:00Z",
+          "latency_ms": 250.0,
+          "price": 84868.72040796933,
+          "quantity": 0.06204829416137245
+        }
+      ],
+      "exit_fill": {
+        "fill_time": "2026-09-25T11:25:00Z",
+        "latency_ms": 250.0,
+        "price": 84816.62674002873,
+        "quantity": 0.06204829416137245
+      },
+      "exit_reason": "STOP",
+      "filled_quantity": 0.06204829416137245,
+      "label": "INVALIDATION_FIRST",
+      "mae_r": 1.534167416670657,
+      "mfe_r": 0.0,
+      "planned_quantity": 0.06204829416137245,
+      "regime": "VOLATILITY_SHOCK",
+      "scenario_id": "54049c66-616f-54e8-9802-7262eec6ca06",
+      "side": "LONG",
+      "stop_distance": 52.093667940600426,
+      "stop_price": 84816.62674002873,
+      "symbol": "BINANCE_USDM:BTCUSDT",
+      "target_price": 85064.8,
+      "trade_intent_id": "443300ae-77c7-595f-b2b3-72a52cd3331a"
+    },
+    {
+      "ambiguity_resolved_conservatively": false,
+      "costs": {
+        "commission": 33.939229429599614,
+        "cost_mode": "REALISTIC",
+        "funding_financing": 0.0,
+        "gross_realized_edge": -41.293667940597516,
+        "net_realized_edge": -76.83289737019713,
+        "other_execution_costs": 0.0,
+        "slippage": 0.6,
+        "spread": 1.0
+      },
+      "decision_id": "4a27ef61-c8c8-56a7-95a8-e7a286e1b123",
+      "entry_fills": [
+        {
+          "fill_time": "2026-09-25T11:25:00Z",
+          "latency_ms": 250.0,
+          "price": 84868.72040796933,
+          "quantity": 0.0782764862877536
+        }
+      ],
+      "exit_fill": {
+        "fill_time": "2026-09-25T11:25:00Z",
+        "latency_ms": 250.0,
+        "price": 84827.42674002874,
+        "quantity": 0.0782764862877536
+      },
+      "exit_reason": "STOP",
+      "filled_quantity": 0.0782764862877536,
+      "label": "INVALIDATION_FIRST",
+      "mae_r": 1.9354155722930322,
+      "mfe_r": 0.0,
+      "planned_quantity": 0.0782764862877536,
+      "regime": "VOLATILITY_SHOCK",
+      "scenario_id": "ba63c36c-a212-5b19-809d-05d7d21df7a9",
+      "side": "LONG",
+      "stop_distance": 41.293667940597516,
+      "stop_price": 84827.42674002874,
+      "symbol": "BINANCE_USDM:BTCUSDT",
+      "target_price": 85064.8,
+      "trade_intent_id": "c3a67cf3-665b-535b-aa4d-7bea31933cc6"
+    },
+    {
+      "ambiguity_resolved_conservatively": false,
+      "costs": {
+        "commission": 33.8050232406548,
+        "cost_mode": "REALISTIC",
+        "funding_financing": 0.0,
+        "gross_realized_edge": 220.11620327399578,
+        "net_realized_edge": 184.71118003334098,
+        "other_execution_costs": 0.0,
+        "slippage": 0.6,
+        "spread": 1.0
+      },
+      "decision_id": "e831a7cd-45a4-538f-90f6-ef771b8ab204",
+      "entry_fills": [
+        {
+          "fill_time": "2026-09-25T11:52:00Z",
+          "latency_ms": 250.0,
+          "price": 84622.616203274,
+          "quantity": 0.0426349152298991
+        }
+      ],
+      "exit_fill": {
+        "fill_time": "2026-09-25T12:14:00Z",
+        "latency_ms": 250.0,
+        "price": 84402.5,
+        "quantity": 0.0426349152298991
+      },
+      "exit_reason": "TARGET",
+      "filled_quantity": 0.0426349152298991,
+      "label": "TARGET_FIRST",
+      "mae_r": 0.5815811458606834,
+      "mfe_r": 5.796804429861626,
+      "planned_quantity": 0.0426349152298991,
+      "regime": "RANGE_EXPANSION",
+      "scenario_id": "6e4d2af5-41ad-545c-9a60-f5e1319d11eb",
+      "side": "SHORT",
+      "stop_distance": 64.27958848404523,
+      "stop_price": 84686.89579175804,
+      "symbol": "BINANCE_USDM:BTCUSDT",
+      "target_price": 84402.5,
+      "trade_intent_id": "c3a1507f-b4f1-5c5f-97c4-484f9544472e"
+    },
+    {
+      "ambiguity_resolved_conservatively": false,
+      "costs": {
+        "commission": 33.846982399006414,
+        "cost_mode": "REALISTIC",
+        "funding_financing": 0.0,
+        "gross_realized_edge": -46.279588484045235,
+        "net_realized_edge": -81.72657088305165,
+        "other_execution_costs": 0.0,
+        "slippage": 0.6,
+        "spread": 1.0
+      },
+      "decision_id": "c2b12483-e2ee-5507-994d-9c7820e5a3ac",
+      "entry_fills": [
+        {
+          "fill_time": "2026-09-25T11:51:00Z",
+          "latency_ms": 250.0,
+          "price": 84594.316203274,
+          "quantity": 0.054565146492672446
+        }
+      ],
+      "exit_fill": {
+        "fill_time": "2026-09-25T11:52:00Z",
+        "latency_ms": 250.0,
+        "price": 84640.59579175804,
+        "quantity": 0.054565146492672446
+      },
+      "exit_reason": "STOP",
+      "filled_quantity": 0.054565146492672446,
+      "label": "INVALIDATION_FIRST",
+      "mae_r": 1.1621494159256573,
+      "mfe_r": 0.0,
+      "planned_quantity": 0.054565146492672446,
+      "regime": "RANGE_EXPANSION",
+      "scenario_id": "b0e7c700-452c-50d3-982f-5807dd7a44e0",
+      "side": "SHORT",
+      "stop_distance": 46.279588484045235,
+      "stop_price": 84640.59579175804,
+      "symbol": "BINANCE_USDM:BTCUSDT",
+      "target_price": 84402.5,
+      "trade_intent_id": "6e886f8b-7705-5cb3-8aa9-6fa7a89e1062"
+    },
+    {
+      "ambiguity_resolved_conservatively": false,
+      "costs": {
+        "commission": 33.744854059299655,
+        "cost_mode": "REALISTIC",
+        "funding_financing": 0.0,
+        "gross_realized_edge": -62.49237219727365,
+        "net_realized_edge": -97.8372262565733,
+        "other_execution_costs": 0.0,
+        "slippage": 0.6,
+        "spread": 1.0
+      },
+      "decision_id": "70619757-965b-5a7c-ac90-a71ff68779ad",
+      "entry_fills": [
+        {
+          "fill_time": "2026-09-25T12:29:00Z",
+          "latency_ms": 250.0,
+          "price": 84330.8889621505,
+          "quantity": 0.053339843186153785
+        }
+      ],
+      "exit_fill": {
+        "fill_time": "2026-09-25T12:31:00Z",
+        "latency_ms": 250.0,
+        "price": 84393.38133434777,
+        "quantity": 0.053339843186153785
+      },
+      "exit_reason": "STOP",
+      "filled_quantity": 0.053339843186153785,
+      "label": "INVALIDATION_FIRST",
+      "mae_r": 2.214846916237694,
+      "mfe_r": 0.0,
+      "planned_quantity": 0.053339843186153785,
+      "regime": "RANGE_BALANCE",
+      "scenario_id": "f4fb46ea-38b3-5b63-881c-115f9df9f7d4",
+      "side": "SHORT",
+      "stop_distance": 62.49237219727365,
+      "stop_price": 84393.38133434777,
+      "symbol": "BINANCE_USDM:BTCUSDT",
+      "target_price": 84067.5,
+      "trade_intent_id": "43908e89-9d2b-5148-aacc-7c0fbfc6c5e5"
+    },
+    {
+      "ambiguity_resolved_conservatively": false,
+      "costs": {
+        "commission": 33.76486067665995,
+        "cost_mode": "REALISTIC",
+        "funding_financing": 0.0,
+        "gross_realized_edge": -57.525458998730755,
+        "net_realized_edge": -92.89031967539071,
+        "other_execution_costs": 0.0,
+        "slippage": 0.6,
+        "spread": 1.0
+      },
+      "decision_id": "f7086fca-e393-564d-b229-5d4ffced22a8",
+      "entry_fills": [
+        {
+          "fill_time": "2026-09-25T12:33:00Z",
+          "latency_ms": 250.0,
+          "price": 84383.3889621505,
+          "quantity": 0.05033637186079272
+        }
+      ],
+      "exit_fill": {
+        "fill_time": "2026-09-25T12:34:00Z",
+        "latency_ms": 250.0,
+        "price": 84440.91442114922,
+        "quantity": 0.05033637186079272
+      },
+      "exit_reason": "STOP",
+      "filled_quantity": 0.05033637186079272,
+      "label": "INVALIDATION_FIRST",
+      "mae_r": 1.3891421162110658,
+      "mfe_r": 0.406584537656783,
+      "planned_quantity": 0.05033637186079272,
+      "regime": "RANGE_BALANCE",
+      "scenario_id": "8eb263ff-f9cf-5ef8-8607-3a387d710f01",
+      "side": "SHORT",
+      "stop_distance": 57.525458998730755,
+      "stop_price": 84440.91442114922,
+      "symbol": "BINANCE_USDM:BTCUSDT",
+      "target_price": 84067.5,
+      "trade_intent_id": "670b1b53-9f35-58a9-9599-8b2851269e73"
+    },
+    {
+      "ambiguity_resolved_conservatively": false,
+      "costs": {
+        "commission": 33.7765777924301,
+        "cost_mode": "REALISTIC",
+        "funding_financing": 0.0,
+        "gross_realized_edge": 120.28896215048735,
+        "net_realized_edge": 84.91238435805724,
+        "other_execution_costs": 0.0,
+        "slippage": 0.6,
+        "spread": 1.0
+      },
+      "decision_id": "117e3261-b794-5ab8-b404-040d2b294c0f",
+      "entry_fills": [
+        {
+          "fill_time": "2026-09-25T12:48:00Z",
+          "latency_ms": 250.0,
+          "price": 84501.58896215049,
+          "quantity": 0.03979458896929978
+        }
+      ],
+      "exit_fill": {
+        "fill_time": "2026-09-25T13:14:00Z",
+        "latency_ms": 250.0,
+        "price": 84381.3,
+        "quantity": 0.03979458896929978
+      },
+      "exit_reason": "TIMEOUT",
+      "filled_quantity": 0.03979458896929978,
+      "label": "TIMEOUT_WITH_PROFIT",
+      "mae_r": 0.5811389970597214,
+      "mfe_r": 3.001582231432588,
+      "planned_quantity": 0.03979458896929978,
+      "regime": "RANGE_BALANCE",
+      "scenario_id": "72957245-ed14-5149-81ad-c0356174c1ec",
+      "side": "SHORT",
+      "stop_distance": 70.22594948194455,
+      "stop_price": 84571.81491163243,
+      "symbol": "BINANCE_USDM:BTCUSDT",
+      "target_price": 84067.5,
+      "trade_intent_id": "9ccab426-4790-5330-88be-4fbf52adbb47"
+    },
+    {
+      "ambiguity_resolved_conservatively": false,
+      "costs": null,
+      "decision_id": "14b1a697-bf92-51ed-abe8-779170f56ef3",
+      "entry_fills": [],
+      "exit_fill": null,
+      "exit_reason": "UNFILLED",
+      "filled_quantity": 0.0,
+      "label": "NOT_EXECUTABLE",
+      "mae_r": 0.0,
+      "mfe_r": 0.0,
+      "planned_quantity": 0.01862907950269635,
+      "regime": "RANGE_EXPANSION",
+      "scenario_id": "2127861d-adae-5fcc-be14-f48a7334af4b",
+      "side": "SHORT",
+      "stop_distance": 192.33855491681607,
+      "stop_price": 84356.63855491682,
+      "symbol": "BINANCE_USDM:BTCUSDT",
+      "target_price": 83851.4,
+      "trade_intent_id": "780714a0-0c82-5065-b938-a5410c6781d0"
+    },
+    {
+      "ambiguity_resolved_conservatively": false,
+      "costs": null,
+      "decision_id": "254b122f-fe74-5ef6-aba1-faddff75b185",
+      "entry_fills": [],
+      "exit_fill": null,
+      "exit_reason": "UNFILLED",
+      "filled_quantity": 0.0,
+      "label": "NOT_EXECUTABLE",
+      "mae_r": 0.0,
+      "mfe_r": 0.0,
+      "planned_quantity": 0.03939362016563225,
+      "regime": "RANGE_EXPANSION",
+      "scenario_id": "701daf4c-e94d-5314-808a-696647c71d98",
+      "side": "SHORT",
+      "stop_distance": 99.43855491682189,
+      "stop_price": 84356.63855491682,
+      "symbol": "BINANCE_USDM:BTCUSDT",
+      "target_price": 83851.4,
+      "trade_intent_id": "528837ab-4386-527a-9ce9-1e6cbf43513c"
+    },
+    {
+      "ambiguity_resolved_conservatively": false,
+      "costs": null,
+      "decision_id": "e64c77a6-1cda-59c7-9493-595355b2558d",
+      "entry_fills": [],
+      "exit_fill": null,
+      "exit_reason": "UNFILLED",
+      "filled_quantity": 0.0,
+      "label": "NOT_EXECUTABLE",
+      "mae_r": 0.0,
+      "mfe_r": 0.0,
+      "planned_quantity": 0.04913758782127039,
+      "regime": "RANGE_EXPANSION",
+      "scenario_id": "a2e26f0d-2340-5150-84ef-98fc2bfb23a9",
+      "side": "SHORT",
+      "stop_distance": 60.984536064992426,
+      "stop_price": 84324.5926486006,
+      "symbol": "BINANCE_USDM:BTCUSDT",
+      "target_price": 83841.3,
+      "trade_intent_id": "cc2cbc77-f1c7-583e-915a-5e60ddc5e94b"
+    },
+    {
+      "ambiguity_resolved_conservatively": false,
+      "costs": {
+        "commission": 33.480434887788356,
+        "cost_mode": "REALISTIC",
+        "funding_financing": 0.0,
+        "gross_realized_edge": -103.74853271065513,
+        "net_realized_edge": -138.82896759844348,
+        "other_execution_costs": 0.0,
+        "slippage": 0.6,
+        "spread": 1.0
+      },
+      "decision_id": "19b97427-ddd9-5336-902c-7c06b0649c37",
+      "entry_fills": [
+        {
+          "fill_time": "2026-09-25T13:49:00Z",
+          "latency_ms": 250.0,
+          "price": 83649.21295311557,
+          "quantity": 0.03212896844170014
+        }
+      ],
+      "exit_fill": {
+        "fill_time": "2026-09-25T13:49:00Z",
+        "latency_ms": 250.0,
+        "price": 83752.96148582622,
+        "quantity": 0.03212896844170014
+      },
+      "exit_reason": "STOP",
+      "filled_quantity": 0.03212896844170014,
+      "label": "INVALIDATION_FIRST",
+      "mae_r": 1.0678420599297396,
+      "mfe_r": 0.0,
+      "planned_quantity": 0.03212896844170014,
+      "regime": "RANGE_BALANCE",
+      "scenario_id": "14bd4c0d-428c-587c-af9f-01bdb5505359",
+      "side": "SHORT",
+      "stop_distance": 103.74853271065513,
+      "stop_price": 83752.96148582622,
+      "symbol": "BINANCE_USDM:BTCUSDT",
+      "target_price": 83434.3,
+      "trade_intent_id": "2d071004-781a-5b4b-a2ff-5e086142eae0"
+    },
+    {
+      "ambiguity_resolved_conservatively": false,
+      "costs": {
+        "commission": 33.480434887788356,
+        "cost_mode": "REALISTIC",
+        "funding_financing": 0.0,
+        "gross_realized_edge": -103.74853271065513,
+        "net_realized_edge": -138.82896759844348,
+        "other_execution_costs": 0.0,
+        "slippage": 0.6,
+        "spread": 1.0
+      },
+      "decision_id": "11f60fe7-d40f-51aa-93e1-1f3ffcc9a25f",
+      "entry_fills": [
+        {
+          "fill_time": "2026-09-25T13:49:00Z",
+          "latency_ms": 250.0,
+          "price": 83649.21295311557,
+          "quantity": 0.03212896844170014
+        }
+      ],
+      "exit_fill": {
+        "fill_time": "2026-09-25T13:49:00Z",
+        "latency_ms": 250.0,
+        "price": 83752.96148582622,
+        "quantity": 0.03212896844170014
+      },
+      "exit_reason": "STOP",
+      "filled_quantity": 0.03212896844170014,
+      "label": "INVALIDATION_FIRST",
+      "mae_r": 1.0678420599297396,
+      "mfe_r": 0.0,
+      "planned_quantity": 0.03212896844170014,
+      "regime": "RANGE_BALANCE",
+      "scenario_id": "c8a577af-95a0-5c61-b4f9-5037142f813d",
+      "side": "SHORT",
+      "stop_distance": 103.74853271065513,
+      "stop_price": 83752.96148582622,
+      "symbol": "BINANCE_USDM:BTCUSDT",
+      "target_price": 83434.3,
+      "trade_intent_id": "c8ac33d3-043f-5aa2-9689-2a70907051b0"
+    },
+    {
+      "ambiguity_resolved_conservatively": false,
+      "costs": {
+        "commission": 33.514914624850256,
+        "cost_mode": "REALISTIC",
+        "funding_financing": 0.0,
+        "gross_realized_edge": -103.74721802014392,
+        "net_realized_edge": -138.86213264499418,
+        "other_execution_costs": 0.0,
+        "slippage": 0.6,
+        "spread": 1.0
+      },
+      "decision_id": "dae3214b-f078-500a-891f-7a3f1885e796",
+      "entry_fills": [
+        {
+          "fill_time": "2026-09-25T13:50:00Z",
+          "latency_ms": 250.0,
+          "price": 83735.41295311556,
+          "quantity": 0.04183233469766806
+        }
+      ],
+      "exit_fill": {
+        "fill_time": "2026-09-25T13:53:00Z",
+        "latency_ms": 250.0,
+        "price": 83839.1601711357,
+        "quantity": 0.04183233469766806
+      },
+      "exit_reason": "STOP",
+      "filled_quantity": 0.04183233469766806,
+      "label": "INVALIDATION_FIRST",
+      "mae_r": 1.2673790140464398,
+      "mfe_r": 0.5418261249631923,
+      "planned_quantity": 0.04183233469766806,
+      "regime": "VOLATILITY_SHOCK",
+      "scenario_id": "34e93871-1948-5f6c-a5e8-ea0ef6e10ba7",
+      "side": "SHORT",
+      "stop_distance": 103.74721802014392,
+      "stop_price": 83839.1601711357,
+      "symbol": "BINANCE_USDM:BTCUSDT",
+      "target_price": 83434.3,
+      "trade_intent_id": "d32e5b97-d432-5488-99ab-b3877256fe15"
+    },
+    {
+      "ambiguity_resolved_conservatively": false,
+      "costs": {
+        "commission": 33.49575347893923,
+        "cost_mode": "REALISTIC",
+        "funding_financing": 0.0,
+        "gross_realized_edge": -103.74148846499156,
+        "net_realized_edge": -138.8372419439308,
+        "other_execution_costs": 0.0,
+        "slippage": 0.6,
+        "spread": 1.0
+      },
+      "decision_id": "79c6aa2d-0548-5d5b-9a1d-e52c6f8e3d0b",
+      "entry_fills": [
+        {
+          "fill_time": "2026-09-25T13:51:00Z",
+          "latency_ms": 250.0,
+          "price": 83687.51295311557,
+          "quantity": 0.03148203591753364
+        }
+      ],
+      "exit_fill": {
+        "fill_time": "2026-09-25T13:51:00Z",
+        "latency_ms": 250.0,
+        "price": 83791.25444158056,
+        "quantity": 0.03148203591753364
+      },
+      "exit_reason": "STOP",
+      "filled_quantity": 0.03148203591753364,
+      "label": "INVALIDATION_FIRST",
+      "mae_r": 1.4611998451862505,
+      "mfe_r": 0.0,
+      "planned_quantity": 0.03148203591753364,
+      "regime": "VOLATILITY_SHOCK",
+      "scenario_id": "bd4c6484-1abf-5894-a57d-3d0ead58e834",
+      "side": "SHORT",
+      "stop_distance": 103.74148846499156,
+      "stop_price": 83791.25444158056,
+      "symbol": "BINANCE_USDM:BTCUSDT",
+      "target_price": 83434.3,
+      "trade_intent_id": "d061da20-2eb6-53ac-ae56-a7b8ff24dd35"
+    },
+    {
+      "ambiguity_resolved_conservatively": false,
+      "costs": {
+        "commission": 33.38093669930131,
+        "cost_mode": "REALISTIC",
+        "funding_financing": 0.0,
+        "gross_realized_edge": -107.65179061544768,
+        "net_realized_edge": -142.632727314749,
+        "other_execution_costs": 0.0,
+        "slippage": 0.6,
+        "spread": 1.0
+      },
+      "decision_id": "b274751f-9d2a-575b-985b-e0bf8c8115e5",
+      "entry_fills": [
+        {
+          "fill_time": "2026-09-25T14:12:00Z",
+          "latency_ms": 250.0,
+          "price": 83398.51585294555,
+          "quantity": 0.03371062144087913
+        }
+      ],
+      "exit_fill": {
+        "fill_time": "2026-09-25T14:12:00Z",
+        "latency_ms": 250.0,
+        "price": 83506.167643561,
+        "quantity": 0.03371062144087913
+      },
+      "exit_reason": "STOP",
+      "filled_quantity": 0.03371062144087913,
+      "label": "INVALIDATION_FIRST",
+      "mae_r": 1.8716283853947946,
+      "mfe_r": 0.0,
+      "planned_quantity": 0.03371062144087913,
+      "regime": "VOLATILITY_SHOCK",
+      "scenario_id": "631c670b-258c-52ef-a312-2c161939fa95",
+      "side": "SHORT",
+      "stop_distance": 107.65179061544768,
+      "stop_price": 83506.167643561,
+      "symbol": "BINANCE_USDM:BTCUSDT",
+      "target_price": 83130.1,
+      "trade_intent_id": "0d43d9b4-5678-513f-83bc-b3ca0ea702c2"
+    },
+    {
+      "ambiguity_resolved_conservatively": false,
+      "costs": {
+        "commission": 33.38093669930131,
+        "cost_mode": "REALISTIC",
+        "funding_financing": 0.0,
+        "gross_realized_edge": -107.65179061544768,
+        "net_realized_edge": -142.632727314749,
+        "other_execution_costs": 0.0,
+        "slippage": 0.6,
+        "spread": 1.0
+      },
+      "decision_id": "a21a0060-5d25-58f4-a6c5-020be74e3109",
+      "entry_fills": [
+        {
+          "fill_time": "2026-09-25T14:12:00Z",
+          "latency_ms": 250.0,
+          "price": 83398.51585294555,
+          "quantity": 0.03371062144087913
+        }
+      ],
+      "exit_fill": {
+        "fill_time": "2026-09-25T14:12:00Z",
+        "latency_ms": 250.0,
+        "price": 83506.167643561,
+        "quantity": 0.03371062144087913
+      },
+      "exit_reason": "STOP",
+      "filled_quantity": 0.03371062144087913,
+      "label": "INVALIDATION_FIRST",
+      "mae_r": 1.8716283853947946,
+      "mfe_r": 0.0,
+      "planned_quantity": 0.03371062144087913,
+      "regime": "VOLATILITY_SHOCK",
+      "scenario_id": "8589dcfa-0f4f-5c98-ad40-4d71863e37cb",
+      "side": "SHORT",
+      "stop_distance": 107.65179061544768,
+      "stop_price": 83506.167643561,
+      "symbol": "BINANCE_USDM:BTCUSDT",
+      "target_price": 83130.1,
+      "trade_intent_id": "fdad3f82-853f-511a-a184-c198e0177228"
+    },
+    {
+      "ambiguity_resolved_conservatively": false,
+      "costs": {
+        "commission": 33.4788285966383,
+        "cost_mode": "REALISTIC",
+        "funding_financing": 0.0,
+        "gross_realized_edge": -106.64530926992302,
+        "net_realized_edge": -141.7241378665613,
+        "other_execution_costs": 0.0,
+        "slippage": 0.6,
+        "spread": 1.0
+      },
+      "decision_id": "20bb344e-21aa-545a-b280-b5c1969c7913",
+      "entry_fills": [
+        {
+          "fill_time": "2026-09-25T14:22:00Z",
+          "latency_ms": 250.0,
+          "price": 83643.74883696079,
+          "quantity": 0.028730500056200703
+        }
+      ],
+      "exit_fill": {
+        "fill_time": "2026-09-25T14:23:00Z",
+        "latency_ms": 250.0,
+        "price": 83750.39414623071,
+        "quantity": 0.028730500056200703
+      },
+      "exit_reason": "STOP",
+      "filled_quantity": 0.028730500056200703,
+      "label": "INVALIDATION_FIRST",
+      "mae_r": 1.1463341789350432,
+      "mfe_r": 0.0,
+      "planned_quantity": 0.028730500056200703,
+      "regime": "RANGE_BALANCE",
+      "scenario_id": "0460fcac-d1c1-5624-9eb4-7dda44c30f0a",
+      "side": "SHORT",
+      "stop_distance": 106.64530926992302,
+      "stop_price": 83750.39414623071,
+      "symbol": "BINANCE_USDM:BTCUSDT",
+      "target_price": 83205.1,
+      "trade_intent_id": "e74dd5d2-faec-588c-9d36-c34ae77ad19a"
+    },
+    {
+      "ambiguity_resolved_conservatively": false,
+      "costs": {
+        "commission": 33.39186310341755,
+        "cost_mode": "REALISTIC",
+        "funding_financing": 0.0,
+        "gross_realized_edge": 127.51551708774059,
+        "net_realized_edge": 92.52365398432303,
+        "other_execution_costs": 0.0,
+        "slippage": 0.6,
+        "spread": 1.0
+      },
+      "decision_id": "e95a550d-f93b-5a1d-b475-34ce2ce97905",
+      "entry_fills": [
+        {
+          "fill_time": "2026-09-25T15:42:00Z",
+          "latency_ms": 250.0,
+          "price": 83543.41551708773,
+          "quantity": 0.014793051129247134
+        }
+      ],
+      "exit_fill": {
+        "fill_time": "2026-09-25T15:44:00Z",
+        "latency_ms": 250.0,
+        "price": 83415.9,
+        "quantity": 0.014793051129247134
+      },
+      "exit_reason": "TARGET",
+      "filled_quantity": 0.014793051129247134,
+      "label": "TARGET_FIRST",
+      "mae_r": 0.6070059838858025,
+      "mfe_r": 2.063636368802827,
+      "planned_quantity": 0.014793051129247134,
+      "regime": "COMPRESSION",
+      "scenario_id": "b686cff3-faef-5815-a622-d9ea496b6eda",
+      "side": "SHORT",
+      "stop_distance": 63.729986094418564,
+      "stop_price": 83607.14550318215,
+      "symbol": "BINANCE_USDM:BTCUSDT",
+      "target_price": 83415.9,
+      "trade_intent_id": "35eefe8d-7d4d-5d2e-ba15-181cce52aef9"
+    },
+    {
+      "ambiguity_resolved_conservatively": false,
+      "costs": {
+        "commission": 33.48889985628678,
+        "cost_mode": "REALISTIC",
+        "funding_financing": 0.0,
+        "gross_realized_edge": -12.699281433888245,
+        "net_realized_edge": -47.788181290175025,
+        "other_execution_costs": 0.0,
+        "slippage": 0.6,
+        "spread": 1.0
+      },
+      "decision_id": "8851747a-eb8b-5fcb-9fbe-8b59044edaf6",
+      "entry_fills": [
+        {
+          "fill_time": "2026-09-25T16:50:00Z",
+          "latency_ms": 250.0,
+          "price": 83728.59928143388,
+          "quantity": 0.004350334241098881
+        }
+      ],
+      "exit_fill": {
+        "fill_time": "2026-09-25T17:00:00Z",
+        "latency_ms": 250.0,
+        "price": 83715.9,
+        "quantity": 0.004350334241098881
+      },
+      "exit_reason": "TIMEOUT",
+      "filled_quantity": 0.004350334241098881,
+      "label": "TIMEOUT_WITH_LOSS",
+      "mae_r": 0.7186908009331057,
+      "mfe_r": 2.3789973229479724,
+      "planned_quantity": 0.004350334241098881,
+      "regime": "COMPRESSION",
+      "scenario_id": "0d259556-ada2-59d4-b2e5-afbac45727a9",
+      "side": "LONG",
+      "stop_distance": 61.91714347268862,
+      "stop_price": 83666.6821379612,
+      "symbol": "BINANCE_USDM:BTCUSDT",
+      "target_price": 83903.8,
+      "trade_intent_id": "1da94ebc-c442-5eca-93e9-4508df40498d"
+    },
+    {
+      "ambiguity_resolved_conservatively": false,
+      "costs": {
+        "commission": 33.51541594276635,
+        "cost_mode": "REALISTIC",
+        "funding_financing": 0.0,
+        "gross_realized_edge": -44.402004879986634,
+        "net_realized_edge": -79.517420822753,
+        "other_execution_costs": 0.0,
+        "slippage": 0.6,
+        "spread": 1.0
+      },
+      "decision_id": "414cd2d2-c116-545a-9a79-816b1e5fb0a6",
+      "entry_fills": [
+        {
+          "fill_time": "2026-09-25T16:52:00Z",
+          "latency_ms": 250.0,
+          "price": 83766.3388544759,
+          "quantity": 0.004549799104032323
+        }
+      ],
+      "exit_fill": {
+        "fill_time": "2026-09-25T16:52:00Z",
+        "latency_ms": 250.0,
+        "price": 83810.74085935588,
+        "quantity": 0.004549799104032323
+      },
+      "exit_reason": "STOP",
+      "filled_quantity": 0.004549799104032323,
+      "label": "INVALIDATION_FIRST",
+      "mae_r": 1.2017733358737566,
+      "mfe_r": 0.0,
+      "planned_quantity": 0.004549799104032323,
+      "regime": "COMPRESSION",
+      "scenario_id": "2418f0b0-9d55-50fc-a234-b6af62fb8b69",
+      "side": "SHORT",
+      "stop_distance": 44.402004879986634,
+      "stop_price": 83810.74085935588,
+      "symbol": "BINANCE_USDM:BTCUSDT",
+      "target_price": 83323.6,
+      "trade_intent_id": "c530fc82-16a1-537c-99b0-d3f21540c877"
+    },
+    {
+      "ambiguity_resolved_conservatively": false,
+      "costs": {
+        "commission": 33.536086887984226,
+        "cost_mode": "REALISTIC",
+        "funding_financing": 0.0,
+        "gross_realized_edge": -43.06624096943415,
+        "net_realized_edge": -78.20232785741837,
+        "other_execution_costs": 0.0,
+        "slippage": 0.6,
+        "spread": 1.0
+      },
+      "decision_id": "9d9c0a6d-f4ec-5fab-ba97-dde1f1b6b412",
+      "entry_fills": [
+        {
+          "fill_time": "2026-09-25T16:53:00Z",
+          "latency_ms": 250.0,
+          "price": 83818.68409947584,
+          "quantity": 0.004923061734086982
+        }
+      ],
+      "exit_fill": {
+        "fill_time": "2026-09-25T16:53:00Z",
+        "latency_ms": 250.0,
+        "price": 83861.75034044527,
+        "quantity": 0.004923061734086982
+      },
+      "exit_reason": "STOP",
+      "filled_quantity": 0.004923061734086982,
+      "label": "INVALIDATION_FIRST",
+      "mae_r": 1.0661692195693513,
+      "mfe_r": 0.0,
+      "planned_quantity": 0.004923061734086982,
+      "regime": "COMPRESSION",
+      "scenario_id": "3dba9d8d-daf2-57a1-a26e-ca38b740bc2f",
+      "side": "SHORT",
+      "stop_distance": 43.06624096943415,
+      "stop_price": 83861.75034044527,
+      "symbol": "BINANCE_USDM:BTCUSDT",
+      "target_price": 83323.6,
+      "trade_intent_id": "0175197f-dc4f-5bd4-a494-9fb5e7a50185"
+    },
+    {
+      "ambiguity_resolved_conservatively": false,
+      "costs": {
+        "commission": 33.55783663536506,
+        "cost_mode": "REALISTIC",
+        "funding_financing": 0.0,
+        "gross_realized_edge": -50.90924165533215,
+        "net_realized_edge": -86.06707829069721,
+        "other_execution_costs": 0.0,
+        "slippage": 0.6,
+        "spread": 1.0
+      },
+      "decision_id": "971c8bff-1e86-54b7-b86f-b1a369c97ce8",
+      "entry_fills": [
+        {
+          "fill_time": "2026-09-25T17:03:00Z",
+          "latency_ms": 250.0,
+          "price": 83869.13696758499,
+          "quantity": 0.007936484435887988
+        }
+      ],
+      "exit_fill": {
+        "fill_time": "2026-09-25T17:10:00Z",
+        "latency_ms": 250.0,
+        "price": 83920.04620924032,
+        "quantity": 0.007936484435887988
+      },
+      "exit_reason": "STOP",
+      "filled_quantity": 0.007936484435887988,
+      "label": "INVALIDATION_FIRST",
+      "mae_r": 1.166056112501469,
+      "mfe_r": 1.2696509608725544,
+      "planned_quantity": 0.007936484435887988,
+      "regime": "COMPRESSION",
+      "scenario_id": "c44fec13-cd72-5d41-989f-cb77020102b5",
+      "side": "SHORT",
+      "stop_distance": 50.90924165533215,
+      "stop_price": 83920.04620924032,
+      "symbol": "BINANCE_USDM:BTCUSDT",
+      "target_price": 83323.6,
+      "trade_intent_id": "66c8d188-2a18-58d4-8349-2194b3969b57"
+    },
+    {
+      "ambiguity_resolved_conservatively": false,
+      "costs": {
+        "commission": 33.523087393516995,
+        "cost_mode": "REALISTIC",
+        "funding_financing": 0.0,
+        "gross_realized_edge": 202.63696758498554,
+        "net_realized_edge": 167.51388019146856,
+        "other_execution_costs": 0.0,
+        "slippage": 0.6,
+        "spread": 1.0
+      },
+      "decision_id": "25269a7c-78f6-5c00-8f31-6177d31124d0",
+      "entry_fills": [
+        {
+          "fill_time": "2026-09-25T17:06:00Z",
+          "latency_ms": 250.0,
+          "price": 83909.03696758498,
+          "quantity": 0.0007241715147519361
+        }
+      ],
+      "exit_fill": {
+        "fill_time": "2026-09-25T17:35:00Z",
+        "latency_ms": 250.0,
+        "price": 83706.4,
+        "quantity": 0.0007241715147519361
+      },
+      "exit_reason": "TIMEOUT",
+      "filled_quantity": 0.0007241715147519361,
+      "label": "TIMEOUT_WITH_PROFIT",
+      "mae_r": 0.9864172391564155,
+      "mfe_r": 6.9672019576547335,
+      "planned_quantity": 0.0007241715147519361,
+      "regime": "COMPRESSION",
+      "scenario_id": "bb7654bd-e3b4-56c3-bc6e-6903e349dfc3",
+      "side": "SHORT",
+      "stop_distance": 46.494556861391175,
+      "stop_price": 83955.53152444637,
+      "symbol": "BINANCE_USDM:BTCUSDT",
+      "target_price": 83323.6,
+      "trade_intent_id": "8ed72696-e169-527f-b464-4dabeb41ed35"
+    },
+    {
+      "ambiguity_resolved_conservatively": false,
+      "costs": {
+        "commission": 33.49691555107869,
+        "cost_mode": "REALISTIC",
+        "funding_financing": 0.0,
+        "gross_realized_edge": 106.37775539344875,
+        "net_realized_edge": 71.28083984237006,
+        "other_execution_costs": 0.0,
+        "slippage": 0.6,
+        "spread": 1.0
+      },
+      "decision_id": "11687940-738c-56cc-bc0b-385e835e95df",
+      "entry_fills": [
+        {
+          "fill_time": "2026-09-25T17:43:00Z",
+          "latency_ms": 250.0,
+          "price": 83795.47775539345,
+          "quantity": 0.04584485111882328
+        }
+      ],
+      "exit_fill": {
+        "fill_time": "2026-09-25T17:48:00Z",
+        "latency_ms": 250.0,
+        "price": 83689.1,
+        "quantity": 0.04584485111882328
+      },
+      "exit_reason": "TARGET",
+      "filled_quantity": 0.04584485111882328,
+      "label": "TARGET_FIRST",
+      "mae_r": 0.41297619881667536,
+      "mfe_r": 4.058197787800344,
+      "planned_quantity": 0.04584485111882328,
+      "regime": "RANGE_BALANCE",
+      "scenario_id": "0eea300f-30ad-5bbf-923d-381ad1122525",
+      "side": "SHORT",
+      "stop_distance": 27.1740711418679,
+      "stop_price": 83822.65182653532,
+      "symbol": "BINANCE_USDM:BTCUSDT",
+      "target_price": 83689.1,
+      "trade_intent_id": "991b91e0-42bd-546a-85bf-de8bfe3689a1"
+    },
+    {
+      "ambiguity_resolved_conservatively": false,
+      "costs": {
+        "commission": 33.54457274514753,
+        "cost_mode": "REALISTIC",
+        "funding_financing": 0.0,
+        "gross_realized_edge": -27.62671132905234,
+        "net_realized_edge": -62.771284074199876,
+        "other_execution_costs": 0.0,
+        "slippage": 0.6,
+        "spread": 1.0
+      },
+      "decision_id": "dcabb72f-33af-58c5-859c-b365dd70145d",
+      "entry_fills": [
+        {
+          "fill_time": "2026-09-25T18:08:00Z",
+          "latency_ms": 250.0,
+          "price": 83847.61850720432,
+          "quantity": 0.028031232714854533
+        }
+      ],
+      "exit_fill": {
+        "fill_time": "2026-09-25T18:10:00Z",
+        "latency_ms": 250.0,
+        "price": 83875.24521853337,
+        "quantity": 0.028031232714854533
+      },
+      "exit_reason": "STOP",
+      "filled_quantity": 0.028031232714854533,
+      "label": "INVALIDATION_FIRST",
+      "mae_r": 2.6380806577959275,
+      "mfe_r": 0.0,
+      "planned_quantity": 0.028031232714854533,
+      "regime": "COMPRESSION",
+      "scenario_id": "0c88ac1a-358b-56be-8857-214dfbf0afff",
+      "side": "SHORT",
+      "stop_distance": 27.62671132905234,
+      "stop_price": 83875.24521853337,
+      "symbol": "BINANCE_USDM:BTCUSDT",
+      "target_price": 83689.1,
+      "trade_intent_id": "20073ca1-4e30-5cfd-b36b-b49697612f20"
+    },
+    {
+      "ambiguity_resolved_conservatively": false,
+      "costs": {
+        "commission": 33.54174803276882,
+        "cost_mode": "REALISTIC",
+        "funding_financing": 0.0,
+        "gross_realized_edge": -31.463969279488083,
+        "net_realized_edge": -66.6057173122569,
+        "other_execution_costs": 0.0,
+        "slippage": 0.6,
+        "spread": 1.0
+      },
+      "decision_id": "3ac5dad8-d194-5fd4-a705-0f3f0c9c6046",
+      "entry_fills": [
+        {
+          "fill_time": "2026-09-25T21:01:00Z",
+          "latency_ms": 250.0,
+          "price": 83838.63809728231,
+          "quantity": 0.10059071494982907
+        }
+      ],
+      "exit_fill": {
+        "fill_time": "2026-09-25T21:01:00Z",
+        "latency_ms": 250.0,
+        "price": 83870.1020665618,
+        "quantity": 0.10059071494982907
+      },
+      "exit_reason": "STOP",
+      "filled_quantity": 0.10059071494982907,
+      "label": "INVALIDATION_FIRST",
+      "mae_r": 1.4035706151824567,
+      "mfe_r": 0.0,
+      "planned_quantity": 0.10059071494982907,
+      "regime": "VOLATILITY_SHOCK",
+      "scenario_id": "28097d4f-ed68-520f-9ea2-06825b5ee639",
+      "side": "SHORT",
+      "stop_distance": 31.463969279488083,
+      "stop_price": 83870.1020665618,
+      "symbol": "BINANCE_USDM:BTCUSDT",
+      "target_price": 83770.5,
+      "trade_intent_id": "efe3b985-6137-5f71-97af-949de5ffbc47"
+    },
+    {
+      "ambiguity_resolved_conservatively": false,
+      "costs": {
+        "commission": 33.52518761945647,
+        "cost_mode": "REALISTIC",
+        "funding_financing": 0.0,
+        "gross_realized_edge": 84.93809728229826,
+        "net_realized_edge": 49.81290966284179,
+        "other_execution_costs": 0.0,
+        "slippage": 0.6,
+        "spread": 1.0
+      },
+      "decision_id": "2b360ca1-7c3d-5373-834e-022185cbf99c",
+      "entry_fills": [
+        {
+          "fill_time": "2026-09-25T21:03:00Z",
+          "latency_ms": 250.0,
+          "price": 83855.4380972823,
+          "quantity": 0.09844263274464189
+        }
+      ],
+      "exit_fill": {
+        "fill_time": "2026-09-25T21:06:00Z",
+        "latency_ms": 250.0,
+        "price": 83770.5,
+        "quantity": 0.09844263274464189
+      },
+      "exit_reason": "TARGET",
+      "filled_quantity": 0.09844263274464189,
+      "label": "TARGET_FIRST",
+      "mae_r": 0.0017307995526400124,
+      "mfe_r": 4.715120016872027,
+      "planned_quantity": 0.09844263274464189,
+      "regime": "VOLATILITY_SHOCK",
+      "scenario_id": "81e777ed-ac6b-5313-bbab-fa5b09a39e8a",
+      "side": "SHORT",
+      "stop_distance": 35.76538808744226,
+      "stop_price": 83891.20348536974,
+      "symbol": "BINANCE_USDM:BTCUSDT",
+      "target_price": 83770.5,
+      "trade_intent_id": "6f60cd2f-a1c8-5e24-9a1b-5875f2a0f419"
+    },
+    {
+      "ambiguity_resolved_conservatively": false,
+      "costs": {
+        "commission": 33.480342503549124,
+        "cost_mode": "REALISTIC",
+        "funding_financing": 0.0,
+        "gross_realized_edge": -36.74728781361773,
+        "net_realized_edge": -71.82763031716686,
+        "other_execution_costs": 0.0,
+        "slippage": 0.6,
+        "spread": 1.0
+      },
+      "decision_id": "366536e7-acd4-5517-889a-4c18c1383da5",
+      "entry_fills": [
+        {
+          "fill_time": "2026-09-25T21:12:00Z",
+          "latency_ms": 250.0,
+          "price": 83682.48261496601,
+          "quantity": 0.1012969787119366
+        }
+      ],
+      "exit_fill": {
+        "fill_time": "2026-09-25T21:28:00Z",
+        "latency_ms": 250.0,
+        "price": 83719.22990277963,
+        "quantity": 0.1012969787119366
+      },
+      "exit_reason": "STOP",
+      "filled_quantity": 0.1012969787119366,
+      "label": "INVALIDATION_FIRST",
+      "mae_r": 1.3747241780187065,
+      "mfe_r": 2.598358155037058,
+      "planned_quantity": 0.1012969787119366,
+      "regime": "VOLATILITY_SHOCK",
+      "scenario_id": "e806e9c4-66ef-53f4-9b74-8cb18d046552",
+      "side": "SHORT",
+      "stop_distance": 36.74728781361773,
+      "stop_price": 83719.22990277963,
+      "symbol": "BINANCE_USDM:BTCUSDT",
+      "target_price": 83585.1,
+      "trade_intent_id": "554c4c53-79ee-5ad3-a380-ef8f3d8135b7"
+    },
+    {
+      "ambiguity_resolved_conservatively": false,
+      "costs": {
+        "commission": 33.51058675848033,
+        "cost_mode": "REALISTIC",
+        "funding_financing": 0.0,
+        "gross_realized_edge": -35.694417175793205,
+        "net_realized_edge": -70.80500393427354,
+        "other_execution_costs": 0.0,
+        "slippage": 0.6,
+        "spread": 1.0
+      },
+      "decision_id": "f75e2398-aff6-51e0-9ab0-21e74e7f3e1f",
+      "entry_fills": [
+        {
+          "fill_time": "2026-09-25T21:40:00Z",
+          "latency_ms": 250.0,
+          "price": 83758.61968761291,
+          "quantity": 0.03678814271330465
+        }
+      ],
+      "exit_fill": {
+        "fill_time": "2026-09-25T21:44:00Z",
+        "latency_ms": 250.0,
+        "price": 83794.3141047887,
+        "quantity": 0.03678814271330465
+      },
+      "exit_reason": "STOP",
+      "filled_quantity": 0.03678814271330465,
+      "label": "INVALIDATION_FIRST",
+      "mae_r": 1.0248188731288217,
+      "mfe_r": 0.014559352807061745,
+      "planned_quantity": 0.03678814271330465,
+      "regime": "RANGE_BALANCE",
+      "scenario_id": "9fc4e0ea-a987-5ffe-bdc8-74e37127698a",
+      "side": "SHORT",
+      "stop_distance": 35.694417175793205,
+      "stop_price": 83794.3141047887,
+      "symbol": "BINANCE_USDM:BTCUSDT",
+      "target_price": 83585.1,
+      "trade_intent_id": "9076867d-5af8-574f-870e-8401340c8371"
+    },
+    {
+      "ambiguity_resolved_conservatively": false,
+      "costs": {
+        "commission": 33.55230967883,
+        "cost_mode": "REALISTIC",
+        "funding_financing": 0.0,
+        "gross_realized_edge": -12.684543073104578,
+        "net_realized_edge": -47.83685275193458,
+        "other_execution_costs": 0.0,
+        "slippage": 0.6,
+        "spread": 1.0
+      },
+      "decision_id": "e145cfc5-6263-5755-b8dc-19d29ebeb8bf",
+      "entry_fills": [
+        {
+          "fill_time": "2026-09-25T22:13:00Z",
+          "latency_ms": 250.0,
+          "price": 83887.11646861155,
+          "quantity": 0.00796324317146873
+        }
+      ],
+      "exit_fill": {
+        "fill_time": "2026-09-25T22:29:00Z",
+        "latency_ms": 250.0,
+        "price": 83874.43192553845,
+        "quantity": 0.00796324317146873
+      },
+      "exit_reason": "STOP",
+      "filled_quantity": 0.00796324317146873,
+      "label": "INVALIDATION_FIRST",
+      "mae_r": 2.3348471001961735,
+      "mfe_r": 4.113946484922863,
+      "planned_quantity": 0.00796324317146873,
+      "regime": "COMPRESSION",
+      "scenario_id": "bd381c06-d655-5347-9846-9072422f94cb",
+      "side": "LONG",
+      "stop_distance": 12.684543073104578,
+      "stop_price": 83874.43192553845,
+      "symbol": "BINANCE_USDM:BTCUSDT",
+      "target_price": 83967.9,
+      "trade_intent_id": "3e7f9dfe-ec89-5fd7-837a-1e88ff4aecd5"
+    },
+    {
+      "ambiguity_resolved_conservatively": false,
+      "costs": {
+        "commission": 33.55420026945942,
+        "cost_mode": "REALISTIC",
+        "funding_financing": 0.0,
+        "gross_realized_edge": -10.736476245860104,
+        "net_realized_edge": -45.89067651531953,
+        "other_execution_costs": 0.0,
+        "slippage": 0.6,
+        "spread": 1.0
+      },
+      "decision_id": "e211e713-3dda-517f-ab12-f91c39dd28e7",
+      "entry_fills": [
+        {
+          "fill_time": "2026-09-25T22:29:00Z",
+          "latency_ms": 250.0,
+          "price": 83890.86891177148,
+          "quantity": 0.0031360413695337482
+        }
+      ],
+      "exit_fill": {
+        "fill_time": "2026-09-25T22:29:00Z",
+        "latency_ms": 250.0,
+        "price": 83880.13243552562,
+        "quantity": 0.0031360413695337482
+      },
+      "exit_reason": "STOP",
+      "filled_quantity": 0.0031360413695337482,
+      "label": "INVALIDATION_FIRST",
+      "mae_r": 3.1079947468191778,
+      "mfe_r": 0.0,
+      "planned_quantity": 0.0031360413695337482,
+      "regime": "COMPRESSION",
+      "scenario_id": "c8b3f1f1-c9b8-5e74-b1bd-ae447b9f6c9e",
+      "side": "LONG",
+      "stop_distance": 10.736476245860104,
+      "stop_price": 83880.13243552562,
+      "symbol": "BINANCE_USDM:BTCUSDT",
+      "target_price": 83967.9,
+      "trade_intent_id": "1692c47e-c224-541c-9e7b-ebf13e90fb4c"
+    },
+    {
+      "ambiguity_resolved_conservatively": false,
+      "costs": null,
+      "decision_id": "d100aa85-fbc2-5b87-8c61-3bf67e8d0ad0",
+      "entry_fills": [],
+      "exit_fill": null,
+      "exit_reason": "UNFILLED",
+      "filled_quantity": 0.0,
+      "label": "NOT_EXECUTABLE",
+      "mae_r": 0.0,
+      "mfe_r": 0.0,
+      "planned_quantity": 0.0488511153888192,
+      "regime": "COMPRESSION",
+      "scenario_id": "c1e776c7-672b-503f-91be-1e2811eb6561",
+      "side": "LONG",
+      "stop_distance": 13.784755333443172,
+      "stop_price": 83958.70091012197,
+      "symbol": "BINANCE_USDM:BTCUSDT",
+      "target_price": 84054.8,
+      "trade_intent_id": "c023d703-f610-5398-ba57-0efeafe9d216"
+    }
+  ]
+}

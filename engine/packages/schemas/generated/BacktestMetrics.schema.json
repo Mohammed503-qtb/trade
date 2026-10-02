@@ -1,0 +1,195 @@
+{
+  "$defs": {
+    "RDistribution": {
+      "additionalProperties": false,
+      "description": "توزيع R الصافية — إحصاءات رتبية حتمية (استيفاء خطي).",
+      "properties": {
+        "max_r": {
+          "title": "Max R",
+          "type": "number"
+        },
+        "mean_r": {
+          "title": "Mean R",
+          "type": "number"
+        },
+        "min_r": {
+          "title": "Min R",
+          "type": "number"
+        },
+        "p05_r": {
+          "title": "P05 R",
+          "type": "number"
+        },
+        "p50_r": {
+          "title": "P50 R",
+          "type": "number"
+        },
+        "p95_r": {
+          "title": "P95 R",
+          "type": "number"
+        },
+        "std_r": {
+          "minimum": 0.0,
+          "title": "Std R",
+          "type": "number"
+        }
+      },
+      "required": [
+        "mean_r",
+        "std_r",
+        "min_r",
+        "p05_r",
+        "p50_r",
+        "p95_r",
+        "max_r"
+      ],
+      "title": "RDistribution",
+      "type": "object"
+    },
+    "RegimeMetrics": {
+      "additionalProperties": false,
+      "description": "مقاييس نظام سوق واحد — «حسب النظام» (تقسيم أنظمة §43).",
+      "properties": {
+        "net_expectancy_r": {
+          "title": "Net Expectancy R",
+          "type": "number"
+        },
+        "profit_factor": {
+          "anyOf": [
+            {
+              "minimum": 0.0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Profit Factor"
+        },
+        "regime": {
+          "title": "Regime",
+          "type": "string"
+        },
+        "total_net_r": {
+          "title": "Total Net R",
+          "type": "number"
+        },
+        "trades_count": {
+          "minimum": 1,
+          "title": "Trades Count",
+          "type": "integer"
+        },
+        "win_rate": {
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "Win Rate",
+          "type": "number"
+        }
+      },
+      "required": [
+        "regime",
+        "trades_count",
+        "net_expectancy_r",
+        "profit_factor",
+        "win_rate",
+        "total_net_r"
+      ],
+      "title": "RegimeMetrics",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "description": "مقاييس الإعادة الكاملة — توقع صافٍ وعامل ربح وتوزيع R وMFE/MAE.\n\nكل قيمة None معلنة تعني «لا قياس ممكن» (لا صفقات مُوسومة): غياب\nمعلن لا قيمة مختلقة — النمط نفسه في مقيّم الاستئصال (5a.3).",
+  "properties": {
+    "by_regime": {
+      "items": {
+        "$ref": "#/$defs/RegimeMetrics"
+      },
+      "title": "By Regime",
+      "type": "array"
+    },
+    "label_counts": {
+      "additionalProperties": {
+        "minimum": 1,
+        "type": "integer"
+      },
+      "title": "Label Counts",
+      "type": "object"
+    },
+    "labeled_trades": {
+      "minimum": 1,
+      "title": "Labeled Trades",
+      "type": "integer"
+    },
+    "mae_mean_r": {
+      "minimum": 0.0,
+      "title": "Mae Mean R",
+      "type": "number"
+    },
+    "mfe_mean_r": {
+      "minimum": 0.0,
+      "title": "Mfe Mean R",
+      "type": "number"
+    },
+    "net_expectancy_r": {
+      "title": "Net Expectancy R",
+      "type": "number"
+    },
+    "not_executable": {
+      "minimum": 0,
+      "title": "Not Executable",
+      "type": "integer"
+    },
+    "open_at_data_end": {
+      "minimum": 0,
+      "title": "Open At Data End",
+      "type": "integer"
+    },
+    "profit_factor": {
+      "anyOf": [
+        {
+          "minimum": 0.0,
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Profit Factor"
+    },
+    "r_distribution": {
+      "$ref": "#/$defs/RDistribution"
+    },
+    "total_gross_r": {
+      "title": "Total Gross R",
+      "type": "number"
+    },
+    "total_net_r": {
+      "title": "Total Net R",
+      "type": "number"
+    },
+    "win_rate": {
+      "maximum": 1.0,
+      "minimum": 0.0,
+      "title": "Win Rate",
+      "type": "number"
+    }
+  },
+  "required": [
+    "labeled_trades",
+    "open_at_data_end",
+    "not_executable",
+    "label_counts",
+    "net_expectancy_r",
+    "profit_factor",
+    "win_rate",
+    "total_gross_r",
+    "total_net_r",
+    "r_distribution",
+    "mfe_mean_r",
+    "mae_mean_r",
+    "by_regime"
+  ],
+  "title": "BacktestMetrics",
+  "type": "object"
+}

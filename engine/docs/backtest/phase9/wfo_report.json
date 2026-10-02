@@ -1,0 +1,186 @@
+{
+  "candidates_count": 103,
+  "embargoed_count": 249,
+  "notes": [
+    "الحجز زمني لا عددي: لا يدخل التحققَ إلا ما تجاوز لحظة آخر تدريب بالحجز كاملًا (وبعده بين التحقق والخارج) — no calibration on the evaluation fold (§26.3-6).",
+    "الطيات داخل النافذة متجاورة بلا تقاطع، والنوافذ تتدحرج بخطوة 5 مرشحًا — الترتيب زمني صارم (§39.3)."
+  ],
+  "protocol": {
+    "embargo_s": 14400.0,
+    "oos_candidates": 10,
+    "protocol_name": "SAMPLE_STRUCTURE",
+    "step_candidates": 5,
+    "train_candidates": 20,
+    "validation_candidates": 10
+  },
+  "windows": [
+    {
+      "embargo_boundaries_s": [
+        14400.0,
+        16560.0
+      ],
+      "segments": [
+        {
+          "first_index": 0,
+          "last_index": 19,
+          "role": "TRAIN"
+        },
+        {
+          "first_index": 37,
+          "last_index": 46,
+          "role": "VALIDATION"
+        },
+        {
+          "first_index": 65,
+          "last_index": 74,
+          "role": "OUT_OF_SAMPLE"
+        }
+      ],
+      "window_index": 0
+    },
+    {
+      "embargo_boundaries_s": [
+        15720.0,
+        16560.0
+      ],
+      "segments": [
+        {
+          "first_index": 5,
+          "last_index": 24,
+          "role": "TRAIN"
+        },
+        {
+          "first_index": 50,
+          "last_index": 59,
+          "role": "VALIDATION"
+        },
+        {
+          "first_index": 79,
+          "last_index": 88,
+          "role": "OUT_OF_SAMPLE"
+        }
+      ],
+      "window_index": 1
+    },
+    {
+      "embargo_boundaries_s": [
+        14940.0,
+        16440.0
+      ],
+      "segments": [
+        {
+          "first_index": 10,
+          "last_index": 29,
+          "role": "TRAIN"
+        },
+        {
+          "first_index": 51,
+          "last_index": 60,
+          "role": "VALIDATION"
+        },
+        {
+          "first_index": 79,
+          "last_index": 88,
+          "role": "OUT_OF_SAMPLE"
+        }
+      ],
+      "window_index": 2
+    },
+    {
+      "embargo_boundaries_s": [
+        14760.0,
+        15180.0
+      ],
+      "segments": [
+        {
+          "first_index": 15,
+          "last_index": 34,
+          "role": "TRAIN"
+        },
+        {
+          "first_index": 55,
+          "last_index": 64,
+          "role": "VALIDATION"
+        },
+        {
+          "first_index": 79,
+          "last_index": 88,
+          "role": "OUT_OF_SAMPLE"
+        }
+      ],
+      "window_index": 3
+    },
+    {
+      "embargo_boundaries_s": [
+        15000.0,
+        14760.0
+      ],
+      "segments": [
+        {
+          "first_index": 20,
+          "last_index": 39,
+          "role": "TRAIN"
+        },
+        {
+          "first_index": 59,
+          "last_index": 68,
+          "role": "VALIDATION"
+        },
+        {
+          "first_index": 86,
+          "last_index": 95,
+          "role": "OUT_OF_SAMPLE"
+        }
+      ],
+      "window_index": 4
+    },
+    {
+      "embargo_boundaries_s": [
+        17460.0,
+        21960.0
+      ],
+      "segments": [
+        {
+          "first_index": 25,
+          "last_index": 44,
+          "role": "TRAIN"
+        },
+        {
+          "first_index": 65,
+          "last_index": 74,
+          "role": "VALIDATION"
+        },
+        {
+          "first_index": 88,
+          "last_index": 97,
+          "role": "OUT_OF_SAMPLE"
+        }
+      ],
+      "window_index": 5
+    },
+    {
+      "embargo_boundaries_s": [
+        14700.0,
+        21960.0
+      ],
+      "segments": [
+        {
+          "first_index": 30,
+          "last_index": 49,
+          "role": "TRAIN"
+        },
+        {
+          "first_index": 65,
+          "last_index": 74,
+          "role": "VALIDATION"
+        },
+        {
+          "first_index": 88,
+          "last_index": 97,
+          "role": "OUT_OF_SAMPLE"
+        }
+      ],
+      "window_index": 6
+    }
+  ]
+}

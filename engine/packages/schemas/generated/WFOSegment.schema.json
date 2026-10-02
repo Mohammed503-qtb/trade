@@ -1,0 +1,38 @@
+{
+  "$defs": {
+    "WFORole": {
+      "description": "أدوار طيات التدحرج الأمامي (§39.3) — مرتبة زمنياً بلا تقاطع.\n\nTRAIN تدريب/ضبط، VALIDATION تحقق/اختيار، OUT_OF_SAMPLE تقييم\nخارج-العينة — «لا معايرة على طية التقييم» (§26.3-6).",
+      "enum": [
+        "TRAIN",
+        "VALIDATION",
+        "OUT_OF_SAMPLE"
+      ],
+      "title": "WFORole",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "description": "طية واحدة داخل نافذة: الدور وحدود المرشحين (شاملة الطرفين).",
+  "properties": {
+    "first_index": {
+      "minimum": 0,
+      "title": "First Index",
+      "type": "integer"
+    },
+    "last_index": {
+      "minimum": 0,
+      "title": "Last Index",
+      "type": "integer"
+    },
+    "role": {
+      "$ref": "#/$defs/WFORole"
+    }
+  },
+  "required": [
+    "role",
+    "first_index",
+    "last_index"
+  ],
+  "title": "WFOSegment",
+  "type": "object"
+}

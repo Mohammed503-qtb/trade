@@ -1,0 +1,66 @@
+{
+  "additionalProperties": false,
+  "description": "هوية الإعادة التساعية (§26.2 حرفيًا) — «النتيجة الدقيقة قابلة\nللاستنساخ من هذه المعرّفات».\n\nالمعرّفات التسعة بالنص: backtest_id، data_snapshot_id، code_version،\nmodel_version، parameter_set_version، cost_model_version، random_seed،\nstart_time، end_time، instrument_set — تُختم uuid5 في\n``backtest.identity`` (نمط decision_id_for).",
+  "properties": {
+    "backtest_id": {
+      "title": "Backtest Id",
+      "type": "string"
+    },
+    "code_version": {
+      "title": "Code Version",
+      "type": "string"
+    },
+    "cost_model_version": {
+      "title": "Cost Model Version",
+      "type": "string"
+    },
+    "data_snapshot_id": {
+      "title": "Data Snapshot Id",
+      "type": "string"
+    },
+    "end_time": {
+      "format": "date-time",
+      "title": "End Time",
+      "type": "string"
+    },
+    "instrument_set": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Instrument Set",
+      "type": "array"
+    },
+    "model_version": {
+      "title": "Model Version",
+      "type": "string"
+    },
+    "parameter_set_version": {
+      "title": "Parameter Set Version",
+      "type": "string"
+    },
+    "random_seed": {
+      "minimum": 0,
+      "title": "Random Seed",
+      "type": "integer"
+    },
+    "start_time": {
+      "format": "date-time",
+      "title": "Start Time",
+      "type": "string"
+    }
+  },
+  "required": [
+    "backtest_id",
+    "data_snapshot_id",
+    "code_version",
+    "model_version",
+    "parameter_set_version",
+    "cost_model_version",
+    "random_seed",
+    "start_time",
+    "end_time",
+    "instrument_set"
+  ],
+  "title": "BacktestIdentity",
+  "type": "object"
+}

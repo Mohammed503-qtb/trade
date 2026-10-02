@@ -1,0 +1,93 @@
+{
+  "$defs": {
+    "Direction": {
+      "description": "الاتجاه الاتجاهي المثالث — LONG/SHORT وFLAT للحياد الصريح.",
+      "enum": [
+        "LONG",
+        "SHORT",
+        "FLAT"
+      ],
+      "title": "Direction",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "description": "مواصفة الدخول المستخرجة من النية — ما يراه المحاكي حصرًا.\n\nفصل النية الكاملة عن المحاكاة: المحاكي يستهلك الدخول والوقف والهدف\nوالأفق والكمية المخططة — لا يرى تحليلًا ولا سياقًا (حدود الطبقات:\nbacktest تحت القرار فلا يستورد risk/scenarios).",
+  "properties": {
+    "decision_id": {
+      "title": "Decision Id",
+      "type": "string"
+    },
+    "decision_time": {
+      "format": "date-time",
+      "title": "Decision Time",
+      "type": "string"
+    },
+    "entry_price": {
+      "exclusiveMinimum": 0.0,
+      "title": "Entry Price",
+      "type": "number"
+    },
+    "expiry": {
+      "format": "date-time",
+      "title": "Expiry",
+      "type": "string"
+    },
+    "planned_quantity": {
+      "exclusiveMinimum": 0.0,
+      "title": "Planned Quantity",
+      "type": "number"
+    },
+    "regime": {
+      "title": "Regime",
+      "type": "string"
+    },
+    "scenario_id": {
+      "title": "Scenario Id",
+      "type": "string"
+    },
+    "side": {
+      "$ref": "#/$defs/Direction"
+    },
+    "stop_price": {
+      "exclusiveMinimum": 0.0,
+      "title": "Stop Price",
+      "type": "number"
+    },
+    "symbol": {
+      "title": "Symbol",
+      "type": "string"
+    },
+    "target_price": {
+      "exclusiveMinimum": 0.0,
+      "title": "Target Price",
+      "type": "number"
+    },
+    "trade_intent_id": {
+      "title": "Trade Intent Id",
+      "type": "string"
+    },
+    "zone_opposite_price": {
+      "exclusiveMinimum": 0.0,
+      "title": "Zone Opposite Price",
+      "type": "number"
+    }
+  },
+  "required": [
+    "trade_intent_id",
+    "scenario_id",
+    "decision_id",
+    "symbol",
+    "side",
+    "entry_price",
+    "zone_opposite_price",
+    "stop_price",
+    "target_price",
+    "expiry",
+    "decision_time",
+    "planned_quantity",
+    "regime"
+  ],
+  "title": "EntrySpec",
+  "type": "object"
+}

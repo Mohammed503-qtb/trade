@@ -9,7 +9,7 @@ ENGINE_DIR := $(shell dirname $(realpath $(firstword $(MAKEFILE_LIST))))
 .DEFAULT_GOAL := help
 .PHONY: help doctor gate lint format typecheck imports test schemas \
 	infra-provision infra-up infra-down infra-status infra-health \
-	migrate migrate-down verify-phase1 verify-phase2 verify-phase3 verify-phase4 verify-phase5 verify-phase6 verify-phase7 verify-phase8 ablation-dryrun db-test clean
+	migrate migrate-down verify-phase1 verify-phase2 verify-phase3 verify-phase4 verify-phase5 verify-phase6 verify-phase7 verify-phase8 verify-phase9 ablation-dryrun db-test clean
 
 help: ## عرض الأوامر المتاحة
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-18s\033[0m %s\n", $$1, $$2}'
@@ -104,6 +104,9 @@ verify-phase7: ## بوابة المرحلة 7: محرك السيناريوهات
 
 verify-phase8: ## بوابة المرحلة 8: لا-تداول ومخاطرة §22/§23/§25.2 — حجب 15 وحدجات ومعدلات وتكاليف ودفتر (يتطلب بنية حية عند 0008)
 	$(UV) run --no-sync python scripts/verify_phase8.py
+
+verify-phase9: ## بوابة المرحلة 9: الإعادة والوسم §26/§30 — محاكاة وتسم ومقاييس وWFO وفحوص اللا-نظرة الستة (عينة فقط — لا بنية حية)
+	$(UV) run --no-sync python scripts/verify_phase9.py
 
 ablation-dryrun: ## تشغيل استئصال تجريبي على عينة المرحلة 1 (تقرير placeholder موثق)
 	$(UV) run --no-sync python scripts/run_ablation.py --dataset phase1

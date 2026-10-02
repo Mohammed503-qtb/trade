@@ -1,0 +1,34 @@
+{
+  "additionalProperties": false,
+  "description": "تعبئة واحدة في العالم المحاكى — سعرًا وكمية ولحظة وكمونًا.\n\nلحظة التعبئة بدقة إطار البيانات (إغلاق شمعة اللمس) والكمون مسجل\nللفحص §24.5 — لا ساعة داخلية.",
+  "properties": {
+    "fill_time": {
+      "format": "date-time",
+      "title": "Fill Time",
+      "type": "string"
+    },
+    "latency_ms": {
+      "minimum": 0.0,
+      "title": "Latency Ms",
+      "type": "number"
+    },
+    "price": {
+      "exclusiveMinimum": 0.0,
+      "title": "Price",
+      "type": "number"
+    },
+    "quantity": {
+      "exclusiveMinimum": 0.0,
+      "title": "Quantity",
+      "type": "number"
+    }
+  },
+  "required": [
+    "fill_time",
+    "price",
+    "quantity",
+    "latency_ms"
+  ],
+  "title": "SimulatedFill",
+  "type": "object"
+}

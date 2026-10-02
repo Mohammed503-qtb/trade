@@ -15,6 +15,21 @@ from pathlib import Path
 from pydantic import BaseModel
 
 from . import SCHEMA_VERSION
+from .backtest import (
+    BacktestIdentity,
+    BacktestMetrics,
+    BacktestReport,
+    EntrySpec,
+    RDistribution,
+    RealizedCosts,
+    RegimeMetrics,
+    SimulatedFill,
+    SimulatedTrade,
+    WFOProtocolConfig,
+    WFOReport,
+    WFOSegment,
+    WFOWindow,
+)
 from .envelope import EventEnvelope
 from .evidence import (
     AvailabilitySignature,
@@ -117,6 +132,20 @@ ALL_MODELS: dict[str, type[BaseModel]] = {
     "OrderIntent": OrderIntent,
     "SlippageRecord": SlippageRecord,
     "LatencyRecord": LatencyRecord,
+    # الإعادة والتنفيذ المحاكى والوسم والمقاييس (§26 + §30 + §29.2 + §39.3)
+    "SimulatedFill": SimulatedFill,
+    "RealizedCosts": RealizedCosts,
+    "SimulatedTrade": SimulatedTrade,
+    "EntrySpec": EntrySpec,
+    "RDistribution": RDistribution,
+    "RegimeMetrics": RegimeMetrics,
+    "BacktestMetrics": BacktestMetrics,
+    "BacktestIdentity": BacktestIdentity,
+    "WFOSegment": WFOSegment,
+    "WFOWindow": WFOWindow,
+    "WFOProtocolConfig": WFOProtocolConfig,
+    "WFOReport": WFOReport,
+    "BacktestReport": BacktestReport,
     # المخاطرة (§22/§23/§25.2 + §17.3 + §31.3)
     "MacroEventWindow": MacroEventWindow,
     "EvaluationContext": EvaluationContext,
@@ -180,6 +209,19 @@ MODEL_PLAN_REFS: dict[str, str] = {
     "RewardRiskEstimate": "§23.5",
     "RiskDecision": "§31.3 (decisions)",
     "ExperienceRecord": "§29.1",
+    "SimulatedFill": "§26.1",
+    "RealizedCosts": "§25.2 (المحقق)",
+    "SimulatedTrade": "§26.1 + §30",
+    "EntrySpec": "§24.1 + §26.3",
+    "RDistribution": "§29.2",
+    "RegimeMetrics": "§29.2 + §43",
+    "BacktestMetrics": "§29.2 + §39.2",
+    "BacktestIdentity": "§26.2",
+    "WFOSegment": "§39.3",
+    "WFOWindow": "§39.3",
+    "WFOProtocolConfig": "§39.3",
+    "WFOReport": "§39.3",
+    "BacktestReport": "§26.2 + بوابة 9",
 }
 
 # مجلد التصدير: packages/schemas/generated — مشتق من موقع هذه الوحدة لا من cwd.

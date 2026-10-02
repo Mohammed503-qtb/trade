@@ -1,0 +1,272 @@
+{
+  "$defs": {
+    "CostMode": {
+      "description": "أنماط التكلفة الثلاثة (§25.1 حرفيًا).\n\n«A strategy cannot pass production gates based only on optimistic\ncosts» — REALISTIC وحده نمط القبول؛ OPTIMISTIC تشخيصي وSTRESS\nلفحص المتانة.",
+      "enum": [
+        "OPTIMISTIC",
+        "REALISTIC",
+        "STRESS"
+      ],
+      "title": "CostMode",
+      "type": "string"
+    },
+    "Direction": {
+      "description": "الاتجاه الاتجاهي المثالث — LONG/SHORT وFLAT للحياد الصريح.",
+      "enum": [
+        "LONG",
+        "SHORT",
+        "FLAT"
+      ],
+      "title": "Direction",
+      "type": "string"
+    },
+    "ExitReason": {
+      "description": "أسباب خروج التنفيذ المحاكى — ميكانيكا المحاكي لا دلالة الوسم.\n\nالزوج (ExitReason, صافي R) يترجم إلى LabelState عبر محرك الوسم §30؛\nالدلالة تُشتق، لا تخترع.",
+      "enum": [
+        "TARGET",
+        "STOP",
+        "TIMEOUT",
+        "ENTRY_EXPIRY",
+        "UNFILLED"
+      ],
+      "title": "ExitReason",
+      "type": "string"
+    },
+    "LabelState": {
+      "description": "حالات الوسم الخمس (§30 حرفيًا) — وسم السيناريو بعد انقضاء أفقه.\n\n«Each candidate scenario receives a label only after its defined\nevaluation horizon ends» — الوسم بعد الأفق لا قبله، وإذا لمس الهدف\nوالوقف معاً داخل شمعة لا يعرف ترتيبها الزمني وجب الترتيب المتحفظ\n(أو بيانات أعلى دقة) — «يجب ألا يختار المخرج المحابي لمجرد جمال\nالإعادة» أبداً.",
+      "enum": [
+        "TARGET_FIRST",
+        "INVALIDATION_FIRST",
+        "TIMEOUT_WITH_PROFIT",
+        "TIMEOUT_WITH_LOSS",
+        "NOT_EXECUTABLE"
+      ],
+      "title": "LabelState",
+      "type": "string"
+    },
+    "RealizedCosts": {
+      "additionalProperties": false,
+      "description": "التحلل المحقق §25.2 على تعبئات وقعت — بوحدات السعر لكل وحدة أصل.\n\nالمكونات الخمسة كما في التقديري (risk.CostBreakdown) لكن هنا من\nالتعبئات الفعلية ذهابًا وإيابًا، والمتطابقة محقاة: الصافي المحقق =\nالحافة الإجمالية المحققة − مجموع المكونات.\n\n``funding_financing`` صفر موثق في MVP (سبوت بلا تمويل) و\n``other_execution_costs`` صفر موثق (الاختيار السلبي المحقق قياسه\nبعد MVP؛ التقديري يعيش في §23.5) — لا اختلاق قياس لم يقع.",
+      "properties": {
+        "commission": {
+          "minimum": 0.0,
+          "title": "Commission",
+          "type": "number"
+        },
+        "cost_mode": {
+          "$ref": "#/$defs/CostMode"
+        },
+        "funding_financing": {
+          "minimum": 0.0,
+          "title": "Funding Financing",
+          "type": "number"
+        },
+        "gross_realized_edge": {
+          "title": "Gross Realized Edge",
+          "type": "number"
+        },
+        "net_realized_edge": {
+          "title": "Net Realized Edge",
+          "type": "number"
+        },
+        "other_execution_costs": {
+          "minimum": 0.0,
+          "title": "Other Execution Costs",
+          "type": "number"
+        },
+        "slippage": {
+          "minimum": 0.0,
+          "title": "Slippage",
+          "type": "number"
+        },
+        "spread": {
+          "minimum": 0.0,
+          "title": "Spread",
+          "type": "number"
+        }
+      },
+      "required": [
+        "cost_mode",
+        "gross_realized_edge",
+        "spread",
+        "commission",
+        "slippage",
+        "funding_financing",
+        "other_execution_costs",
+        "net_realized_edge"
+      ],
+      "title": "RealizedCosts",
+      "type": "object"
+    },
+    "SimulatedFill": {
+      "additionalProperties": false,
+      "description": "تعبئة واحدة في العالم المحاكى — سعرًا وكمية ولحظة وكمونًا.\n\nلحظة التعبئة بدقة إطار البيانات (إغلاق شمعة اللمس) والكمون مسجل\nللفحص §24.5 — لا ساعة داخلية.",
+      "properties": {
+        "fill_time": {
+          "format": "date-time",
+          "title": "Fill Time",
+          "type": "string"
+        },
+        "latency_ms": {
+          "minimum": 0.0,
+          "title": "Latency Ms",
+          "type": "number"
+        },
+        "price": {
+          "exclusiveMinimum": 0.0,
+          "title": "Price",
+          "type": "number"
+        },
+        "quantity": {
+          "exclusiveMinimum": 0.0,
+          "title": "Quantity",
+          "type": "number"
+        }
+      },
+      "required": [
+        "fill_time",
+        "price",
+        "quantity",
+        "latency_ms"
+      ],
+      "title": "SimulatedFill",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "description": "الصفقة المحاكاة الكاملة لنية أمر واحدة — حتمية بذاتها.\n\n«Partial fills modeled» (§26.1): الدخول تعبئات متعددة بنسبة إعدادية\nلكل شمعة لمس؛ المخرج تعبئة واحدة (المخرج الأول فقط في MVP —\nالتدريج §24.6 بعد MVP موثقًا).\n\n``exit_reason=None`` تعني أن الصفقة بقيت مفتوحة حتى نهاية البيانات —\n«الوسم بعد انقضاء الأفق حصرًا» (§30) فلا وسم لها ولا تُعد في\nالمقاييس؛ تُحصى في ملاحظات التقرير (انضباط موثق).",
+  "properties": {
+    "ambiguity_resolved_conservatively": {
+      "title": "Ambiguity Resolved Conservatively",
+      "type": "boolean"
+    },
+    "costs": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/RealizedCosts"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "decision_id": {
+      "title": "Decision Id",
+      "type": "string"
+    },
+    "entry_fills": {
+      "items": {
+        "$ref": "#/$defs/SimulatedFill"
+      },
+      "title": "Entry Fills",
+      "type": "array"
+    },
+    "exit_fill": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/SimulatedFill"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "exit_reason": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/ExitReason"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "filled_quantity": {
+      "minimum": 0.0,
+      "title": "Filled Quantity",
+      "type": "number"
+    },
+    "label": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/LabelState"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "mae_r": {
+      "minimum": 0.0,
+      "title": "Mae R",
+      "type": "number"
+    },
+    "mfe_r": {
+      "minimum": 0.0,
+      "title": "Mfe R",
+      "type": "number"
+    },
+    "planned_quantity": {
+      "exclusiveMinimum": 0.0,
+      "title": "Planned Quantity",
+      "type": "number"
+    },
+    "regime": {
+      "title": "Regime",
+      "type": "string"
+    },
+    "scenario_id": {
+      "title": "Scenario Id",
+      "type": "string"
+    },
+    "side": {
+      "$ref": "#/$defs/Direction"
+    },
+    "stop_distance": {
+      "exclusiveMinimum": 0.0,
+      "title": "Stop Distance",
+      "type": "number"
+    },
+    "stop_price": {
+      "exclusiveMinimum": 0.0,
+      "title": "Stop Price",
+      "type": "number"
+    },
+    "symbol": {
+      "title": "Symbol",
+      "type": "string"
+    },
+    "target_price": {
+      "exclusiveMinimum": 0.0,
+      "title": "Target Price",
+      "type": "number"
+    },
+    "trade_intent_id": {
+      "title": "Trade Intent Id",
+      "type": "string"
+    }
+  },
+  "required": [
+    "trade_intent_id",
+    "scenario_id",
+    "decision_id",
+    "symbol",
+    "side",
+    "planned_quantity",
+    "filled_quantity",
+    "entry_fills",
+    "exit_fill",
+    "exit_reason",
+    "stop_price",
+    "target_price",
+    "ambiguity_resolved_conservatively",
+    "mfe_r",
+    "mae_r",
+    "stop_distance",
+    "costs",
+    "label",
+    "regime"
+  ],
+  "title": "SimulatedTrade",
+  "type": "object"
+}

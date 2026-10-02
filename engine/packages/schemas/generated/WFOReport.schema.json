@@ -1,0 +1,158 @@
+{
+  "$defs": {
+    "WFOProtocolConfig": {
+      "additionalProperties": false,
+      "description": "بروتوكول التدحرج الأمامي (§39.3 حرفيًا).\n\nالافتراض هو بروتوكول البحث: 2000 تدريب / 500 تحقق / 500 خارج-العينة\nتتدحرج 500 — «يمكن زيادة العدد عندما تتطلب الأنظمة ملاحظات أكثر؛\nولا يُقلص أبدًا لمجرد عبور بوابة». ``protocol_name`` يوثق الاسم؛\nبروتوكول العينة البنيوي يعلن اسمه صراحة ولا يدّعي عبور بوابة بحث.",
+      "properties": {
+        "embargo_s": {
+          "minimum": 0.0,
+          "title": "Embargo S",
+          "type": "number"
+        },
+        "oos_candidates": {
+          "minimum": 1,
+          "title": "Oos Candidates",
+          "type": "integer"
+        },
+        "protocol_name": {
+          "title": "Protocol Name",
+          "type": "string"
+        },
+        "step_candidates": {
+          "minimum": 1,
+          "title": "Step Candidates",
+          "type": "integer"
+        },
+        "train_candidates": {
+          "minimum": 1,
+          "title": "Train Candidates",
+          "type": "integer"
+        },
+        "validation_candidates": {
+          "minimum": 1,
+          "title": "Validation Candidates",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "protocol_name",
+        "train_candidates",
+        "validation_candidates",
+        "oos_candidates",
+        "step_candidates",
+        "embargo_s"
+      ],
+      "title": "WFOProtocolConfig",
+      "type": "object"
+    },
+    "WFORole": {
+      "description": "أدوار طيات التدحرج الأمامي (§39.3) — مرتبة زمنياً بلا تقاطع.\n\nTRAIN تدريب/ضبط، VALIDATION تحقق/اختيار، OUT_OF_SAMPLE تقييم\nخارج-العينة — «لا معايرة على طية التقييم» (§26.3-6).",
+      "enum": [
+        "TRAIN",
+        "VALIDATION",
+        "OUT_OF_SAMPLE"
+      ],
+      "title": "WFORole",
+      "type": "string"
+    },
+    "WFOSegment": {
+      "additionalProperties": false,
+      "description": "طية واحدة داخل نافذة: الدور وحدود المرشحين (شاملة الطرفين).",
+      "properties": {
+        "first_index": {
+          "minimum": 0,
+          "title": "First Index",
+          "type": "integer"
+        },
+        "last_index": {
+          "minimum": 0,
+          "title": "Last Index",
+          "type": "integer"
+        },
+        "role": {
+          "$ref": "#/$defs/WFORole"
+        }
+      },
+      "required": [
+        "role",
+        "first_index",
+        "last_index"
+      ],
+      "title": "WFOSegment",
+      "type": "object"
+    },
+    "WFOWindow": {
+      "additionalProperties": false,
+      "description": "نافذة تدحرج واحدة: ثلاث طيات مفصولة بحجز زمني (لا تقاطع أبدًا).",
+      "properties": {
+        "embargo_boundaries_s": {
+          "items": {
+            "minimum": 0.0,
+            "type": "number"
+          },
+          "title": "Embargo Boundaries S",
+          "type": "array"
+        },
+        "segments": {
+          "items": {
+            "$ref": "#/$defs/WFOSegment"
+          },
+          "title": "Segments",
+          "type": "array"
+        },
+        "window_index": {
+          "minimum": 0,
+          "title": "Window Index",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "window_index",
+        "segments",
+        "embargo_boundaries_s"
+      ],
+      "title": "WFOWindow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "description": "تقرير التدحرج الأمامي — قابل لإعادة الإنتاج بايت-بايت.\n\nلا مقاييس هنا (المحرك يقيّم فوق الطيات عبر حقن لاحق) — التقرير\nالبنيوي: البروتوكول وعدد المرشحين والنوافذ وطيّاتها، ويوثق\nالمرشحين المستهلكين بالحجز (المحذوفون لا يُقيَّمون في أي طية).",
+  "properties": {
+    "candidates_count": {
+      "minimum": 1,
+      "title": "Candidates Count",
+      "type": "integer"
+    },
+    "embargoed_count": {
+      "minimum": 0,
+      "title": "Embargoed Count",
+      "type": "integer"
+    },
+    "notes": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Notes",
+      "type": "array"
+    },
+    "protocol": {
+      "$ref": "#/$defs/WFOProtocolConfig"
+    },
+    "windows": {
+      "items": {
+        "$ref": "#/$defs/WFOWindow"
+      },
+      "title": "Windows",
+      "type": "array"
+    }
+  },
+  "required": [
+    "protocol",
+    "candidates_count",
+    "windows",
+    "embargoed_count",
+    "notes"
+  ],
+  "title": "WFOReport",
+  "type": "object"
+}

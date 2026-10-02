@@ -437,3 +437,63 @@ class SizingCapBasis(StrEnum):
     NONE = "NONE"
     INSTRUMENT = "INSTRUMENT"
     PORTFOLIO = "PORTFOLIO"
+
+
+class LabelState(StrEnum):
+    """حالات الوسم الخمس (§30 حرفيًا) — وسم السيناريو بعد انقضاء أفقه.
+
+    «Each candidate scenario receives a label only after its defined
+    evaluation horizon ends» — الوسم بعد الأفق لا قبله، وإذا لمس الهدف
+    والوقف معاً داخل شمعة لا يعرف ترتيبها الزمني وجب الترتيب المتحفظ
+    (أو بيانات أعلى دقة) — «يجب ألا يختار المخرج المحابي لمجرد جمال
+    الإعادة» أبداً.
+    """
+
+    #: الهدف قبل الإبطال داخل الأفق.
+    TARGET_FIRST = "TARGET_FIRST"
+    #: الإبطال قبل الهدف داخل الأفق.
+    INVALIDATION_FIRST = "INVALIDATION_FIRST"
+    #: انقضاء الأفق بربح صافٍ (بعد تكاليف واقعية).
+    TIMEOUT_WITH_PROFIT = "TIMEOUT_WITH_PROFIT"
+    #: انقضاء الأفق بخسارة صافية.
+    TIMEOUT_WITH_LOSS = "TIMEOUT_WITH_LOSS"
+    #: لم تعبأ النية أصلاً (انقضاء دخول بلا تعبئة) — لا صفقة قامت.
+    NOT_EXECUTABLE = "NOT_EXECUTABLE"
+
+
+class ExitReason(StrEnum):
+    """أسباب خروج التنفيذ المحاكى — ميكانيكا المحاكي لا دلالة الوسم.
+
+    الزوج (ExitReason, صافي R) يترجم إلى LabelState عبر محرك الوسم §30؛
+    الدلالة تُشتق، لا تخترع.
+    """
+
+    TARGET = "TARGET"  # لمس الهدف (بعد الترتيب المتحفظ داخل الشمعة)
+    STOP = "STOP"  # لمس الوقف
+    TIMEOUT = "TIMEOUT"  # انقضاء أفق التملك/النية
+    ENTRY_EXPIRY = "ENTRY_EXPIRY"  # انقضاء نافذة الدخول قبل اكتمال التعبئة
+    UNFILLED = "UNFILLED"  # لم تعبأ أي كمية إطلاقاً
+
+
+class WFORole(StrEnum):
+    """أدوار طيات التدحرج الأمامي (§39.3) — مرتبة زمنياً بلا تقاطع.
+
+    TRAIN تدريب/ضبط، VALIDATION تحقق/اختيار، OUT_OF_SAMPLE تقييم
+    خارج-العينة — «لا معايرة على طية التقييم» (§26.3-6).
+    """
+
+    TRAIN = "TRAIN"
+    VALIDATION = "VALIDATION"
+    OUT_OF_SAMPLE = "OUT_OF_SAMPLE"
+
+
+class IntrabarPolicy(StrEnum):
+    """سياسة الترتيب داخل الشمعة عند غموض التسلسل الزمني (§30).
+
+    CONSERVATIVE حصراً في MVP: العكس يُفحص أولاً دائماً (أسوأ حالة)؛
+    HIGHER_RESOLUTION مؤجل موثق (يتطلب بيانات دون إطار التنفيذ — بعد
+    MVP).
+    """
+
+    CONSERVATIVE = "CONSERVATIVE"
+    HIGHER_RESOLUTION = "HIGHER_RESOLUTION"  # مؤجل — بيانات أدق من الإطار

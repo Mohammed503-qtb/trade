@@ -1,0 +1,45 @@
+{
+  "additionalProperties": false,
+  "description": "بروتوكول التدحرج الأمامي (§39.3 حرفيًا).\n\nالافتراض هو بروتوكول البحث: 2000 تدريب / 500 تحقق / 500 خارج-العينة\nتتدحرج 500 — «يمكن زيادة العدد عندما تتطلب الأنظمة ملاحظات أكثر؛\nولا يُقلص أبدًا لمجرد عبور بوابة». ``protocol_name`` يوثق الاسم؛\nبروتوكول العينة البنيوي يعلن اسمه صراحة ولا يدّعي عبور بوابة بحث.",
+  "properties": {
+    "embargo_s": {
+      "minimum": 0.0,
+      "title": "Embargo S",
+      "type": "number"
+    },
+    "oos_candidates": {
+      "minimum": 1,
+      "title": "Oos Candidates",
+      "type": "integer"
+    },
+    "protocol_name": {
+      "title": "Protocol Name",
+      "type": "string"
+    },
+    "step_candidates": {
+      "minimum": 1,
+      "title": "Step Candidates",
+      "type": "integer"
+    },
+    "train_candidates": {
+      "minimum": 1,
+      "title": "Train Candidates",
+      "type": "integer"
+    },
+    "validation_candidates": {
+      "minimum": 1,
+      "title": "Validation Candidates",
+      "type": "integer"
+    }
+  },
+  "required": [
+    "protocol_name",
+    "train_candidates",
+    "validation_candidates",
+    "oos_candidates",
+    "step_candidates",
+    "embargo_s"
+  ],
+  "title": "WFOProtocolConfig",
+  "type": "object"
+}

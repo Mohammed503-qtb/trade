@@ -4,7 +4,7 @@
 > حرس الجودة: `python -m schemas.export check` يجب أن يبقى أخضر في كل بوابة (لا رسالة بلا مخطط مُصدَّر).
 
 - إصدار المخططات: `1.0.0`
-- عدد النماذج الجذرية: 47
+- عدد النماذج الجذرية: 60
 
 | النموذج | الملف | الوحدة | فقرة الخطة |
 |---|---|---|---|
@@ -45,6 +45,19 @@
 | `OrderIntent` | `OrderIntent.schema.json` | `schemas.execution` | §24.1 |
 | `SlippageRecord` | `SlippageRecord.schema.json` | `schemas.execution` | §24.4 |
 | `LatencyRecord` | `LatencyRecord.schema.json` | `schemas.execution` | §24.5 |
+| `SimulatedFill` | `SimulatedFill.schema.json` | `schemas.backtest` | §26.1 |
+| `RealizedCosts` | `RealizedCosts.schema.json` | `schemas.backtest` | §25.2 (المحقق) |
+| `SimulatedTrade` | `SimulatedTrade.schema.json` | `schemas.backtest` | §26.1 + §30 |
+| `EntrySpec` | `EntrySpec.schema.json` | `schemas.backtest` | §24.1 + §26.3 |
+| `RDistribution` | `RDistribution.schema.json` | `schemas.backtest` | §29.2 |
+| `RegimeMetrics` | `RegimeMetrics.schema.json` | `schemas.backtest` | §29.2 + §43 |
+| `BacktestMetrics` | `BacktestMetrics.schema.json` | `schemas.backtest` | §29.2 + §39.2 |
+| `BacktestIdentity` | `BacktestIdentity.schema.json` | `schemas.backtest` | §26.2 |
+| `WFOSegment` | `WFOSegment.schema.json` | `schemas.backtest` | §39.3 |
+| `WFOWindow` | `WFOWindow.schema.json` | `schemas.backtest` | §39.3 |
+| `WFOProtocolConfig` | `WFOProtocolConfig.schema.json` | `schemas.backtest` | §39.3 |
+| `WFOReport` | `WFOReport.schema.json` | `schemas.backtest` | §39.3 |
+| `BacktestReport` | `BacktestReport.schema.json` | `schemas.backtest` | §26.2 + بوابة 9 |
 | `MacroEventWindow` | `MacroEventWindow.schema.json` | `schemas.risk` | §17.3 + §22.1-10 |
 | `EvaluationContext` | `EvaluationContext.schema.json` | `schemas.risk` | §22.1 + §22.2 |
 | `NoTradeExplanation` | `NoTradeExplanation.schema.json` | `schemas.risk` | §22.3 |
