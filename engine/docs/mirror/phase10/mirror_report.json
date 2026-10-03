@@ -1,0 +1,82 @@
+{
+  "schema_version": "1.0.0",
+  "mirror": "pine-vs-engine (D-08)",
+  "timeframe": "1m",
+  "instrument": "BINANCE_USDM:BTCUSDT",
+  "bars": 1440,
+  "tolerance_table": {
+    "OHLCV": {
+      "rule": "exact",
+      "tolerance": 0.0
+    },
+    "ATR": {
+      "rule": "relative",
+      "tolerance": 0.0001
+    },
+    "SWEEP": {
+      "rule": "strict",
+      "tolerance": 0.0
+    },
+    "BOS": {
+      "rule": "strict",
+      "tolerance": 0.0
+    },
+    "DELTA_POC": {
+      "rule": "not_shared",
+      "tolerance": null
+    }
+  },
+  "rows": [
+    {
+      "family": "OHLCV",
+      "rule": "exact",
+      "status": "MATCH",
+      "bars": 1440,
+      "detail": "الطرفان يستهلكان الشموع المغلقة حصرًا من العينة المرجعية نفسها (bar_time = open_time)."
+    },
+    {
+      "family": "ATR",
+      "rule": "relative ±0.01%",
+      "status": "MATCH",
+      "compared": 1427,
+      "worst_relative_deviation": 4.2313126128157485e-07,
+      "detail": "ta.rma(ta.tr(true), 14) مقابل wilder_atr(tr, 14) بسياسة المخزن الدائري للمحرك — نفس البذرة والاستدعاء الذاتي."
+    },
+    {
+      "family": "SWINGS",
+      "rule": "strict",
+      "status": "MATCH",
+      "pine_count": 366,
+      "engine_count": 366,
+      "mismatches": [],
+      "detail": "آلة المتطرفات الفراكتلية بتأكيد متأخر 3 شموع — السعر والقطبية والنطاق وفهرس التأكيد."
+    },
+    {
+      "family": "SWEEP",
+      "rule": "strict",
+      "status": "MATCH",
+      "pine_count": 255,
+      "engine_count": 255,
+      "detail": "آلة اجتياح §10.4 على مناطق المتطرفات (المجموعة المشتركة) — مطابقة صارمة عند تساوي المعايير."
+    },
+    {
+      "family": "BOS",
+      "rule": "strict",
+      "status": "MATCH",
+      "pine_count": 74,
+      "engine_count": 74,
+      "detail": "كسر الإغلاق بعتبة 1.0 ATR وابتلاع المستويات وتصنيف §11.3 — ترتيب UP ثم DOWN."
+    },
+    {
+      "family": "DELTA_POC",
+      "rule": "not_shared",
+      "status": "DOCUMENTED_DIFFERENCE",
+      "detail": "فوتبرنت TradingView يتطلب حساب Premium (§6.2) والمحرك يعيد بناء الدلتا/POC من aggTrades — مصدران مختلفان منهجيًا: يوثق الاختلاف ولا يقارن زورًا."
+    }
+  ],
+  "pine_source_checks": {
+    "status": "OK",
+    "issues": []
+  },
+  "status": "AGREED_WITHIN_TOLERANCE"
+}

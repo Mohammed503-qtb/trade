@@ -172,5 +172,40 @@ def _write_json(path: Path, payload: Any) -> None:
         handle.write("\n")
 
 
+# ───────────────────────── المرآة الحتمية D-08 (بوابة 10) ─────────────────────────
+
+
+@app.command()
+def mirror(
+    timeframe: str = typer.Option("1m", "--timeframe", help="إطار عينة المرآة"),
+    instrument: str = typer.Option("BINANCE_USDM:BTCUSDT", "--instrument", help="معرف الأداة"),
+    out_path: Path = typer.Option(
+        None,
+        "--out",
+        help="ملف تقرير المرآة (الافتراضي: docs/mirror/phase10/mirror_report.json)",
+    ),
+) -> None:
+    """تشغيل المرآة الحتمية لأهم الأحداث ومقارنة D-08 (§10.4 + الجدول).
+
+    منافذ Pine (نسخ مستقل من مصدر pine/) مقابل مكونات المحرك الحقيقية
+    فوق العينة المرجعية — OHLCV تامة وATR ±0.01% وSweep/BOS صارمة
+    وصف دلتا/POC موثق غير مشترك.
+    """
+    from .mirror import run_mirror
+
+    report = run_mirror(timeframe=timeframe, instrument=instrument)
+    target = out_path or (
+        Path(__file__).resolve().parents[4] / "docs" / "mirror" / "phase10" / "mirror_report.json"
+    )
+    target.parent.mkdir(parents=True, exist_ok=True)
+    target.write_text(json.dumps(report, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    for row in report["rows"]:
+        typer.echo(f"  {row['family']:<10} {row['status']}")
+    typer.echo(f"pine-source: {report['pine_source_checks']['status']}")
+    typer.echo(f"المرآة: {report['status']} — الحصيلة: {target}")
+    if report["status"] != "AGREED_WITHIN_TOLERANCE":
+        raise typer.Exit(code=1)
+
+
 if __name__ == "__main__":
     app()

@@ -108,6 +108,10 @@ verify-phase8: ## بوابة المرحلة 8: لا-تداول ومخاطرة §
 verify-phase9: ## بوابة المرحلة 9: الإعادة والوسم §26/§30 — محاكاة وتسم ومقاييس وWFO وفحوص اللا-نظرة الستة (عينة فقط — لا بنية حية)
 	$(UV) run --no-sync python scripts/verify_phase9.py
 
+# بوابة المرحلة 10 — MVP-DoD (§51): Pine + مرآة D-08 + ويبهوك §36 + لوحة §35
+verify-phase10:
+	uv run --no-sync python scripts/verify_phase10.py
+
 ablation-dryrun: ## تشغيل استئصال تجريبي على عينة المرحلة 1 (تقرير placeholder موثق)
 	$(UV) run --no-sync python scripts/run_ablation.py --dataset phase1
 

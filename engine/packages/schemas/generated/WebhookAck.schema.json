@@ -1,0 +1,41 @@
+{
+  "$defs": {
+    "AlertDeliveryStatus": {
+      "description": "حالة تسليم التنبيه (جدول alerts التشغيلي §31.6).\n\n``RECEIVED``: قُبل وخُزن وأُقرّ ثم يُعالج خلفيًا.\n``DUPLICATE``: مفتاح D-07 مكرر — إقرار بلا معالجة ثانية (§36 خطوة 3).\n``REJECTED_AUTH``/``REJECTED_SCHEMA``: رفض صحيح عند البوابة (خطوتا 1-2).\n``PROCESSED``: اكتملت إعادة التحقق القانوني ووثّق حكمها.\n``REJECTED_CANONICAL``: أعاد المحرك القانوني التحقق فلم يطابق الحالة.",
+      "enum": [
+        "RECEIVED",
+        "DUPLICATE",
+        "REJECTED_AUTH",
+        "REJECTED_SCHEMA",
+        "PROCESSED",
+        "REJECTED_CANONICAL"
+      ],
+      "title": "AlertDeliveryStatus",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "description": "إقرار البوابة الفوري (§6.4: أسرع من 3 ثوانٍ — العمل الثقيل خلفي).\n\n``alert_key`` صدى لمفتاح D-07 المشتق خادميًا — للمراقبة والتتبع فقط.",
+  "properties": {
+    "alert_key": {
+      "minLength": 1,
+      "title": "Alert Key",
+      "type": "string"
+    },
+    "received_at": {
+      "format": "date-time",
+      "title": "Received At",
+      "type": "string"
+    },
+    "status": {
+      "$ref": "#/$defs/AlertDeliveryStatus"
+    }
+  },
+  "required": [
+    "status",
+    "alert_key",
+    "received_at"
+  ],
+  "title": "WebhookAck",
+  "type": "object"
+}

@@ -1,0 +1,79 @@
+{
+  "additionalProperties": false,
+  "description": "عرض سيناريو نشط في اللوحة (الطبقة 4-5 من §35.1).",
+  "properties": {
+    "created_time": {
+      "format": "date-time",
+      "title": "Created Time",
+      "type": "string"
+    },
+    "direction": {
+      "minLength": 1,
+      "title": "Direction",
+      "type": "string"
+    },
+    "entry_price_high": {
+      "title": "Entry Price High",
+      "type": "number"
+    },
+    "entry_price_low": {
+      "title": "Entry Price Low",
+      "type": "number"
+    },
+    "evidence_count": {
+      "minimum": 0,
+      "title": "Evidence Count",
+      "type": "integer"
+    },
+    "scenario_id": {
+      "minLength": 1,
+      "title": "Scenario Id",
+      "type": "string"
+    },
+    "score": {
+      "maximum": 1.0,
+      "minimum": 0.0,
+      "title": "Score",
+      "type": "number"
+    },
+    "state": {
+      "minLength": 1,
+      "title": "State",
+      "type": "string"
+    },
+    "stop": {
+      "title": "Stop",
+      "type": "number"
+    },
+    "target_price": {
+      "title": "Target Price",
+      "type": "number"
+    },
+    "template": {
+      "minLength": 1,
+      "title": "Template",
+      "type": "string"
+    },
+    "trigger_status": {
+      "minLength": 1,
+      "title": "Trigger Status",
+      "type": "string"
+    }
+  },
+  "required": [
+    "scenario_id",
+    "template",
+    "direction",
+    "state",
+    "created_time",
+    "trigger_status",
+    "entry_price_low",
+    "entry_price_high",
+    "stop",
+    "target_price",
+    "evidence_count",
+    "score"
+  ],
+  "title": "ScenarioView",
+  "type": "object"
+}

@@ -1,0 +1,34 @@
+{
+  "additionalProperties": false,
+  "description": "حقل واحد من لوحة المعلومات الدنيا (§35.2).\n\n``key`` معرف الحقل الثابت (يستقرئه الفحص الآلي — ثلاثة عشر حقلًا)،\nو``value``/``detail`` عرض اللوحة (قد يتغير نصه دون كسر العقد).",
+  "properties": {
+    "detail": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Detail"
+    },
+    "key": {
+      "minLength": 1,
+      "title": "Key",
+      "type": "string"
+    },
+    "value": {
+      "minLength": 1,
+      "title": "Value",
+      "type": "string"
+    }
+  },
+  "required": [
+    "key",
+    "value"
+  ],
+  "title": "PanelField",
+  "type": "object"
+}

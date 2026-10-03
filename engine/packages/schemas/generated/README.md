@@ -4,7 +4,7 @@
 > حرس الجودة: `python -m schemas.export check` يجب أن يبقى أخضر في كل بوابة (لا رسالة بلا مخطط مُصدَّر).
 
 - إصدار المخططات: `1.0.0`
-- عدد النماذج الجذرية: 60
+- عدد النماذج الجذرية: 72
 
 | النموذج | الملف | الوحدة | فقرة الخطة |
 |---|---|---|---|
@@ -68,3 +68,15 @@
 | `RewardRiskEstimate` | `RewardRiskEstimate.schema.json` | `schemas.risk` | §23.5 |
 | `RiskDecision` | `RiskDecision.schema.json` | `schemas.risk` | §31.3 (decisions) |
 | `ExperienceRecord` | `ExperienceRecord.schema.json` | `schemas.learning` | §29.1 |
+| `TVAlertPayload` | `TVAlertPayload.schema.json` | `schemas.tv` | §36 + D-07 |
+| `TVAlertEnvelope` | `TVAlertEnvelope.schema.json` | `schemas.tv` | §32 (الروح) + §36 |
+| `AlertRevalidation` | `AlertRevalidation.schema.json` | `schemas.tv` | §36 (خطوة 7) + §31.6 |
+| `WebhookAck` | `WebhookAck.schema.json` | `schemas.tv` | §6.4 + §36 |
+| `PanelField` | `PanelField.schema.json` | `schemas.dashboard` | §35.2 |
+| `ReasoningTraceView` | `ReasoningTraceView.schema.json` | `schemas.dashboard` | §35.3 |
+| `ScenarioView` | `ScenarioView.schema.json` | `schemas.dashboard` | §35.1 (طبقتا 4-5) + §18 |
+| `RejectionView` | `RejectionView.schema.json` | `schemas.dashboard` | §22 + §31.3 |
+| `ExecutionView` | `ExecutionView.schema.json` | `schemas.dashboard` | §28 + §51 |
+| `WebhookEventView` | `WebhookEventView.schema.json` | `schemas.dashboard` | §31.6 |
+| `DashboardCounts` | `DashboardCounts.schema.json` | `schemas.dashboard` | بوابة 10 (مطابقة الأرقام) |
+| `DashboardOverview` | `DashboardOverview.schema.json` | `schemas.dashboard` | §35.2 + §35.3 |

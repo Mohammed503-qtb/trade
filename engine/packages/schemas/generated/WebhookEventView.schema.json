@@ -1,0 +1,40 @@
+{
+  "additionalProperties": false,
+  "description": "تنبيه TradingView حديث كما تعرضه اللوحة (سجل التسليم §31.6).",
+  "properties": {
+    "alert_key": {
+      "minLength": 1,
+      "title": "Alert Key",
+      "type": "string"
+    },
+    "event": {
+      "minLength": 1,
+      "title": "Event",
+      "type": "string"
+    },
+    "instrument": {
+      "minLength": 1,
+      "title": "Instrument",
+      "type": "string"
+    },
+    "received_at": {
+      "format": "date-time",
+      "title": "Received At",
+      "type": "string"
+    },
+    "status": {
+      "minLength": 1,
+      "title": "Status",
+      "type": "string"
+    }
+  },
+  "required": [
+    "alert_key",
+    "instrument",
+    "event",
+    "status",
+    "received_at"
+  ],
+  "title": "WebhookEventView",
+  "type": "object"
+}

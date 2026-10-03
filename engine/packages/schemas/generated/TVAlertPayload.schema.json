@@ -1,0 +1,58 @@
+{
+  "additionalProperties": false,
+  "description": "حمولة تنبيه Pine (§36 حرفيًا — الحقول الخام التي يرسلها المؤشر).\n\n``bar_time_ms`` زمن شمعة المصدر (مللي ثانية عصر-يونكس — ما يرسله\n``{{time}}``)، و``price`` سعر الإغلاق لحظة التنبيه (``{{close}}``).\nلا ``idempotency_key`` هنا عمدًا: D-07 يحسم أنه\n``sha256(schema_version|source|alert_id|instrument|bar_time|event)``\nويُشتق في الخادم حصرًا — المفتاح الوافد مدخل غير موثوق.\nلا أسرار ولا اعتماديات في الجسم إطلاقًا (§6.4/§37.1).",
+  "properties": {
+    "alert_id": {
+      "minLength": 1,
+      "title": "Alert Id",
+      "type": "string"
+    },
+    "bar_time_ms": {
+      "exclusiveMinimum": 0,
+      "title": "Bar Time Ms",
+      "type": "integer"
+    },
+    "event": {
+      "minLength": 1,
+      "title": "Event",
+      "type": "string"
+    },
+    "instrument": {
+      "minLength": 1,
+      "title": "Instrument",
+      "type": "string"
+    },
+    "price": {
+      "exclusiveMinimum": 0.0,
+      "title": "Price",
+      "type": "number"
+    },
+    "schema_version": {
+      "minLength": 1,
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "source": {
+      "minLength": 1,
+      "title": "Source",
+      "type": "string"
+    },
+    "timeframe": {
+      "minLength": 1,
+      "title": "Timeframe",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema_version",
+    "source",
+    "alert_id",
+    "instrument",
+    "bar_time_ms",
+    "timeframe",
+    "event",
+    "price"
+  ],
+  "title": "TVAlertPayload",
+  "type": "object"
+}

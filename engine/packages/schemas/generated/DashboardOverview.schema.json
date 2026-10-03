@@ -1,0 +1,409 @@
+{
+  "$defs": {
+    "DashboardCounts": {
+      "additionalProperties": false,
+      "description": "خلاصة مطابقة اللوحة مع أرقام البوابات الموثقة (فحص البوابة).",
+      "properties": {
+        "active_scenarios": {
+          "minimum": 0,
+          "title": "Active Scenarios",
+          "type": "integer"
+        },
+        "authorized": {
+          "minimum": 0,
+          "title": "Authorized",
+          "type": "integer"
+        },
+        "rejected": {
+          "minimum": 0,
+          "title": "Rejected",
+          "type": "integer"
+        },
+        "risk_decisions": {
+          "minimum": 0,
+          "title": "Risk Decisions",
+          "type": "integer"
+        },
+        "simulated_trades": {
+          "minimum": 0,
+          "title": "Simulated Trades",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "risk_decisions",
+        "authorized",
+        "rejected",
+        "simulated_trades",
+        "active_scenarios"
+      ],
+      "title": "DashboardCounts",
+      "type": "object"
+    },
+    "ExecutionView": {
+      "additionalProperties": false,
+      "description": "حالة التنفيذ في اللوحة — وضع MVP معلن بلا لبس.\n\n``mode = \"SIMULATION_ONLY\"``: القبول القانوني في محرك الإعادة\nالخارجي (§28) والتنفيذ الحي مؤجل للمرحلة 11 (خارطة ما بعد MVP) —\nاللوحة تعلن ذلك ولا تدّعي تداولًا حيًا أبدًا.",
+      "properties": {
+        "mode": {
+          "minLength": 1,
+          "title": "Mode",
+          "type": "string"
+        },
+        "net_expectancy_r": {
+          "title": "Net Expectancy R",
+          "type": "number"
+        },
+        "profit_factor": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Profit Factor"
+        },
+        "report_ref": {
+          "minLength": 1,
+          "title": "Report Ref",
+          "type": "string"
+        },
+        "trades_count": {
+          "minimum": 0,
+          "title": "Trades Count",
+          "type": "integer"
+        },
+        "win_rate": {
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "Win Rate",
+          "type": "number"
+        }
+      },
+      "required": [
+        "mode",
+        "trades_count",
+        "net_expectancy_r",
+        "profit_factor",
+        "win_rate",
+        "report_ref"
+      ],
+      "title": "ExecutionView",
+      "type": "object"
+    },
+    "PanelField": {
+      "additionalProperties": false,
+      "description": "حقل واحد من لوحة المعلومات الدنيا (§35.2).\n\n``key`` معرف الحقل الثابت (يستقرئه الفحص الآلي — ثلاثة عشر حقلًا)،\nو``value``/``detail`` عرض اللوحة (قد يتغير نصه دون كسر العقد).",
+      "properties": {
+        "detail": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Detail"
+        },
+        "key": {
+          "minLength": 1,
+          "title": "Key",
+          "type": "string"
+        },
+        "value": {
+          "minLength": 1,
+          "title": "Value",
+          "type": "string"
+        }
+      },
+      "required": [
+        "key",
+        "value"
+      ],
+      "title": "PanelField",
+      "type": "object"
+    },
+    "ReasoningTraceView": {
+      "additionalProperties": false,
+      "description": "أثر الاستدلال القابل للطي لسيناريو واحد (§35.3 حرفيًا).\n\n«لماذا نشط؟» و«ماذا ضده؟» و«لماذا الانتظار؟» — ثلاث قوائم نصية\nصريحة من سجل الدليل المدمج؛ أثمن من ملصق نسبة شرائية (§35.3).",
+      "properties": {
+        "direction": {
+          "minLength": 1,
+          "title": "Direction",
+          "type": "string"
+        },
+        "scenario_id": {
+          "minLength": 1,
+          "title": "Scenario Id",
+          "type": "string"
+        },
+        "template": {
+          "minLength": 1,
+          "title": "Template",
+          "type": "string"
+        },
+        "what_against": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "What Against",
+          "type": "array"
+        },
+        "why_active": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Why Active",
+          "type": "array"
+        },
+        "why_wait": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Why Wait",
+          "type": "array"
+        }
+      },
+      "required": [
+        "scenario_id",
+        "template",
+        "direction"
+      ],
+      "title": "ReasoningTraceView",
+      "type": "object"
+    },
+    "RejectionView": {
+      "additionalProperties": false,
+      "description": "سجل رفض واحد (لا-تداول §22 أو كتم §22.2 أو رفض webhook).",
+      "properties": {
+        "as_of": {
+          "format": "date-time",
+          "title": "As Of",
+          "type": "string"
+        },
+        "decision_id": {
+          "minLength": 1,
+          "title": "Decision Id",
+          "type": "string"
+        },
+        "explanation": {
+          "minLength": 1,
+          "title": "Explanation",
+          "type": "string"
+        },
+        "reason_code": {
+          "minLength": 1,
+          "title": "Reason Code",
+          "type": "string"
+        },
+        "scenario_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Scenario Id"
+        }
+      },
+      "required": [
+        "decision_id",
+        "reason_code",
+        "explanation",
+        "as_of"
+      ],
+      "title": "RejectionView",
+      "type": "object"
+    },
+    "ScenarioView": {
+      "additionalProperties": false,
+      "description": "عرض سيناريو نشط في اللوحة (الطبقة 4-5 من §35.1).",
+      "properties": {
+        "created_time": {
+          "format": "date-time",
+          "title": "Created Time",
+          "type": "string"
+        },
+        "direction": {
+          "minLength": 1,
+          "title": "Direction",
+          "type": "string"
+        },
+        "entry_price_high": {
+          "title": "Entry Price High",
+          "type": "number"
+        },
+        "entry_price_low": {
+          "title": "Entry Price Low",
+          "type": "number"
+        },
+        "evidence_count": {
+          "minimum": 0,
+          "title": "Evidence Count",
+          "type": "integer"
+        },
+        "scenario_id": {
+          "minLength": 1,
+          "title": "Scenario Id",
+          "type": "string"
+        },
+        "score": {
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "Score",
+          "type": "number"
+        },
+        "state": {
+          "minLength": 1,
+          "title": "State",
+          "type": "string"
+        },
+        "stop": {
+          "title": "Stop",
+          "type": "number"
+        },
+        "target_price": {
+          "title": "Target Price",
+          "type": "number"
+        },
+        "template": {
+          "minLength": 1,
+          "title": "Template",
+          "type": "string"
+        },
+        "trigger_status": {
+          "minLength": 1,
+          "title": "Trigger Status",
+          "type": "string"
+        }
+      },
+      "required": [
+        "scenario_id",
+        "template",
+        "direction",
+        "state",
+        "created_time",
+        "trigger_status",
+        "entry_price_low",
+        "entry_price_high",
+        "stop",
+        "target_price",
+        "evidence_count",
+        "score"
+      ],
+      "title": "ScenarioView",
+      "type": "object"
+    },
+    "WebhookEventView": {
+      "additionalProperties": false,
+      "description": "تنبيه TradingView حديث كما تعرضه اللوحة (سجل التسليم §31.6).",
+      "properties": {
+        "alert_key": {
+          "minLength": 1,
+          "title": "Alert Key",
+          "type": "string"
+        },
+        "event": {
+          "minLength": 1,
+          "title": "Event",
+          "type": "string"
+        },
+        "instrument": {
+          "minLength": 1,
+          "title": "Instrument",
+          "type": "string"
+        },
+        "received_at": {
+          "format": "date-time",
+          "title": "Received At",
+          "type": "string"
+        },
+        "status": {
+          "minLength": 1,
+          "title": "Status",
+          "type": "string"
+        }
+      },
+      "required": [
+        "alert_key",
+        "instrument",
+        "event",
+        "status",
+        "received_at"
+      ],
+      "title": "WebhookEventView",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "description": "اللقطة الكاملة للوحة الدنيا — عقود §35.2 + §35.3 معًا.\n\n``panel`` ثلاثة عشر حقلًا حرفيًا (§35.2)، و``counts`` خلاصة التحقق\nالآلي (تطابق أرقام البوابات: 103 قرارات/58 ترخيصًا/45 رفضًا/58\nصفقة محاكاة)، و``composition_ref`` هوية التوليف الحتمي الذي بُنيت\nمنه اللقطة.",
+  "properties": {
+    "alerts": {
+      "items": {
+        "$ref": "#/$defs/WebhookEventView"
+      },
+      "title": "Alerts",
+      "type": "array"
+    },
+    "composition_ref": {
+      "minLength": 1,
+      "title": "Composition Ref",
+      "type": "string"
+    },
+    "counts": {
+      "$ref": "#/$defs/DashboardCounts"
+    },
+    "execution": {
+      "$ref": "#/$defs/ExecutionView"
+    },
+    "panel": {
+      "items": {
+        "$ref": "#/$defs/PanelField"
+      },
+      "title": "Panel",
+      "type": "array"
+    },
+    "rejections": {
+      "items": {
+        "$ref": "#/$defs/RejectionView"
+      },
+      "title": "Rejections",
+      "type": "array"
+    },
+    "scenarios": {
+      "items": {
+        "$ref": "#/$defs/ScenarioView"
+      },
+      "title": "Scenarios",
+      "type": "array"
+    },
+    "traces": {
+      "items": {
+        "$ref": "#/$defs/ReasoningTraceView"
+      },
+      "title": "Traces",
+      "type": "array"
+    }
+  },
+  "required": [
+    "panel",
+    "traces",
+    "scenarios",
+    "rejections",
+    "execution",
+    "alerts",
+    "counts",
+    "composition_ref"
+  ],
+  "title": "DashboardOverview",
+  "type": "object"
+}

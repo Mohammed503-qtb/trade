@@ -1,0 +1,205 @@
+//@version=6
+// ═══════════════════════════════════════════════════════════════════════════
+// reasoning_engine — مؤشر المحرك على TradingView (build_plan §D-10.2)
+//
+// طبقات العرض السبع بترتيب §35.1 حرفيًا — ولا رسم لكل شيء قط:
+//   1. خريطة السيولة الكبرى        (مناطق المتطرفات من engine_core)
+//   2. نطاق المعالجة النشط          (أقصى خارجي صاعد/هابط)
+//   3. بنية HTF/MTF                 (بقيم مؤكدة §27.2 — لا رفرفة)
+//   4. السيناريو النشط              (إسقاط هندسي: اجتياح + كسر اتجاهي)
+//   5. الدخول/الإبطال/الأهداف       (من السيناريو النشط وحده)
+//   6. تعليقات التدفق المختارة      (علامات الأحداث المؤكدة — الحصة
+//                                    المتاحة لحساب غير-بريميوم §6.2)
+//   7. علامات الأحداث               (SWEEP/ACCEPT/BOS/CHoCH)
+//
+// كل المنطق يعمل على الشموع المغلقة حصرًا (barstate.isconfirmed) — مخرجات
+// المؤشر CONFIRMED بالتعريف (§27.1) والتنبيهات القادرة على الأوامر من
+// منطق مؤكد حصرًا (§27.4). لا أسرار في المصدر (§37.1): التوكن يضبط في
+// رابط الويبهوك عند إنشاء التنبيه (انظر pine/alerts/README.md).
+// ═══════════════════════════════════════════════════════════════════════════
+indicator("AI Market Reasoning Engine", "AMRE", overlay = true)
+
+import user/engine_core/1 as ec
+
+// ─────────────────────────── الإعدادات ───────────────────────────
+group_layers = "طبقات العرض (§35.1)"
+group_htf    = "الإطار الأعلى (§27.2)"
+group_alerts = "التنبيهات (§36)"
+
+show_liquidity = input.bool(true,  "1) خريطة السيولة الكبرى", group = group_layers)
+show_range     = input.bool(true,  "2) نطاق المعالجة النشط", group = group_layers)
+show_htf       = input.bool(true,  "3) بنية HTF (مؤكدة)", group = group_layers)
+show_scenario  = input.bool(true,  "4) السيناريو النشط", group = group_layers)
+show_levels    = input.bool(true,  "5) الدخول/الإبطال/الأهداف", group = group_layers)
+show_flow      = input.bool(false, "6) تعليقات التدفق المختارة", group = group_layers)
+show_events    = input.bool(true,  "7) علامات الأحداث", group = group_layers)
+
+htf_frame      = input.timeframe("60", "إطار البنية الأعلى", group = group_htf)
+atr_period     = input.int(14, "فترة ATR (وايلدر §16)", minval = 1, group = group_htf)
+confirm_bars   = input.int(3, "شموع تأكيد المتطرف (§11.1)", minval = 1, group = group_htf)
+// طول المخزن الدائري لسياسة ATR المحرك (VolatilityConfig.history_bars):
+// max(warmup=100, atr_period+pct_window=114, rv_start+vov_window+1=70) = 114.
+atr_history    = input.int(114, "ذاكرة ATR (مخزن المحرك الدائري)", minval = 20, group = group_htf)
+
+alert_sweeps   = input.bool(true, "تنبيه اجتياح السيولة (§10.4)", group = group_alerts)
+alert_breaks   = input.bool(true, "تنبيه كسر البنية (§11.2)", group = group_alerts)
+
+// ─────────────────────────── الحالة الدائمة ───────────────────────────
+var ec.SwingState  st_high = ec.f_newSwingState()
+var ec.SwingState  st_low  = ec.f_newSwingState()
+var array<ec.Zone> zones = array.new<ec.Zone>()
+var array<ec.Interaction> interactions = array.new<ec.Interaction>()
+var ec.BosState    bos = ec.f_newBosState()
+// السيناريو النشط المعروض (إسقاط هندسي — الطبقة 4/5).
+var int    sc_dir = 0          // 0 لا سيناريو / +1 صاعد / −1 هابط
+var float  sc_entry = na
+var float  sc_invalidation = na
+var float  sc_target = na
+var int    sc_origin_bar = na
+// بنية HTF المؤكدة (§27.2) — عبر القيمة المؤكدة [1] مع lookahead_on.
+htf_atr   = ec.f_htfAtrConfirmed(htf_frame, atr_period)
+htf_close = ec.f_htfCloseConfirmed(htf_frame)
+htf_ph = request.security(syminfo.tickerid, htf_frame, ta.pivothigh(high, 2, 2)[1], lookahead = barmerge.lookahead_on)
+htf_pl = request.security(syminfo.tickerid, htf_frame, ta.pivotlow(low, 2, 2)[1], lookahead = barmerge.lookahead_on)
+var float htf_last_high = na
+var float htf_last_low  = na
+var int   htf_bias = 0
+
+// ─────────────────────────── المعالجة على الإغلاق حصرًا ───────────────────────────
+// الكواشف تستهلك ATR بسياسة المحرك الحرفية (مخزن دائري وإعادة حساب —
+// المجموعة المشتركة الفعلية مع محرك الإعادة، انظر تقرير المرآة D-08).
+atr = ec.f_atrBounded(atr_period, atr_history)
+string last_event = ""
+string last_event_name = ""
+
+if barstate.isconfirmed
+    // (0) المتطرفات الفراكتلية — قطبيتان حتميتا الترتيب (HIGH ثم LOW).
+    sw_high = st_high.f_updatePolarity(true, high, atr, confirm_bars)
+    sw_low  = st_low.f_updatePolarity(false, low, atr, confirm_bars)
+    // (1) آلة الاجتياح أولا (§10.4 شرط 1): تقييم ضد المناطق القائمة
+    //     [0..t−1] قبل هضم متطرفات هذا الشريط — فلا تُجتاح منطقة بشمعة
+    //     تأسيسها (ترتيب الواجهة الموثق في المحرك حرفيًا).
+    [sweep_event, sweep_price, sweep_zone, sweep_buy] = zones.f_sweepScan(interactions, atr)
+    if sweep_event == "SWEEP"
+        // دلالة التسمية في قاموس المحرك (§20): اجتياح السيولة الشرائية
+        // (BUY_SIDE تحت السعر) ثم رفض ⇒ LIQUIDITY_SWEEP_HIGH — والبيعية _LOW.
+        last_event := sweep_buy ? "LIQUIDITY_SWEEP_HIGH" : "LIQUIDITY_SWEEP_LOW"
+        last_event_name := "اجتياح سيولة " + (sweep_buy ? "شرائية ثم رفض" : "بيعية ثم رفض")
+    else if sweep_event == "ACCEPT"
+        last_event := sweep_buy ? "BREAK_AND_ACCEPT_HIGH" : "BREAK_AND_ACCEPT_LOW"
+        last_event_name := "كسر وقبول " + (sweep_buy ? "أسفل" : "أعلى")
+    // (2) هضم المتطرفات: خريطة السيولة ثم مستويات الكسر (ترتيب المحرك).
+    for sw in array.from(sw_high, sw_low)
+        if not na(sw)
+            zones.f_ingestSwing(sw, atr)
+            bos.f_onSwing(sw)
+    // (3) بنية HTF المؤكدة (§27.2): تحديث مستويات المتطرفات المؤكدة فقط.
+    if not na(htf_ph)
+        htf_last_high := htf_ph
+    if not na(htf_pl)
+        htf_last_low := htf_pl
+    if not na(htf_close) and not na(htf_last_high) and not na(htf_last_low)
+        htf_bias := htf_close > htf_last_high ? 1 : htf_close < htf_last_low ? -1 : htf_bias == 0 ? 0 : htf_bias
+    // (4) كسر البينة (§11.2-§11.3) بعد تغذية مستويات هذا الشريط — حدثان
+    //     ممكنان بنفس الشمعة (UP ثم DOWN) ولا يُفقد أحدهما قط.
+    [up_event, up_breach, up_swing, dn_event, dn_breach, dn_swing] = bos.f_bosUpdate(atr)
+    if up_event != ""
+        last_event := up_event
+        last_event_name := up_event == "CHOCH" ? "تغير شخصية" : up_event == "EXTERNAL_BOS" ? "كسر خارجي" : "كسر داخلي"
+    if dn_event != ""
+        last_event := dn_event
+        last_event_name := dn_event == "CHOCH" ? "تغير شخصية" : dn_event == "EXTERNAL_BOS" ? "كسر خارجي" : "كسر داخلي"
+    // (5) الإسقاط الهندسي للسيناريو النشط: اجتياح مؤكد باتجاه البنية
+    //     يفتح سيناريو ارتداد نحو السيولة المقابلة (روح §18 دون ادعاء
+    //     محرك السيناريوهات الكامل — ذاك محرك المحرك الخارجي).
+    if sweep_event == "SWEEP"
+        // دلالة المحرك: BUY_SIDE منطقة عند القمم — اجتياحها ورفضها هابط؛
+        // SELL_SIDE عند القيعان — اجتياحها ورفضها صاعد.
+        sc_dir := sweep_buy ? -1 : 1
+        swept = sweep_buy ? high : low
+        sc_entry := sweep_buy ? math.min(sweep_price, swept) : math.max(sweep_price, swept)
+        sc_invalidation := sweep_buy ? swept + ec.EC_STRUCT_BUF_MULT * atr : swept - ec.EC_STRUCT_BUF_MULT * atr
+        // الهدف: أقرب منطقة سيولة حية على الجانب المقابل من السيناريو.
+        best = na(float)
+        if zones.size() > 0
+            for i = 0 to zones.size() - 1
+                z = zones.get(i)
+                if z.state == "ACTIVE" and z.is_buy_side != sweep_buy
+                    candidate = sc_dir > 0 ? z.price_low : z.price_high
+                    if (sc_dir > 0 ? candidate > sc_entry : candidate < sc_entry) and (na(best) or (sc_dir > 0 ? candidate < best : candidate > best))
+                        best := candidate
+        sc_target := nz(best, sc_entry + sc_dir * 2.0 * atr)
+        sc_origin_bar := bar_index
+    // انقضاء السيناريو المعروض: 60 شمعة أو إبطال فادح.
+    if not na(sc_origin_bar) and bar_index - sc_origin_bar > 60
+        sc_dir := 0
+
+// ═══════════════════════════════ طبقة 1: خريطة السيولة الكبرى ═══════════════════════════════
+// مناطق المتطرفات النشطة — خطوط ممتدة حتى الآن (لا رسم لكل التاريخ).
+var array<line>  liq_lines = array.new<line>()
+var array<label> liq_labels = array.new<label>()
+if barstate.isconfirmed and show_liquidity
+    // تنظيف رسوم المناطق الميتة (حد أقصى للموارد).
+    if liq_lines.size() > 40
+        line.delete(liq_lines.shift())
+        label.delete(liq_labels.shift())
+    if zones.size() > 0
+        z_newest = zones.get(zones.size() - 1)
+        liq_lines.push(line.new(z_newest.origin_index, z_newest.price_low, bar_index, z_newest.price_low, color = z_newest.is_buy_side ? color.new(#b45309, 30) : color.new(#15803d, 30), style = z_newest.source == "EQUAL_LEVEL" ? line.style_dotted : line.style_solid, width = 1))
+        liq_labels.push(label.new(bar_index, z_newest.price_low, (z_newest.is_buy_side ? "L$ " : "L$ ") + (z_newest.source == "EQUAL_LEVEL" ? "≈" : ""), style = label.style_label_left, textcolor = color.new(#57534e, 40), size = size.tiny, color = color.new(color.white, 100)))
+
+// ═══════════════════════════════ طبقة 2: نطاق المعالجة النشط ═══════════════════════════════
+var float range_high = na
+var float range_low = na
+var box range_box = na
+if barstate.isconfirmed and show_range
+    // نطاق المعالجة من مرتكزات المتطرفات الخارجية (آخر خارجي لكل قطبية).
+    ext_hi = st_high.external_anchor
+    ext_lo = st_low.external_anchor
+    range_high := ext_hi
+    range_low := ext_lo
+    if not na(range_box)
+        box.delete(range_box)
+    if not na(ext_hi) and not na(ext_lo) and ext_hi > ext_lo
+        range_box := box.new(bar_index - 20, ext_hi, bar_index, ext_lo, border_color = color.new(#57534e, 60), bgcolor = color.new(#f5f5f4, 90))
+        label.new(bar_index, (ext_hi + ext_lo) / 2, "نطاق المعالجة", style = label.style_label_left, textcolor = color.new(#57534e, 30), size = size.tiny, color = color.new(color.white, 100))
+
+// ═══════════════════════════════ طبقة 3: بنية HTF المؤكدة ═══════════════════════════════
+plot(show_htf and not na(htf_last_high) ? htf_last_high : na, "HTF قمة مؤكدة", color = color.new(#9a3412, 50), style = plot.style_linebr, linewidth = 1)
+plot(show_htf and not na(htf_last_low) ? htf_last_low : na, "HTF قاع مؤكد", color = color.new(#065f46, 50), style = plot.style_linebr, linewidth = 1)
+plot(show_htf ? htf_close : na, "HTF إغلاق مؤكد", color = color.new(#78716c, 40), style = plot.style_circles, linewidth = 1)
+var table bias_tbl = table.new(position.top_right, 1, 1)
+if barstate.islast and show_htf
+    bias_txt = htf_bias > 0 ? "HTF: بنية صاعدة" : htf_bias < 0 ? "HTF: بنية هابطة" : "HTF: محايد"
+    table.cell(bias_tbl, 0, 0, bias_txt, text_color = color.white, bgcolor = htf_bias > 0 ? color.new(#15803d, 20) : htf_bias < 0 ? color.new(#b91c1c, 20) : color.new(#57534e, 20), text_size = size.small)
+
+// ═══════════════════════════════ طبقة 4+5: السيناريو النشط ومستوياته ═══════════════════════════════
+plot(show_scenario and sc_dir != 0 ? sc_entry : na, "الدخول", color = color.new(#a16207, 0), style = plot.style_linebr, linewidth = 2)
+plot(show_levels and sc_dir != 0 ? sc_invalidation : na, "الإبطال", color = color.new(#b91c1c, 0), style = plot.style_linebr, linewidth = 1)
+plot(show_levels and sc_dir != 0 ? sc_target : na, "الهدف", color = color.new(#15803d, 0), style = plot.style_linebr, linewidth = 1)
+
+// ═══════════════════════════════ طبقة 6: تعليقات التدفق المختارة ═══════════════════════════════
+// الحصة المتاحة لحساب غير-بريميوم (§6.2): علامات الأحداث البنيوية
+// المؤكدة بديلًا موثقًا عن الفوتبرنت — الفرق المنهجي معلن في تقرير
+// المرآة (D-08) ولا يعد فشلًا.
+plotshape(show_flow and last_event == "SWEEP", "اجتياح", shape.triangleup, location.belowbar, color = color.new(#b45309, 0), size = size.tiny, text = "Sweep", textcolor = color.new(#b45309, 0))
+plotshape(show_flow and last_event == "ACCEPT", "قبول", shape.diamond, location.abovebar, color = color.new(#57534e, 0), size = size.tiny, text = "Accept", textcolor = color.new(#57534e, 0))
+
+// ═══════════════════════════════ طبقة 7: علامات الأحداث ═══════════════════════════════
+plotshape(show_events and last_event == "EXTERNAL_BOS", "كسر خارجي", shape.labelup, location.belowbar, color = color.new(#15803d, 0), size = size.tiny, text = "BOS", textcolor = color.white)
+plotshape(show_events and last_event == "CHOCH", "تغير شخصية", shape.labelup, location.belowbar, color = color.new(#b91c1c, 0), size = size.tiny, text = "CHoCH", textcolor = color.white)
+plotshape(show_events and last_event == "INTERNAL_BOS", "كسر داخلي", shape.circle, location.belowbar, color = color.new(#78716c, 0), size = size.tiny, text = "iBOS", textcolor = color.new(#78716c, 0))
+
+// ─────────────────────────── التنبيهات (§36 + §27.4) ───────────────────────────
+// من منطق مؤكد حصرًا (الشمعة مغلقة) — الحمولة خام بلا أسرار والمفتاح
+// (D-07) يشتقه الخادم. توثيق الضبط في pine/alerts/README.md. كل حدث
+// مؤكد يبث تنبيهه — لا يفقد الاجتياح عند تزامنه مع كسر بنفس الشمعة.
+if barstate.isconfirmed
+    if alert_sweeps and sweep_event == "SWEEP"
+        alert(ec.f_alertPayload(sweep_buy ? "LIQUIDITY_SWEEP_HIGH" : "LIQUIDITY_SWEEP_LOW"), alert.freq_once_per_bar_close)
+    if alert_sweeps and sweep_event == "ACCEPT"
+        alert(ec.f_alertPayload(sweep_buy ? "BREAK_AND_ACCEPT_HIGH" : "BREAK_AND_ACCEPT_LOW"), alert.freq_once_per_bar_close)
+    if alert_breaks and up_event != ""
+        alert(ec.f_alertPayload(up_event), alert.freq_once_per_bar_close)
+    if alert_breaks and dn_event != ""
+        alert(ec.f_alertPayload(dn_event), alert.freq_once_per_bar_close)

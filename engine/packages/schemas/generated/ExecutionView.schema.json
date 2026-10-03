@@ -1,0 +1,52 @@
+{
+  "additionalProperties": false,
+  "description": "حالة التنفيذ في اللوحة — وضع MVP معلن بلا لبس.\n\n``mode = \"SIMULATION_ONLY\"``: القبول القانوني في محرك الإعادة\nالخارجي (§28) والتنفيذ الحي مؤجل للمرحلة 11 (خارطة ما بعد MVP) —\nاللوحة تعلن ذلك ولا تدّعي تداولًا حيًا أبدًا.",
+  "properties": {
+    "mode": {
+      "minLength": 1,
+      "title": "Mode",
+      "type": "string"
+    },
+    "net_expectancy_r": {
+      "title": "Net Expectancy R",
+      "type": "number"
+    },
+    "profit_factor": {
+      "anyOf": [
+        {
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Profit Factor"
+    },
+    "report_ref": {
+      "minLength": 1,
+      "title": "Report Ref",
+      "type": "string"
+    },
+    "trades_count": {
+      "minimum": 0,
+      "title": "Trades Count",
+      "type": "integer"
+    },
+    "win_rate": {
+      "maximum": 1.0,
+      "minimum": 0.0,
+      "title": "Win Rate",
+      "type": "number"
+    }
+  },
+  "required": [
+    "mode",
+    "trades_count",
+    "net_expectancy_r",
+    "profit_factor",
+    "win_rate",
+    "report_ref"
+  ],
+  "title": "ExecutionView",
+  "type": "object"
+}

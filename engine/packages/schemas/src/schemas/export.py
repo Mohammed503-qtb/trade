@@ -30,6 +30,16 @@ from .backtest import (
     WFOSegment,
     WFOWindow,
 )
+from .dashboard import (
+    DashboardCounts,
+    DashboardOverview,
+    ExecutionView,
+    PanelField,
+    ReasoningTraceView,
+    RejectionView,
+    ScenarioView,
+    WebhookEventView,
+)
 from .envelope import EventEnvelope
 from .evidence import (
     AvailabilitySignature,
@@ -81,6 +91,12 @@ from .structure import (
     PremiumDiscountEventPayload,
     StructureBreakPayload,
     Swing,
+)
+from .tv import (
+    AlertRevalidation,
+    TVAlertEnvelope,
+    TVAlertPayload,
+    WebhookAck,
 )
 
 # كل النماذج الجذرية — مرتبة بالطبقة (مغلف ← سوق ← سيولة ← بنية ← دليل ←
@@ -158,6 +174,20 @@ ALL_MODELS: dict[str, type[BaseModel]] = {
     "RiskDecision": RiskDecision,
     # التعلم (§29.1)
     "ExperienceRecord": ExperienceRecord,
+    # جسر TradingView (§36 + D-07 + §31.6)
+    "TVAlertPayload": TVAlertPayload,
+    "TVAlertEnvelope": TVAlertEnvelope,
+    "AlertRevalidation": AlertRevalidation,
+    "WebhookAck": WebhookAck,
+    # اللوحة الدنيا (§35.2 + §35.3)
+    "PanelField": PanelField,
+    "ReasoningTraceView": ReasoningTraceView,
+    "ScenarioView": ScenarioView,
+    "RejectionView": RejectionView,
+    "ExecutionView": ExecutionView,
+    "WebhookEventView": WebhookEventView,
+    "DashboardCounts": DashboardCounts,
+    "DashboardOverview": DashboardOverview,
 }
 
 # مرجع فقرة الخطة لكل نموذج — يظهر في جدول التوثيق المولّد.
@@ -209,6 +239,18 @@ MODEL_PLAN_REFS: dict[str, str] = {
     "RewardRiskEstimate": "§23.5",
     "RiskDecision": "§31.3 (decisions)",
     "ExperienceRecord": "§29.1",
+    "TVAlertPayload": "§36 + D-07",
+    "TVAlertEnvelope": "§32 (الروح) + §36",
+    "AlertRevalidation": "§36 (خطوة 7) + §31.6",
+    "WebhookAck": "§6.4 + §36",
+    "PanelField": "§35.2",
+    "ReasoningTraceView": "§35.3",
+    "ScenarioView": "§35.1 (طبقتا 4-5) + §18",
+    "RejectionView": "§22 + §31.3",
+    "ExecutionView": "§28 + §51",
+    "WebhookEventView": "§31.6",
+    "DashboardCounts": "بوابة 10 (مطابقة الأرقام)",
+    "DashboardOverview": "§35.2 + §35.3",
     "SimulatedFill": "§26.1",
     "RealizedCosts": "§25.2 (المحقق)",
     "SimulatedTrade": "§26.1 + §30",

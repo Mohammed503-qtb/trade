@@ -1,0 +1,110 @@
+{
+  "$defs": {
+    "TVAlertPayload": {
+      "additionalProperties": false,
+      "description": "حمولة تنبيه Pine (§36 حرفيًا — الحقول الخام التي يرسلها المؤشر).\n\n``bar_time_ms`` زمن شمعة المصدر (مللي ثانية عصر-يونكس — ما يرسله\n``{{time}}``)، و``price`` سعر الإغلاق لحظة التنبيه (``{{close}}``).\nلا ``idempotency_key`` هنا عمدًا: D-07 يحسم أنه\n``sha256(schema_version|source|alert_id|instrument|bar_time|event)``\nويُشتق في الخادم حصرًا — المفتاح الوافد مدخل غير موثوق.\nلا أسرار ولا اعتماديات في الجسم إطلاقًا (§6.4/§37.1).",
+      "properties": {
+        "alert_id": {
+          "minLength": 1,
+          "title": "Alert Id",
+          "type": "string"
+        },
+        "bar_time_ms": {
+          "exclusiveMinimum": 0,
+          "title": "Bar Time Ms",
+          "type": "integer"
+        },
+        "event": {
+          "minLength": 1,
+          "title": "Event",
+          "type": "string"
+        },
+        "instrument": {
+          "minLength": 1,
+          "title": "Instrument",
+          "type": "string"
+        },
+        "price": {
+          "exclusiveMinimum": 0.0,
+          "title": "Price",
+          "type": "number"
+        },
+        "schema_version": {
+          "minLength": 1,
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "source": {
+          "minLength": 1,
+          "title": "Source",
+          "type": "string"
+        },
+        "timeframe": {
+          "minLength": 1,
+          "title": "Timeframe",
+          "type": "string"
+        }
+      },
+      "required": [
+        "schema_version",
+        "source",
+        "alert_id",
+        "instrument",
+        "bar_time_ms",
+        "timeframe",
+        "event",
+        "price"
+      ],
+      "title": "TVAlertPayload",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "description": "مغلف نشر التنبيه على NATS — روح §32 لعقود عابرة للناقل.\n\nالحمولة نموذج مُدار إصداريًا (لا سلاسل يدوية §32)، والمفتاح\n``idempotency_key`` هو اشتقاق D-07 المحسوب خادميًا — المستهلك\nاللاحق (إعادة التحقق القانوني ثم المخاطرة/التنفيذ §36 خطوة 7-8)\nيراه جزء العقد لا مدخلًا خارجيًا.",
+  "properties": {
+    "event_id": {
+      "format": "uuid",
+      "title": "Event Id",
+      "type": "string"
+    },
+    "event_time": {
+      "format": "date-time",
+      "title": "Event Time",
+      "type": "string"
+    },
+    "idempotency_key": {
+      "minLength": 1,
+      "title": "Idempotency Key",
+      "type": "string"
+    },
+    "payload": {
+      "$ref": "#/$defs/TVAlertPayload"
+    },
+    "receive_time": {
+      "format": "date-time",
+      "title": "Receive Time",
+      "type": "string"
+    },
+    "schema_version": {
+      "minLength": 1,
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "source": {
+      "minLength": 1,
+      "title": "Source",
+      "type": "string"
+    }
+  },
+  "required": [
+    "event_id",
+    "schema_version",
+    "idempotency_key",
+    "source",
+    "event_time",
+    "receive_time",
+    "payload"
+  ],
+  "title": "TVAlertEnvelope",
+  "type": "object"
+}

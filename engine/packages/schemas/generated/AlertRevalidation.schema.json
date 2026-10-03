@@ -1,0 +1,56 @@
+{
+  "additionalProperties": false,
+  "description": "نتيجة إعادة التحقق القانوني (§36 خطوة 7) — تُخزن مع التنبيه.\n\n``matched``: هل الحدث المعلن موجود في الحالة القانونية للمحرك عند\n``bar_time``؟ ``risk_outcome``: حكم المخاطرة الموثق إن وُجد سيناريو\nمرشح مطابق (لا أمر حي في MVP — التنفيذ مؤجل للمرحلة 11 معلنًا).",
+  "properties": {
+    "canonical_event": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Canonical Event"
+    },
+    "detail": {
+      "title": "Detail",
+      "type": "string"
+    },
+    "matched": {
+      "title": "Matched",
+      "type": "boolean"
+    },
+    "risk_outcome": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Risk Outcome"
+    },
+    "scenario_id": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Scenario Id"
+    }
+  },
+  "required": [
+    "matched",
+    "detail"
+  ],
+  "title": "AlertRevalidation",
+  "type": "object"
+}

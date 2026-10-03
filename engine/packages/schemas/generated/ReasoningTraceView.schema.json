@@ -1,0 +1,52 @@
+{
+  "additionalProperties": false,
+  "description": "أثر الاستدلال القابل للطي لسيناريو واحد (§35.3 حرفيًا).\n\n«لماذا نشط؟» و«ماذا ضده؟» و«لماذا الانتظار؟» — ثلاث قوائم نصية\nصريحة من سجل الدليل المدمج؛ أثمن من ملصق نسبة شرائية (§35.3).",
+  "properties": {
+    "direction": {
+      "minLength": 1,
+      "title": "Direction",
+      "type": "string"
+    },
+    "scenario_id": {
+      "minLength": 1,
+      "title": "Scenario Id",
+      "type": "string"
+    },
+    "template": {
+      "minLength": 1,
+      "title": "Template",
+      "type": "string"
+    },
+    "what_against": {
+      "default": [],
+      "items": {
+        "type": "string"
+      },
+      "title": "What Against",
+      "type": "array"
+    },
+    "why_active": {
+      "default": [],
+      "items": {
+        "type": "string"
+      },
+      "title": "Why Active",
+      "type": "array"
+    },
+    "why_wait": {
+      "default": [],
+      "items": {
+        "type": "string"
+      },
+      "title": "Why Wait",
+      "type": "array"
+    }
+  },
+  "required": [
+    "scenario_id",
+    "template",
+    "direction"
+  ],
+  "title": "ReasoningTraceView",
+  "type": "object"
+}

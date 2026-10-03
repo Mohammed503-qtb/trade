@@ -1,0 +1,46 @@
+{
+  "additionalProperties": false,
+  "description": "سجل رفض واحد (لا-تداول §22 أو كتم §22.2 أو رفض webhook).",
+  "properties": {
+    "as_of": {
+      "format": "date-time",
+      "title": "As Of",
+      "type": "string"
+    },
+    "decision_id": {
+      "minLength": 1,
+      "title": "Decision Id",
+      "type": "string"
+    },
+    "explanation": {
+      "minLength": 1,
+      "title": "Explanation",
+      "type": "string"
+    },
+    "reason_code": {
+      "minLength": 1,
+      "title": "Reason Code",
+      "type": "string"
+    },
+    "scenario_id": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Scenario Id"
+    }
+  },
+  "required": [
+    "decision_id",
+    "reason_code",
+    "explanation",
+    "as_of"
+  ],
+  "title": "RejectionView",
+  "type": "object"
+}

@@ -14,8 +14,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Z.ai Code Scaffold - AI-Powered Development",
-  description: "Modern Next.js scaffold optimized for AI-powered development with Z.ai. Built with TypeScript, Tailwind CSS, and shadcn/ui.",
+  title: "AI Market Reasoning Engine — اللوحة الدنيا",
+  description: "لوحة المحرك الدنيا — حالة السوق والسيناريوهات وأثر الاستدلال (المرحلة 10 MVP).",
   keywords: ["Z.ai", "Next.js", "TypeScript", "Tailwind CSS", "shadcn/ui", "AI development", "React"],
   authors: [{ name: "Z.ai Team" }],
   icons: {

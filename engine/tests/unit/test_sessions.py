@@ -980,13 +980,23 @@ class TestPositionalProperties:
     def test_contains_matches_circular_walk_oracle(
         self, start: int, end: int, minute: int, day_offset: int
     ) -> None:
-        """oracle مستقل: مشية دائرية من البداية حتى النهاية تبني مجموعة
-        الدقائق المغطاة — العضوية الحرفية [بداية، نهاية) مع الالتفاف."""
+        """oracle مستقل: بناء مجموعة الدقائق المغطاة بالعضوية الحرفية
+        [بداية، نهاية) مع الالتفاف عند بداية > نهاية.
+
+        إصلاح موثق (بوابة 10): المشية الدائرية الأصلية كانت تقارن المؤشر
+        الملتف (بمودولو 1440) بنهاية غير ملتفة — عند ``end=1440`` (حد
+        منتصف الليل) لا يبلغ المؤشر النهاية أبدًا فتغطي المشية اليوم كله
+        زورًا وتخالف الدلالة الخطية للنافذة (نهاية 1440 = حد لا يشمل
+        الدقيقة 0). بناء الفترة الصريح أدناه يطابق العضوية الحرفية في
+        كل الحدود بما فيها 1440 — خلل كامن في العرّافة (لا في النافذة)
+        كشفته أمثلة derandomize المتغيرة مع توسيع الطبقة (بوابة 10).
+        """
         window = SessionWindow("PROP", start, end, "")
-        covered: set[int] = set()
-        cursor = start
-        while cursor != end and len(covered) < _MINUTES_PER_DAY:
-            covered.add(cursor)
-            cursor = (cursor + 1) % _MINUTES_PER_DAY
+        if start < end:
+            covered: set[int] = set(range(start, end))
+        elif start > end:
+            covered = set(range(start, _MINUTES_PER_DAY)) | set(range(0, end))
+        else:
+            covered = set()  # نافذة فارغة (بداية = نهاية) — عقد المشية الأصلية
         moment = datetime(2026, 1, 1, tzinfo=UTC) + timedelta(days=day_offset, minutes=minute)
         assert window.contains(moment) is (minute in covered)

@@ -19,6 +19,7 @@ from .ablation_evaluator import (
     evaluate_directional,
 )
 from .backtest import run_backtest, sort_specs
+from .mirror import run_mirror, validate_pine_source
 
 __all__ = [
     "FEATURE_POLARITY",
@@ -37,7 +38,9 @@ __all__ = [
     "placeholder_evaluator",
     "run_ablation",
     "run_backtest",
+    "run_mirror",
     "sort_specs",
+    "validate_pine_source",
 ]
 
 __version__ = "0.1.0"

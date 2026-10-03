@@ -1,0 +1,40 @@
+{
+  "additionalProperties": false,
+  "description": "خلاصة مطابقة اللوحة مع أرقام البوابات الموثقة (فحص البوابة).",
+  "properties": {
+    "active_scenarios": {
+      "minimum": 0,
+      "title": "Active Scenarios",
+      "type": "integer"
+    },
+    "authorized": {
+      "minimum": 0,
+      "title": "Authorized",
+      "type": "integer"
+    },
+    "rejected": {
+      "minimum": 0,
+      "title": "Rejected",
+      "type": "integer"
+    },
+    "risk_decisions": {
+      "minimum": 0,
+      "title": "Risk Decisions",
+      "type": "integer"
+    },
+    "simulated_trades": {
+      "minimum": 0,
+      "title": "Simulated Trades",
+      "type": "integer"
+    }
+  },
+  "required": [
+    "risk_decisions",
+    "authorized",
+    "rejected",
+    "simulated_trades",
+    "active_scenarios"
+  ],
+  "title": "DashboardCounts",
+  "type": "object"
+}

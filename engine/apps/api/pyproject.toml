@@ -3,7 +3,24 @@ name = "engine-api"
 version = "0.1.0"
 description = "FastAPI: webhook، حالة، سيناريوهات (§5.5)"
 requires-python = ">=3.12"
-dependencies = ["fastapi>=0.115", "uvicorn[standard]>=0.32", "engine-schemas", "engine-common"]
+dependencies = [
+    "fastapi>=0.115",
+    "uvicorn[standard]>=0.32",
+    "asyncpg>=0.30",
+    "nats-py>=2.8",
+    "structlog>=24.4",
+    "orjson>=3.10",
+    "engine-schemas",
+    "engine-common",
+    "engine-market-state",
+    "engine-structure",
+    "engine-liquidity",
+    "engine-scenarios",
+    "engine-risk",
+    "engine-learning",
+    "engine-fusion",
+    "engine-features",
+]
 
 [build-system]
 requires = ["hatchling"]

@@ -1,0 +1,428 @@
+//@version=6
+// ═══════════════════════════════════════════════════════════════════════════
+// engine_core — مكتبة أنماط المحرك المشتركة (build_plan §D-10.1)
+//
+// مرآة حتمية لمنطق المحرك الخارجي (AI Market Reasoning Engine) على
+// المجموعة المشتركة من الحسابات: ATR وايلدر (§16)، المتطرفات الفراكتلية
+// بتأكيد متأخر (§11.1)، خريطة السيولة الكبرى المرسَّمة من المتطرفات
+// (§10.1-§10.3)، آلة اجتياح السيولة (§10.4)، وكسر البنية BOS/CHoCH
+// (§11.2-§11.3).
+//
+// مبادئ ملزمة:
+//   §27.1  حالات الإشارة الأربع — DEVELOPING معلوماتي فقط، وCONFIRMED
+//          وحده يؤهل التنبيه القادر على الأوامر.
+//   §27.2  البيانات من الإطار الأعلى بقيم مؤكدة حصرًا (لا رفرفة) —
+//          تقنية «القيمة المؤكدة» عبر إزاحة شمعة واحدة [1] مع
+//          barmerge.lookahead_on (النمط الموثق في وثائق TradingView).
+//   §27.4  التنبيهات القادرة على الأوامر من منطق مؤكد حصرًا.
+//   §37.1  لا أسرار ولا اعتماديات في مصدر Pine إطلاقًا — التوكن في
+//          رابط الويبهوك عند ضبط التنبيه، لا هنا أبدًا.
+//
+// مفتاح الـidempotency (D-07) يشتقه الخادم حصرًا من الحقول الخمسة الخام
+// (schema_version|source|alert_id|instrument|bar_time|event) — لا يرسل
+// من هنا ولا يوضع في جسم التنبيه.
+//
+// كل المعاملات المطبَّعة مضاعفات ATR (روح ADR-015 في المحرك): لا ثابت
+// سعري مطلق واحد في هذه المكتبة.
+//
+// ملاحظة نطاق موثقة (D-08): مناطق القمم/قيعان الجلسة والأسبوع إثراء
+// جانب-المحرك حصرًا — خارج المجموعة المشتركة للمكتبة؛ الفروق الموثقة
+// تُعلن في تقرير المرآة ولا تعد فشلًا.
+// ═══════════════════════════════════════════════════════════════════════════
+library("engine_core", overlay = true)
+
+// ─────────────────────────── الثوابت الموثقة ───────────────────────────
+// مضاعفات العتبة المطبَّعة — تطابق DEFAULT_MULTIPLIERS في المحرك حرفيًا.
+export const string EC_SCHEMA_VERSION     = "1.0.0"
+export const int   EC_ATR_PERIOD          = 14   // فترة ATR وايلدر (§16)
+export const int   EC_SWING_CONFIRM_BARS  = 3    // تأخير تأكيد المتطرف (§11.1)
+export const float EC_STRUCT_BUF_MULT     = 0.5  // STRUCTURAL_LEVEL_BUFFER × ATR
+export const float EC_SWEEP_TOL_MULT      = 0.25 // SWEEP_TOLERANCE × ATR
+export const float EC_DISP_MIN_MULT       = 1.0  // DISPLACEMENT_MIN × ATR (BOS)
+export const float EC_EQUAL_TOL_MULT      = 0.25 // EQUAL_LEVEL_TOLERANCE × ATR
+export const float EC_SWEEP_WIDTH_FRACTION = 0.5 // حصة عرض المنطقة من العتبة (§10.4)
+export const int   EC_SWEEP_EVAL_WINDOW   = 3    // نافذة تقييم الاجتياح (§10.4 شرط 4)
+export const int   EC_SWEEP_ACCEPT_CLOSES = 2    // إغلاقات القبول المؤهلة
+
+// حالات الإشارة (§27.1) — قيم مطابقة لتعداد المحرك SignalState.
+export const string SIGNAL_DEVELOPING  = "DEVELOPING"
+export const string SIGNAL_CONFIRMED   = "CONFIRMED"
+export const string SIGNAL_INVALIDATED = "INVALIDATED"
+export const string SIGNAL_RETRACTED   = "RETRACTED"
+
+// ─────────────────────────── الأنواع ───────────────────────────
+
+// متطرف مؤكد (§11.1) — يعمَل بعد اكتمال تأخير التأكيد حصرًا.
+export type Swing
+    float   price          // سعر القمة/القاع
+    bool    is_high        // قطبية القمة
+    string  scope          // "EXTERNAL" | "INTERNAL"
+    float   strength       // tanh(excess/atr) ∈ [0,1]
+    int     bar_index      // فهرس شمعة القمة/القاع
+    int     confirm_index  // فهرس شمعة التأكيد (bar_index + confirm_bars)
+
+// منطقة سيولة كبرى مرسَّمة من متطرف — نطاق [low, high] وجانب.
+// is_buy_side: منطقة عند متطرف قمة (سيولة فوق السعر — أوامر الشراء المتوقفة فوق القمم
+// ب convention المحرك)؛ البيعية عند القيعان تحته.
+export type Zone
+    float  price_low
+    float  price_high
+    bool   is_buy_side
+    string state          // "ACTIVE" | "SWEPT" | "CONSUMED" | "INVALIDATED"
+    int    origin_index   // معرف تسلسلي فريد (طول المصفوفة عند الإنشاء — قد تتكون منطقتان بنفس الشمعة ففهرسها ليس فريدًا)
+    string source         // "PRIOR_SWING" | "EQUAL_LEVEL"
+
+// حلقة تفاعل الاجتياح (§10.4) — حالة لكل منطقة نشطة مهتمة.
+export type Interaction
+    int    z_origin        // مفتاح المنطقة: فهرس إنشائها (ترتيب المسح الحتمي)
+    float  z_price_low    // النطاق الملتقط لحظة بدء التفاعل (مرجع ثابت)
+    float  z_price_high
+    bool   z_buy_side
+    int    start_index
+    int    window_start   // −1 ما لم تُفتح نافذة التقييم
+    int    closes_in_window
+    int    qualifying_closes
+    float  max_excursion
+    bool   penetrated_ever
+    bool   penetration_reached
+
+// مستوى بنية لكسر BOS — متطرف حي غير مكسور.
+export type BosLevel
+    Swing  swing
+    bool   broken
+
+// ─────────────────────────── ATR وايلدر (§16) ───────────────────────────
+// الصيغة الخام: بذرة SMA عند الفهرس period−1 ثم استدعاء ذاتي
+// atr[i] = (atr[i−1]×(period−1) + tr[i]) / period — وهو عين
+// ta.rma(ta.tr(true), period) في Pine وعين wilder_atr في المحرك.
+export f_atrWilder(simple int period) =>
+    period == 1 ? ta.tr(true) : ta.rma(ta.tr(true), period)
+
+// ───────────────── ATR بسياسة المحرك (VolatilityEngine) ─────────────────
+// مخزن دائري بطول history_bars وإعادة حساب wilder_atr على النافذة كاملة
+// كل شريط وأخذ آخر عنصر — لا تراكم غير محدود أبدًا (ذاكرة محدودة
+// موثقة في المحرك). الكواشف كلها تستهلك هذا (المجموعة المشتركة
+// الفعلية — انظر تقرير المرآة D-08): بذرة SMA على أول period من
+// النافذة فاستدعاء ذاتي حتى آخرها.
+export f_atrBounded(simple int period, simple int history_bars) =>
+    var array<float> tr_buf = array.new<float>()
+    tr_buf.push(ta.tr(true))
+    if tr_buf.size() > history_bars
+        tr_buf.shift()
+    float out = na
+    if bar_index > 0 and tr_buf.size() >= period
+        seed = 0.0
+        for k = 0 to period - 1
+            seed += tr_buf.get(k)
+        out := seed / period
+        for k = period to tr_buf.size() - 1
+            out := (out * (period - 1) + tr_buf.get(k)) / period
+    out
+
+// ─────────────────────────── قارئ HTF المؤكد (§27.2) ───────────────────────────
+// تقنية القيمة المؤكدة ضد الرفرفة: طلب إطار أعلى بقيمة الشمعة المغلقة
+// السابقة [1] مع lookahead_on — لا قيمة متطورة من الإطار الأعلى أبدًا.
+export f_htfAtrConfirmed(simple string tf, simple int period) =>
+    request.security(syminfo.tickerid, tf, f_atrWilder(period)[1], lookahead = barmerge.lookahead_on)
+
+export f_htfCloseConfirmed(simple string tf) =>
+    request.security(syminfo.tickerid, tf, close[1], lookahead = barmerge.lookahead_on)
+
+// ═══════════════════════════════════════════════════════════════════════════
+// كاشف المتطرفات الفراكتلية (§11.1) — آلة حالة لكل قطبية.
+//
+//   شرط الدخول: high[i] > high[i−1] (قمة) / low[i] < low[i−1] (قاع)
+//   شرط الإبطال: قمة أعلى قطعيًا للمرشح (المساواة لا تُبطل — ليست «قمة أعلى»)
+//   التأكيد: اكتمال confirm_bars شموع دون إبطال — البث عند شمعة التأكيد
+//   الإطار الخارجي: القمة تُوسِّعه فقط إذا تجاوزت قطعيًا آخر قمة خارجية
+//   القوة: tanh((السعر − الوصيف)/ATR) — الوصيف أقصى قمة/أدنى قاع داخل
+//   نافذة التأكيد؛ صفر معلن عند غياب ATR أو انعدام البروز.
+// ═══════════════════════════════════════════════════════════════════════════
+export type SwingState
+    float  cand_price      // مرشح معلق (na = لا مرشح)
+    int    cand_index
+    int    confirm_count
+    float  runner_up
+    float  prev_extreme    // مدى الشمعة السابقة لهذه القطبية
+    float  external_anchor // آخر متطرف خارجي مؤكد (na قبل التأسيس)
+
+export f_newSwingState() =>
+    SwingState.new(cand_price = na, cand_index = 0, confirm_count = 0, runner_up = na, prev_extreme = na, external_anchor = na)
+
+// معالجة قطبية واحدة لكل شمعة مغلقة — يرجع Swing أو na.
+export method f_updatePolarity(SwingState this, bool is_high, float extreme, float atr, simple int confirm_bars) =>
+    Swing result = na
+    entryEdge() =>
+        not na(this.prev_extreme) and (is_high ? extreme > this.prev_extreme : extreme < this.prev_extreme)
+    seedRunner() =>
+        is_high ? -1.0e100 : 1.0e100
+    if na(this.cand_price)
+        // (1) لا مرشح معلق: ترشيح عند تحقق حافة الدخول الفراكتلية.
+        if entryEdge()
+            this.cand_price    := extreme
+            this.cand_index    := bar_index
+            this.confirm_count := 0
+            this.runner_up     := seedRunner()
+    else if is_high ? extreme > this.cand_price : extreme < this.cand_price
+        // (2) إبطال: المرشح «لم يوجد أبدًا»؛ والمُبطِل مرشح جديد فورًا
+        //     (حافة دخوله متحققة بالبرهان الموثق في المحرك).
+        this.cand_price    := extreme
+        this.cand_index    := bar_index
+        this.confirm_count := 0
+        this.runner_up     := seedRunner()
+    else
+        // (3) استمرار: عدّ التأكيد وتحديث الوصيف.
+        this.confirm_count += 1
+        this.runner_up := is_high ? math.max(this.runner_up, extreme) : math.min(this.runner_up, extreme)
+        if this.confirm_count >= confirm_bars
+            // التصنيف الخارجي/الداخلي قبل تحديث المرتكز الخارجي.
+            is_external = na(this.external_anchor) or (is_high ? this.cand_price > this.external_anchor : this.cand_price < this.external_anchor)
+            // القوة: tanh(excess/atr).
+            excess = is_high ? this.cand_price - this.runner_up : this.runner_up - this.cand_price
+            strength = na(atr) or excess <= 0.0 ? 0.0 : atr <= 0.0 ? 1.0 : math.tanh(excess / atr)
+            result := Swing.new(
+                 price = this.cand_price, is_high = is_high,
+                 scope = is_external ? "EXTERNAL" : "INTERNAL",
+                 strength = strength, bar_index = this.cand_index,
+                 confirm_index = bar_index)
+            if is_external
+                this.external_anchor := this.cand_price
+            // شمعة الحسم قد تبدأ ترشيحًا جديدًا — استمرارية بلا فجوة.
+            this.cand_price    := na
+            this.confirm_count := 0
+            if entryEdge()
+                this.cand_price    := extreme
+                this.cand_index    := bar_index
+                this.confirm_count := 0
+                this.runner_up     := seedRunner()
+    this.prev_extreme := extreme
+    result
+
+// ═══════════════════════════════════════════════════════════════════════════
+// خريطة السيولة الكبرى (§10.1-§10.3) — هضم متطرف مؤكد بمنطقة.
+// المتطرف الجديد ضمن EQUAL_LEVEL_TOLERANCE (0.25×ATR) من حافتي نطاق قائم
+// نشط بنفس الجانب ومصدره متطرفات ⇒ عنقود واحد يمتد [min, max] وتُبطَل كل
+// المناطق المطابقة القديمة؛ وإلا منطقة PRIOR_SWING منفردة عند سعره.
+// ═══════════════════════════════════════════════════════════════════════════
+export method f_ingestSwing(array<Zone> zones, Swing sw, float atr) =>
+    bool merged = false
+    if not na(atr) and atr > 0.0
+        tolerance = EC_EQUAL_TOL_MULT * atr
+        if zones.size() > 0
+            cluster_idx = -1
+            for i = 0 to zones.size() - 1
+                z = zones.get(i)
+                if z.state == "ACTIVE" and z.is_buy_side == sw.is_high and (z.source == "PRIOR_SWING" or z.source == "EQUAL_LEVEL")
+                    if sw.price >= z.price_low - tolerance and sw.price <= z.price_high + tolerance
+                        if cluster_idx == -1
+                            // أول مطابقة تصبح العنقود وتمتص المتطرف الجديد.
+                            cluster_idx := i
+                            z.source := "EQUAL_LEVEL"
+                            z.price_low := math.min(z.price_low, sw.price)
+                            z.price_high := math.max(z.price_high, sw.price)
+                        else
+                            // عضو إضافي في العنقود نفسه — يوسّعه ويُبطَل.
+                            cz = zones.get(cluster_idx)
+                            cz.price_low := math.min(cz.price_low, z.price_low)
+                            cz.price_high := math.max(cz.price_high, z.price_high)
+                            z.state := "INVALIDATED"
+                        merged := true
+    if not merged
+        zones.push(Zone.new(
+             price_low = sw.price, price_high = sw.price,
+             is_buy_side = sw.is_high, state = "ACTIVE",
+             origin_index = zones.size(), source = "PRIOR_SWING"))
+
+// ═══════════════════════════════════════════════════════════════════════════
+// آلة اجتياح السيولة (§10.4) — مسح المناطق النشطة بترتيب الإنشاء:
+//   لمس (تقاطع مدى الشمعة مع فاصل المنطقة) ⇒ بدء تفاعل بنطاق ملتقط ثابت.
+//   تغلغل وراء الحافة البعيدة ⇒ رصد أقصى تجاوز (يُتابع ولو غاب ATR).
+//   العتبة max(0.25×ATR, 0.5×عرض المنطقة) ⇒ penetration_reached.
+//   أول تغلغل مؤهل المقياس ⇒ فتح نافذة تقييم 3 شموع.
+//   داخل النافذة: استرجاع خلف الحافة القريبة ⇒ SWEEP إن بلغت العتبة
+//   (وإلا FAILED بلا بث)؛ إغلاقان مؤهلان وراء الحافة البعيدة مع بلوغ
+//   العتبة ⇒ BREAK_AND_ACCEPT؛ انقضاء ⇒ PARTIAL/UNKNOWN بلا بث.
+//   خارج النافذة: مغادرة خلف الحافة القريبة تفشل الاجتياح (بلا بث).
+//   عبور قافز حاسم بلا لمس (المدى كله وراء الحافة البعيدة + هامش
+//   0.5×ATR خلفها) ⇒ إبطال المنطقة (INVALIDATED).
+// ═══════════════════════════════════════════════════════════════════════════
+export method f_sweepScan(array<Zone> zones, array<Interaction> interactions, float atr) =>
+    string event = ""     // "" | "SWEEP" | "ACCEPT"
+    float  ev_price = na
+    int    ev_zone_origin = na
+    bool   ev_buy_side = na
+    bool   atr_ok = not na(atr) and atr > 0.0
+    // (طي تفاعلات المناطق الميتة أولًا)
+    if interactions.size() > 0
+        for i = interactions.size() - 1 to 0
+            inter = interactions.get(i)
+            alive = false
+            if zones.size() > 0
+                for j = 0 to zones.size() - 1
+                    z = zones.get(j)
+                    if z.origin_index == inter.z_origin and z.state == "ACTIVE"
+                        alive := true
+            if not alive
+                interactions.remove(i)
+    // (مسح المناطق النشطة بترتيب الإنشاء — الحتمية عند تعدد التفاعلات)
+    if zones.size() > 0
+        for zi = 0 to zones.size() - 1
+            z = zones.get(zi)
+            if z.state != "ACTIVE"
+                continue
+            inter_idx = -1
+            if interactions.size() > 0
+                for ii = 0 to interactions.size() - 1
+                    if interactions.get(ii).z_origin == z.origin_index
+                        inter_idx := ii
+            if inter_idx == -1
+                touched = high >= z.price_low and low <= z.price_high
+                if not touched
+                    if atr_ok
+                        buffer = EC_STRUCT_BUF_MULT * atr
+                        decisive = z.is_buy_side ? (low > z.price_high and close - z.price_high >= buffer) : (high < z.price_low and z.price_low - close >= buffer)
+                        if decisive
+                            z.state := "INVALIDATED"
+                    continue
+                interactions.push(Interaction.new(
+                     z_origin = z.origin_index,
+                     z_price_low = z.price_low, z_price_high = z.price_high,
+                     z_buy_side = z.is_buy_side, start_index = bar_index,
+                     window_start = -1, closes_in_window = 0, qualifying_closes = 0,
+                     max_excursion = 0.0, penetrated_ever = false, penetration_reached = false))
+                inter_idx := interactions.size() - 1
+            inter = interactions.get(inter_idx)
+            // رصد التغلغل وراء الحافة البعيدة.
+            if inter.z_buy_side
+                if high >= inter.z_price_high
+                    inter.max_excursion   := math.max(inter.max_excursion, high - inter.z_price_high)
+                    inter.penetrated_ever := true
+            else
+                if low <= inter.z_price_low
+                    inter.max_excursion   := math.max(inter.max_excursion, inter.z_price_low - low)
+                    inter.penetrated_ever := true
+            // العتبة والنافذة.
+            if atr_ok
+                vol_part = EC_SWEEP_TOL_MULT * atr
+                width = inter.z_price_high - inter.z_price_low
+                required = math.max(vol_part, width * EC_SWEEP_WIDTH_FRACTION)
+                if inter.max_excursion >= required
+                    inter.penetration_reached := true
+                if inter.penetrated_ever and inter.window_start == -1
+                    inter.window_start      := bar_index
+                    inter.closes_in_window  := 0
+                    inter.qualifying_closes := 0
+            // الحسم.
+            if inter.window_start != -1
+                inter.closes_in_window += 1
+                beyond_far = inter.z_buy_side ? close > inter.z_price_high : close < inter.z_price_low
+                if beyond_far
+                    inter.qualifying_closes += 1
+                reclaimed = inter.z_buy_side ? close < inter.z_price_low : close > inter.z_price_high
+                if reclaimed
+                    if inter.penetration_reached
+                        event := "SWEEP"
+                        ev_price := close
+                        ev_zone_origin := z.origin_index
+                        ev_buy_side := inter.z_buy_side
+                        z.state := "SWEPT"
+                    interactions.remove(inter_idx)
+                else if inter.qualifying_closes >= EC_SWEEP_ACCEPT_CLOSES and inter.penetration_reached
+                    event := "ACCEPT"
+                    ev_price := close
+                    ev_zone_origin := z.origin_index
+                    ev_buy_side := inter.z_buy_side
+                    z.state := "CONSUMED"
+                    interactions.remove(inter_idx)
+                else if bar_index - inter.window_start >= EC_SWEEP_EVAL_WINDOW - 1
+                    interactions.remove(inter_idx)
+            else
+                reclaimed_early = inter.z_buy_side ? close < inter.z_price_low : close > inter.z_price_high
+                if reclaimed_early
+                    interactions.remove(inter_idx)
+    [event, ev_price, ev_zone_origin, ev_buy_side]
+
+// ═══════════════════════════════════════════════════════════════════════════
+// محرك كسر البنية (§11.2-§11.3) — الإغلاق وحده (لا مسار فتيل: الافتراضي
+// الموثق wick_breaks_valid=false في المحرك). المرجع: أقرب سقف حي تحت
+// الإغلاق صعودًا / أقرب أرضية حية فوقه هبوطًا. الكسر: breach ≥ 1.0×ATR.
+// عند الكسر تُبتلع كل مستويات القطبية الأضعف وراء امتداد الكسر.
+// التصنيف: خارجي موافق للإطار (أو تأسيس أول) = EXTERNAL_BOS؛ خارجي معاكس
+// للإطار القائم = CHOCH (أول انتهاك لنمط الاستمرار §11.3)؛ داخلي =
+// INTERNAL_BOS (لا يمس آلة الإطار أبدًا).
+// ═══════════════════════════════════════════════════════════════════════════
+export type BosState
+    array<BosLevel> levels
+    int             framework_dir   // 0 مؤسسًا بعد / +1 صاعدًا / −1 هابطًا
+
+export f_newBosState() =>
+    BosState.new(levels = array.new<BosLevel>(), framework_dir = 0)
+
+export method f_onSwing(BosState this, Swing sw) =>
+    this.levels.push(BosLevel.new(swing = sw, broken = false))
+
+export method f_bosUpdate(BosState this, float atr) =>
+    string up_event = ""
+    float  up_breach = na
+    Swing  up_swing = na
+    string dn_event = ""
+    float  dn_breach = na
+    Swing  dn_swing = na
+    if (not na(atr)) and atr > 0.0 and this.levels.size() > 0
+        threshold = EC_DISP_MIN_MULT * atr
+        for dir = 1 to 2 // 1 = UP ثم 2 = DOWN — ترتيب حتمي (حدثان ممكنان)
+            is_up = dir == 1
+            // المرجع: أقرب مستوى حي للقطبية تحت/فوق الإغلاق.
+            ref_idx = -1
+            ref_gap = 1.0e100
+            for i = 0 to this.levels.size() - 1
+                lv = this.levels.get(i)
+                if not lv.broken and lv.swing.is_high == is_up
+                    if is_up
+                        // المساواة ليست عبورًا فلا تُختار (عقد المحرك حرفيًا).
+                        if lv.swing.price < close and close - lv.swing.price < ref_gap
+                            ref_gap := close - lv.swing.price
+                            ref_idx := i
+                    else
+                        if lv.swing.price > close and lv.swing.price - close < ref_gap
+                            ref_gap := lv.swing.price - close
+                            ref_idx := i
+            if ref_idx >= 0
+                lv = this.levels.get(ref_idx)
+                b = is_up ? close - lv.swing.price : lv.swing.price - close
+                if b >= threshold
+                    et = lv.swing.scope == "EXTERNAL" ? (this.framework_dir == 0 or this.framework_dir == dir ? "EXTERNAL_BOS" : "CHOCH") : "INTERNAL_BOS"
+                    if is_up
+                        up_event  := et
+                        up_breach := b
+                        up_swing  := lv.swing
+                    else
+                        dn_event  := et
+                        dn_breach := b
+                        dn_swing  := lv.swing
+                    if lv.swing.scope == "EXTERNAL"
+                        this.framework_dir := dir
+                    // ابتلاع المستويات الأضعف وراء امتداد الكسر (الإغلاق).
+                    for i = 0 to this.levels.size() - 1
+                        lv2 = this.levels.get(i)
+                        if not lv2.broken and lv2.swing.is_high == is_up
+                            beyond = is_up ? lv2.swing.price < close : lv2.swing.price > close
+                            if beyond
+                                lv2.broken := true
+    [up_event, up_breach, up_swing, dn_event, dn_breach, dn_swing]
+
+// ─────────────────────────── حمولة التنبيه (§36) ───────────────────────────
+// جسم JSON خام بالحقول الثمانية — بلا أسرار وبلا مفتاح idempotency
+// (يشتقه الخادم حصرًا وفق D-07). alert_id حتمي محليًا: أداة|إطار|حدث|زمن
+// الشمعة — نفس المفتاح من نفس الشمعة يعطي نفس التنبيه دائمًا.
+export f_alertPayload(string event_name) =>
+    alert_id = str.format("{0}|{1}|{2}|{3}", syminfo.tickerid, timeframe.period, event_name, time)
+    str.format('{"schema_version":"{1}","source":"tradingview","alert_id":"{2}","instrument":"{3}","bar_time":{4},"timeframe":"{5}","event":"{6}","price":{7}}',
+         EC_SCHEMA_VERSION, alert_id, syminfo.tickerid, time, timeframe.period, event_name, str.tostring(close, format.mintick))
+
+// ─────────────────────────── حالة الإشارة (§27.1) ───────────────────────────
+// كل منطق هذه المكتبة يعمل على الشموع المغلقة حصرًا (barstate.isconfirmed
+// عند المستدعي) فمخرجاته CONFIRMED بالتعريف — الحالة المتطورة عرضية
+// فقط (طبقة معلوماتية لا تفوّض أمرًا حيًا قط — §27.4).
+export f_signalStateOf(bool confirmed_cond, bool invalidated_cond) =>
+    invalidated_cond ? SIGNAL_INVALIDATED : confirmed_cond ? SIGNAL_CONFIRMED : SIGNAL_DEVELOPING
